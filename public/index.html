@@ -6,7 +6,7 @@
 <title>🌿 Grow Simulator 2.0</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{--bg:#0d1a0d;--text:#e0e0e0;--hint:#8a9a8a;--button:#2e7d32;--button-text:#fff;--secondary:#1a2e1a;--accent:#4caf50;--danger:#e53935;--warning:#ffb300;--purple:#7b1fa2;--blue:#1e88e5;--soil:#3e2723;--pot-color:#5d4037}
+:root{--bg:#0d1a0d;--text:#e0e0e0;--hint:#8a9a8a;--button:#2e7d32;--button-text:#fff;--secondary:#1a2e1a;--accent:#4caf50;--danger:#e53935;--warning:#ffb300;--purple:#7b1fa2;--blue:#1e88e5}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:20px;overflow-x:hidden}
 .header{position:sticky;top:0;z-index:100;background:rgba(13,26,13,0.92);backdrop-filter:blur(12px);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(76,175,80,0.2)}
@@ -86,17 +86,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .room-info{background:rgba(26,46,26,0.8);border-radius:12px;padding:12px;margin-bottom:10px;font-size:12px;border:1px solid rgba(255,255,255,0.05)}
 .ref-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:14px;padding:14px;text-align:center}
 .section-title{font-size:10px;font-weight:600;color:var(--hint);margin:10px 0 4px;text-transform:uppercase;letter-spacing:0.5px}
-.pot-glow{position:absolute;inset:-20px;border-radius:50%;pointer-events:none;opacity:0;transition:opacity 0.8s ease;z-index:0}
-.pot-glow.active{opacity:0.25}
-.glow-cfl{background:radial-gradient(circle,#ffeb3b 0%,transparent 70%)}
-.glow-led{background:radial-gradient(circle,#4caf50 0%,transparent 70%)}
-.glow-hps{background:radial-gradient(circle,#ff9800 0%,transparent 70%)}
-.glow-quantum{background:radial-gradient(circle,#e040fb 0%,transparent 70%)}
-.pot-glow.pulsing{animation:pulse-glow 2s ease-in-out infinite}
-@keyframes pulse-glow{0%,100%{opacity:0.15}50%{opacity:0.35}}
-.light-beam{position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:60%;height:40px;background:linear-gradient(to bottom,rgba(255,255,200,0.2),transparent);clip-path:polygon(20% 0%,80% 0%,100% 100%,0% 100%);pointer-events:none;opacity:0;transition:opacity 0.8s ease;z-index:1}
-.light-beam.active{opacity:0.6}
-.power-indicator{display:flex;align-items:center;gap:4px;font-size:8px;padding:1px 6px;border-radius:8px;background:rgba(255,255,255,0.05);z-index:1;position:relative}
 @media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:10px;gap:4px}.stat{padding:2px 6px}.plant-container{height:80px}.plant-container svg{width:65px;height:80px}}
 </style>
 </head>
@@ -396,6 +385,50 @@ function render(){renderHeader();renderFarm();renderShop();renderInventory();ren
 function initDaily(){}
 function renderDaily(){}
 function triggerEvent(){}
+
+// ============================================================
+// ====== ФИКС ДЛЯ ТАБОВ (исправляет переключение) ======
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Фикс табов активирован!');
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🔄 Переключение на:', this.dataset.tab);
+            
+            // Убираем активный класс у всех табов
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            // Добавляем активный класс текущему табу
+            this.classList.add('active');
+            
+            // Показываем нужную секцию
+            const tabName = this.dataset.tab;
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            const targetSection = document.getElementById('section-' + tabName);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                console.log('✅ Показана секция:', tabName);
+            } else {
+                console.warn('❌ Секция не найдена: section-' + tabName);
+            }
+        });
+    });
+});
+
+// Запускаем фикс ещё раз, если DOM уже загружен
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const tabName = this.dataset.tab;
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            const targetSection = document.getElementById('section-' + tabName);
+            if (targetSection) targetSection.classList.add('active');
+        });
+    });
+}
 
 load();render();
 
