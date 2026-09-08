@@ -239,59 +239,59 @@ if (tg) {
 }
 
 // ============================================================
-// ====== ДАННЫЕ (ВСЕ С НАЗВАНИЯМИ) ======
+// ====== ДАННЫЕ (ИСПРАВЛЕНЫ) ======
 // ============================================================
 
 // СОРТА
 const STRAINS = [
-    {id:'skunk',name:'🦨 Skunk',seedPrice:50,baseTime:120,yield:3,sellPrice:50,energyCost:5,unlock:1,quality:1},
-    {id:'haze',name:'💜 Purple Haze',seedPrice:130,baseTime:160,yield:5,sellPrice:85,energyCost:8,unlock:3,quality:1.2},
-    {id:'widow',name:'⚪ White Widow',seedPrice:280,baseTime:200,yield:7,sellPrice:140,energyCost:12,unlock:5,quality:1.4},
-    {id:'alien',name:'👽 Alien Kush',seedPrice:550,baseTime:240,yield:12,sellPrice:220,energyCost:18,unlock:8,quality:1.6},
-    {id:'og',name:'🔥 OG Kush',seedPrice:950,baseTime:280,yield:18,sellPrice:340,energyCost:25,unlock:10,quality:1.8},
-    {id:'cheese',name:'🧀 UK Cheese',seedPrice:400,baseTime:180,yield:10,sellPrice:180,energyCost:15,unlock:6,quality:1.3},
-    {id:'lemon',name:'🍋 Lemon Haze',seedPrice:350,baseTime:170,yield:8,sellPrice:160,energyCost:14,unlock:4,quality:1.2},
-    {id:'blue',name:'💎 Blue Dream',seedPrice:600,baseTime:210,yield:14,sellPrice:250,energyCost:20,unlock:7,quality:1.5},
-    {id:'cookies',name:'🍪 Girl Scout Cookies',seedPrice:750,baseTime:220,yield:16,sellPrice:290,energyCost:22,unlock:9,quality:1.7},
-    {id:'gelato',name:'🍦 Gelato',seedPrice:900,baseTime:250,yield:20,sellPrice:380,energyCost:28,unlock:12,quality:1.9},
-    {id:'wedding',name:'🎂 Wedding Cake',seedPrice:1100,baseTime:260,yield:22,sellPrice:420,energyCost:30,unlock:15,quality:2.0},
-    {id:'runtz',name:'🍬 Runtz',seedPrice:1300,baseTime:270,yield:25,sellPrice:480,energyCost:32,unlock:18,quality:2.1},
-    {id:'zkittlez',name:'🌈 Zkittlez',seedPrice:1500,baseTime:280,yield:28,sellPrice:520,energyCost:35,unlock:20,quality:2.2},
-    {id:'kush',name:'👑 Master Kush',seedPrice:1800,baseTime:300,yield:32,sellPrice:580,energyCost:38,unlock:25,quality:2.4},
-    {id:'glue',name:'🦍 Gorilla Glue',seedPrice:2200,baseTime:320,yield:35,sellPrice:650,energyCost:40,unlock:30,quality:2.5}
+    {id:'skunk',   emoji:'🦨', name:'Skunk',               seedPrice:50,  baseTime:120, yield:3,  sellPrice:50,  energyCost:5,  unlock:1,  quality:1.0},
+    {id:'haze',    emoji:'💜', name:'Purple Haze',         seedPrice:130, baseTime:160, yield:5,  sellPrice:85,  energyCost:8,  unlock:3,  quality:1.2},
+    {id:'widow',   emoji:'⚪', name:'White Widow',         seedPrice:280, baseTime:200, yield:7,  sellPrice:140, energyCost:12, unlock:5,  quality:1.4},
+    {id:'alien',   emoji:'👽', name:'Alien Kush',          seedPrice:550, baseTime:240, yield:12, sellPrice:220, energyCost:18, unlock:8,  quality:1.6},
+    {id:'og',      emoji:'🔥', name:'OG Kush',             seedPrice:950, baseTime:280, yield:18, sellPrice:340, energyCost:25, unlock:10, quality:1.8},
+    {id:'cheese',  emoji:'🧀', name:'UK Cheese',           seedPrice:400, baseTime:180, yield:10, sellPrice:180, energyCost:15, unlock:6,  quality:1.3},
+    {id:'lemon',   emoji:'🍋', name:'Lemon Haze',          seedPrice:350, baseTime:170, yield:8,  sellPrice:160, energyCost:14, unlock:4,  quality:1.2},
+    {id:'blue',    emoji:'💎', name:'Blue Dream',          seedPrice:600, baseTime:210, yield:14, sellPrice:250, energyCost:20, unlock:7,  quality:1.5},
+    {id:'cookies', emoji:'🍪', name:'Girl Scout Cookies',  seedPrice:750, baseTime:220, yield:16, sellPrice:290, energyCost:22, unlock:9,  quality:1.7},
+    {id:'gelato',  emoji:'🍦', name:'Gelato',              seedPrice:900, baseTime:250, yield:20, sellPrice:380, energyCost:28, unlock:12, quality:1.9},
+    {id:'wedding', emoji:'🎂', name:'Wedding Cake',        seedPrice:1100,baseTime:260, yield:22, sellPrice:420, energyCost:30, unlock:15, quality:2.0},
+    {id:'runtz',   emoji:'🍬', name:'Runtz',               seedPrice:1300,baseTime:270, yield:25, sellPrice:480, energyCost:32, unlock:18, quality:2.1},
+    {id:'zkittlez',emoji:'🌈', name:'Zkittlez',            seedPrice:1500,baseTime:280, yield:28, sellPrice:520, energyCost:35, unlock:20, quality:2.2},
+    {id:'kush',    emoji:'👑', name:'Master Kush',         seedPrice:1800,baseTime:300, yield:32, sellPrice:580, energyCost:38, unlock:25, quality:2.4},
+    {id:'glue',    emoji:'🦍', name:'Gorilla Glue',        seedPrice:2200,baseTime:320, yield:35, sellPrice:650, energyCost:40, unlock:30, quality:2.5}
 ];
 
 // ГОРШКИ
 const POT_LEVELS = [
-    {id:1,name:'🪴 Базовый горшок',price:0,desc:'Стандартный горшок'},
-    {id:2,name:'🪣 Железный горшок',price:1000,desc:'Прочный железный горшок'},
-    {id:3,name:'🏺 Глиняный горшок',price:2500,desc:'Дышит, корням комфортно'},
-    {id:4,name:'🎒 Мешок-горшок',price:5000,desc:'Специальный тканевый мешок'},
-    {id:5,name:'💎 Космический горшок',price:10000,desc:'Инопланетная технология'}
+    {id:1, emoji:'🪴', name:'Базовый горшок',    price:0,     desc:'Стандартный горшок'},
+    {id:2, emoji:'🪣', name:'Железный горшок',   price:1000,  desc:'Прочный железный горшок'},
+    {id:3, emoji:'🏺', name:'Глиняный горшок',   price:2500,  desc:'Дышит, корням комфортно'},
+    {id:4, emoji:'🎒', name:'Мешок-горшок',      price:5000,  desc:'Специальный тканевый мешок'},
+    {id:5, emoji:'💎', name:'Космический горшок',price:10000, desc:'Инопланетная технология'}
 ];
 
-// ЛАМПЫ — ВСЕ С НАЗВАНИЯМИ
+// ЛАМПЫ
 const LAMPS = [
-    {id:'lamp1',name:'💡 CFL',price:150,power:1.15,desc:'+15% скорость'},
-    {id:'lamp2',name:'✨ LED',price:400,power:1.35,desc:'+35% скорость'},
-    {id:'lamp3',name:'🔆 HPS',price:900,power:1.6,desc:'+60% скорость'},
-    {id:'lamp4',name:'💎 Квантовая',price:2000,power:2.0,desc:'+100% скорость'}
+    {id:'lamp1', emoji:'💡', name:'CFL',       price:150,  power:1.15, desc:'+15% скорость'},
+    {id:'lamp2', emoji:'✨', name:'LED',       price:400,  power:1.35, desc:'+35% скорость'},
+    {id:'lamp3', emoji:'🔆', name:'HPS',       price:900,  power:1.6,  desc:'+60% скорость'},
+    {id:'lamp4', emoji:'💎', name:'Квантовая', price:2000, power:2.0,  desc:'+100% скорость'}
 ];
-const LAMP_ENERGY_COST = {lamp1:0.2,lamp2:0.4,lamp3:0.8,lamp4:1.2};
+const LAMP_ENERGY_COST = {lamp1:0.2, lamp2:0.4, lamp3:0.8, lamp4:1.2};
 
-// УДОБРЕНИЯ — ВСЕ С НАЗВАНИЯМИ
+// УДОБРЕНИЯ
 const FERTS = [
-    {id:'water_boost',name:'💧 Супер-вода',price:40,effect:'speed',value:0.2,desc:'+20% скорость'},
-    {id:'yield_boost',name:'🧪 Удобрение+',price:90,effect:'yield',value:0.4,desc:'+40% урожай'},
-    {id:'heal',name:'💊 Лекарство',price:60,effect:'heal',value:1,desc:'Лечит болезнь'},
-    {id:'mega',name:'🚀 Мега-буст',price:350,effect:'both',value:0.35,desc:'+35% всё'}
+    {id:'water_boost', emoji:'💧', name:'Супер-вода', price:40,  effect:'speed', value:0.2,  desc:'+20% скорость'},
+    {id:'yield_boost', emoji:'🧪', name:'Удобрение+', price:90,  effect:'yield', value:0.4,  desc:'+40% урожай'},
+    {id:'heal',        emoji:'💊', name:'Лекарство',  price:60,  effect:'heal',  value:1,    desc:'Лечит болезнь'},
+    {id:'mega',        emoji:'🚀', name:'Мега-буст',  price:350, effect:'both',  value:0.35, desc:'+35% всё'}
 ];
 
 // УЛУЧШЕНИЯ КОМНАТЫ
 const ROOM_UPGRADES = [
-    {id:'vent',name:'🌀 Вентиляция',price:500,type:'vent',desc:'Болезни реже на 60%'},
-    {id:'auto',name:'💦 Автополив',price:1200,type:'auto',desc:'Автоматический полив'},
-    {id:'heater',name:'🔥 Обогреватель',price:800,type:'heater',desc:'Скорость роста +15%'}
+    {id:'vent',   emoji:'🌀', name:'Вентиляция',   price:500,  type:'vent',   desc:'Болезни реже на 60%'},
+    {id:'auto',   emoji:'💦', name:'Автополив',    price:1200, type:'auto',   desc:'Автоматический полив'},
+    {id:'heater', emoji:'🔥', name:'Обогреватель', price:800,  type:'heater', desc:'Скорость роста +15%'}
 ];
 
 const STAGE_NAMES = ['','🌱 Семя','🌿 Росток','🌳 Вегетация','🌸 Цветение','✨ Готово'];
@@ -658,7 +658,7 @@ function harvest(id) {
     state.totalHarvests = (state.totalHarvests || 0) + 1;
     state.inventory[s.id] = (state.inventory[s.id] || 0) + amount;
     
-    showToast(`🌿 ${qName}! +${amount} ${s.name} (${totalPrice}$)`);
+    showToast(`🌿 ${qName}! +${amount} ${s.emoji} ${s.name} (${totalPrice}$)`);
     haptic('success');
     addXp(amount * 2 + Math.floor(q * 3));
     
@@ -705,7 +705,7 @@ function openSeedModal(id) {
         c.innerHTML = `
             <div class="card-emoji">${s.emoji}</div>
             <div class="card-info">
-                <div class="card-title">${s.name} ${!unlocked ? '🔒' : ''}</div>
+                <div class="card-title">${s.emoji} ${s.name} ${!unlocked ? '🔒' : ''}</div>
                 <div class="card-desc">⏱ ${Math.floor(s.baseTime/60)}м · ${s.yield} шт · 💰${s.sellPrice}$</div>
             </div>
             <div style="text-align:right">
@@ -743,7 +743,7 @@ function plantSeed(sid) {
     pot.yieldMult = 1;
     pot.lastTick = Date.now();
     closeModal('modal-seed');
-    showToast('🌱 Посажено: ' + s.name);
+    showToast('🌱 Посажено: ' + s.emoji + ' ' + s.name);
     haptic('medium');
     addXp(3);
     save();
@@ -788,7 +788,7 @@ function buyLamp(lid) {
     if (state.money < l.price) { showToast('Мало денег', true); return; }
     state.money -= l.price;
     state.lamps[lid] = (state.lamps[lid] || 0) + 1;
-    showToast('💡 Куплена: ' + l.name);
+    showToast('💡 Куплена: ' + l.emoji + ' ' + l.name);
     haptic('medium');
     save();
     render();
@@ -799,7 +799,7 @@ function buyFert(fid) {
     if (state.money < f.price) { showToast('Мало денег', true); return; }
     state.money -= f.price;
     state.ferts[fid] = (state.ferts[fid] || 0) + 1;
-    showToast('🧪 Куплено: ' + f.name);
+    showToast('🧪 Куплено: ' + f.emoji + ' ' + f.name);
     save();
     render();
 }
@@ -823,7 +823,7 @@ function buyRoomUpgrade(uid) {
     if (u.type === 'vent') state.room.vent = true;
     if (u.type === 'auto') state.room.auto = true;
     if (u.type === 'heater') state.room.heater = true;
-    showToast('🏠 Куплено: ' + u.name);
+    showToast('🏠 Куплено: ' + u.emoji + ' ' + u.name);
     haptic('success');
     addXp(10);
     save();
@@ -844,7 +844,7 @@ function openFertModal(id) {
         c.innerHTML = `
             <div class="card-emoji">${f.emoji}</div>
             <div class="card-info">
-                <div class="card-title">${f.name} <span class="inv-count">×${cnt}</span></div>
+                <div class="card-title">${f.emoji} ${f.name} <span class="inv-count">×${cnt}</span></div>
                 <div class="card-desc">${f.desc}</div>
             </div>
             <button class="btn btn-small btn-warning" onclick="applyFert('${f.id}')">🧪 Применить</button>
@@ -896,7 +896,7 @@ function openLampModal(id) {
         c.innerHTML = `
             <div class="card-emoji">${l.emoji}</div>
             <div class="card-info">
-                <div class="card-title">${l.name} <span class="inv-count">×${cnt}</span></div>
+                <div class="card-title">${l.emoji} ${l.name} <span class="inv-count">×${cnt}</span></div>
                 <div class="card-desc">${l.desc} · ⚡${LAMP_ENERGY_COST[l.id].toFixed(1)}/с</div>
             </div>
             <button class="btn btn-small btn-purple" onclick="applyLamp(${selectedPotId},'${l.id}')">💡 Установить</button>
@@ -1134,9 +1134,6 @@ function getPlantSVG(strainId, stage, health, disease, ready) {
     return svg;
 }
 
-// ============================================================
-// ====== ОТРИСОВКА ИНТЕРФЕЙСА ======
-// ============================================================
 function renderFarm() {
     const grid = document.getElementById('farm-grid');
     grid.innerHTML = '';
@@ -1170,7 +1167,7 @@ function renderFarm() {
             if (pot.disease) tags += ' 🦠';
             if (pot.lamp) {
                 const l = getLamp(pot.lamp);
-                if (l) tags += ` 💡${l.emoji}`;
+                if (l) tags += ` ${l.emoji}`;
             }
             if (pot.fert) tags += ' 🧪';
             
@@ -1189,7 +1186,7 @@ function renderFarm() {
             
             div.innerHTML += `
                 <div class="pot-emoji">${STAGE_EMOJI[pot.stage] || '🌱'}</div>
-                <div class="pot-name">${s.name} ${tags}</div>
+                <div class="pot-name">${s.emoji} ${s.name} ${tags}</div>
                 <div class="pot-status">${ready ? '✅ Готово!' : STAGE_NAMES[pot.stage] + ' · ' + formatTime(left)}</div>
                 <div class="plant-container">${getPlantSVG(pot.strain, pot.stage, pot.health, pot.disease, ready)}</div>
                 <div class="bars">
@@ -1255,7 +1252,7 @@ function renderShop() {
         c.innerHTML = `
             <div class="card-emoji">${l.emoji}</div>
             <div class="card-info">
-                <div class="card-title">${l.name} ${owned ? `<span class="inv-count">×${owned}</span>` : ''}</div>
+                <div class="card-title">${l.emoji} ${l.name} ${owned ? `<span class="inv-count">×${owned}</span>` : ''}</div>
                 <div class="card-desc">${l.desc} · ⚡${LAMP_ENERGY_COST[l.id].toFixed(1)}/с</div>
             </div>
             <button class="btn btn-small btn-warning" onclick="buyLamp('${l.id}')">${l.price}$</button>
@@ -1270,7 +1267,7 @@ function renderShop() {
         c.innerHTML = `
             <div class="card-emoji">${f.emoji}</div>
             <div class="card-info">
-                <div class="card-title">${f.name} ${owned ? `<span class="inv-count">×${owned}</span>` : ''}</div>
+                <div class="card-title">${f.emoji} ${f.name} ${owned ? `<span class="inv-count">×${owned}</span>` : ''}</div>
                 <div class="card-desc">${f.desc}</div>
             </div>
             <button class="btn btn-small" onclick="buyFert('${f.id}')">${f.price}$</button>
@@ -1298,7 +1295,7 @@ function renderInventory() {
         c.innerHTML = `
             <div class="card-emoji">${s.emoji}</div>
             <div class="card-info">
-                <div class="card-title">${s.name} <span class="inv-count">×${amt}</span></div>
+                <div class="card-title">${s.emoji} ${s.name} <span class="inv-count">×${amt}</span></div>
                 <div class="card-desc">💰${price}$ · ${amt * price}$</div>
             </div>
             <button class="btn btn-small" onclick="sellProduct('${id}')">💰</button>
@@ -1328,7 +1325,7 @@ function renderRoom() {
         c.innerHTML = `
             <div class="card-emoji">${pl.emoji}</div>
             <div class="card-info">
-                <div class="card-title">${pl.name} ${unlocked ? '✅' : '🔒'}</div>
+                <div class="card-title">${pl.emoji} ${pl.name} ${unlocked ? '✅' : '🔒'}</div>
                 <div class="card-desc">${pl.desc} · ${pl.price}$</div>
             </div>
             <span style="font-size:9px;color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${unlocked ? 'Доступен' : 'Ур. ' + pl.id * 2}</span>
@@ -1347,7 +1344,7 @@ function renderRoom() {
         c.innerHTML = `
             <div class="card-emoji">${u.emoji}</div>
             <div class="card-info">
-                <div class="card-title">${u.name}</div>
+                <div class="card-title">${u.emoji} ${u.name}</div>
                 <div class="card-desc">${u.desc}</div>
             </div>
             ${bought ? '<span style="color:var(--hint);font-size:10px;">✅ Куплено</span>' : `<button class="btn btn-small" onclick="buyRoomUpgrade('${u.id}')">${u.price}$</button>`}
