@@ -14,7 +14,7 @@ const DATA_FILE = path.join(__dirname, 'data', 'referrals.json');
 const LEADERBOARD_FILE = path.join(__dirname, 'data', 'leaderboard.json');
 
 // ============================================================
-// ЗАГРУЗКА/СОХРАНЕНИЕ ДАННЫХ
+// ЗАГРУЗКА/СОХРАНЕНИЕ
 // ============================================================
 function loadData() {
   try {
@@ -75,17 +75,24 @@ function updateLeaderboard(userId, userName, stats) {
 }
 
 // ============================================================
-// API — РЕГИСТРАЦИЯ
+// API — РЕГИСТРАЦИЯ (СОХРАНЯЕТ РЕФЕРАЛОВ)
 // ============================================================
 app.post('/api/register', (req, res) => {
   const { userId, userName, referredBy } = req.body;
   if (!userId) return res.status(400).json({ error: 'userId обязателен' });
   
   const db = loadData();
+  
+  // Если пользователь уже есть — возвращаем его данные
   if (db.users[userId]) {
-    return res.json({ success: true, user: db.users[userId] });
+    return res.json({ 
+      success: true, 
+      user: db.users[userId],
+      referredBy: db.users[userId].referredBy
+    });
   }
   
+  // Регистрируем нового пользователя
   db.users[userId] = {
     id: userId,
     name: userName || 'Игрок',
@@ -98,10 +105,16 @@ app.post('/api/register', (req, res) => {
     money: 0
   };
   
+  // Если есть реферальный код — начисляем бонусы
   if (referredBy && db.users[referredBy]) {
+    // Начисляем бонус пригласившему
     db.users[referredBy].referrals += 1;
     db.users[referredBy].totalEarned += 150;
-    if (!db.referrals[referredBy]) db.referrals[referredBy] = [];
+    
+    // Сохраняем в историю рефералов
+    if (!db.referrals[referredBy]) {
+      db.referrals[referredBy] = [];
+    }
     db.referrals[referredBy].push({
       userId: userId,
       userName: userName || 'Игрок',
@@ -111,11 +124,16 @@ app.post('/api/register', (req, res) => {
   }
   
   saveData(db);
-  res.json({ success: true, user: db.users[userId], referrerBonus: referredBy ? 150 : 0 });
+  res.json({ 
+    success: true, 
+    user: db.users[userId], 
+    referrerBonus: referredBy ? 150 : 0,
+    referredBy: db.users[userId].referredBy
+  });
 });
 
 // ============================================================
-// API — ОБНОВЛЕНИЕ СТАТИСТИКИ (для рейтинга)
+// API — ОБНОВЛЕНИЕ СТАТИСТИКИ
 // ============================================================
 app.post('/api/update-stats', (req, res) => {
   const { userId, userName, stats } = req.body;
@@ -154,6 +172,61 @@ app.post('/api/update-stats', (req, res) => {
 });
 
 // ============================================================
+// API — ПОЛУЧИТЬ РЕФЕРАЛОВ ПОЛЬЗОВАТЕЛЯ
+// ============================================================
+app.get('/api/referrals/:userId', (req, res) => {
+  const { userId } = req.params;
+  const db = loadData();
+  
+  if (!db.users[userId]) {
+    return res.status(404).json({ error: 'Пользователь не найден' });
+  }
+  
+  const referrals = db.referrals[userId] || [];
+  res.json({
+    userId: userId,
+    referrals: referrals,
+    count: referrals.length,
+    totalEarned: db.users[userId].totalEarned || 0
+  });
+});
+
+// ============================================================
+// API — ПОЛУЧИТЬ СТАТИСТИКУ ПОЛЬЗОВАТЕЛЯ
+// ============================================================
+app.get('/api/stats/:userId', (req, res) => {
+  const { userId } = req.params;
+  const db = loadData();
+  if (!db.users[userId]) {
+    return res.status(404).json({ error: 'Пользователь не найден' });
+  }
+  
+  const user = db.users[userId];
+  const referrals = db.referrals[userId] || [];
+  res.json({
+    user,
+    referrals,
+    stats: {
+      totalReferrals: user.referrals || 0,
+      totalEarned: user.totalEarned || 0,
+      friends: referrals.map(r => ({ name: r.userName, date: r.date, bonus: r.bonus })),
+      level: user.level || 1,
+      harvests: user.harvests || 0,
+      money: user.money || 0,
+      referredBy: user.referredBy || null
+    }
+  });
+});
+
+// ============================================================
+// API — ПОЛУЧИТЬ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ
+// ============================================================
+app.get('/api/users', (req, res) => {
+  const db = loadData();
+  res.json(db.users);
+});
+
+// ============================================================
 // API — ПОЛУЧИТЬ РЕЙТИНГ
 // ============================================================
 app.get('/api/leaderboard/:period', (req, res) => {
@@ -185,40 +258,6 @@ app.get('/api/leaderboard/:period', (req, res) => {
     key: key,
     players: sorted
   });
-});
-
-// ============================================================
-// API — ПОЛУЧИТЬ СТАТИСТИКУ ПОЛЬЗОВАТЕЛЯ
-// ============================================================
-app.get('/api/stats/:userId', (req, res) => {
-  const { userId } = req.params;
-  const db = loadData();
-  if (!db.users[userId]) {
-    return res.status(404).json({ error: 'Пользователь не найден' });
-  }
-  
-  const user = db.users[userId];
-  const referrals = db.referrals[userId] || [];
-  res.json({
-    user,
-    referrals,
-    stats: {
-      totalReferrals: user.referrals || 0,
-      totalEarned: user.totalEarned || 0,
-      friends: referrals.map(r => ({ name: r.userName, date: r.date, bonus: r.bonus })),
-      level: user.level || 1,
-      harvests: user.harvests || 0,
-      money: user.money || 0
-    }
-  });
-});
-
-// ============================================================
-// API — ПОЛУЧИТЬ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ
-// ============================================================
-app.get('/api/users', (req, res) => {
-  const db = loadData();
-  res.json(db.users);
 });
 
 app.listen(PORT, () => {
