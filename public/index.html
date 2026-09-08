@@ -12,12 +12,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .high{animation:highShake 0.15s ease-in-out infinite alternate}
 @keyframes highShake{0%{transform:translateX(-2px) rotate(-1deg)}100%{transform:translateX(2px) rotate(1deg)}}
 .header{position:sticky;top:0;z-index:100;background:rgba(13,26,13,0.92);backdrop-filter:blur(12px);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(76,175,80,0.2)}
-.stats{display:flex;gap:8px;font-size:12px;font-weight:600;flex-wrap:wrap}
-.stat{display:flex;align-items:center;gap:3px;background:rgba(255,255,255,0.05);padding:3px 10px;border-radius:20px}
+.stats{display:flex;gap:6px;font-size:11px;font-weight:600;flex-wrap:wrap}
+.stat{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,0.05);padding:2px 8px;border-radius:16px}
 .stat span{color:var(--accent)}
-.level-badge{background:var(--purple);color:#fff;font-size:11px;padding:3px 10px;border-radius:12px;font-weight:700}
-.tabs{display:flex;background:rgba(26,46,26,0.8);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.05);overflow-x:auto;padding:4px 0}
-.tab{flex:1;min-width:40px;padding:8px 2px;text-align:center;font-size:7px;font-weight:600;cursor:pointer;opacity:0.5;transition:all 0.3s;border-bottom:2px solid transparent}
+.level-badge{background:var(--purple);color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;white-space:nowrap}
+.tabs{display:flex;background:rgba(26,46,26,0.8);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.05);overflow-x:auto;padding:4px 0;justify-content:center}
+.tab{flex:0 0 auto;padding:6px 8px;text-align:center;font-size:9px;font-weight:600;cursor:pointer;opacity:0.5;transition:all 0.3s;border-bottom:2px solid transparent;min-width:44px;white-space:nowrap}
 .tab.active{opacity:1;border-bottom-color:var(--accent);color:var(--accent)}
 .content{padding:10px}.section{display:none}.section.active{display:block}
 .farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
@@ -123,7 +123,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .quest-card .q-reward{font-size:10px;color:var(--gold)}
 .quest-card .q-bar{height:3px;background:rgba(255,255,255,0.08);border-radius:4px;margin-top:4px;overflow:hidden}
 .quest-card .q-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width 0.5s}
-@media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:10px;gap:4px}.stat{padding:2px 6px}.plant-container{height:80px}.plant-container svg{width:65px;height:80px}}
+/* ====== СВЕЧЕНИЕ ЛАМП ====== */
+.pot-glow{position:absolute;inset:-20px;border-radius:50%;pointer-events:none;opacity:0;transition:opacity 0.8s ease;z-index:0}
+.pot-glow.active{opacity:0.25}
+.pot-glow.pulsing{animation:pulseGlow 2s ease-in-out infinite}
+@keyframes pulseGlow{0%,100%{opacity:0.15}50%{opacity:0.35}}
+.glow-cfl{background:radial-gradient(circle,#ffeb3b 0%,transparent 70%)}
+.glow-led{background:radial-gradient(circle,#4caf50 0%,transparent 70%)}
+.glow-hps{background:radial-gradient(circle,#ff9800 0%,transparent 70%)}
+.glow-quantum{background:radial-gradient(circle,#e040fb 0%,transparent 70%)}
+.light-beam{position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:60%;height:40px;background:linear-gradient(to bottom,rgba(255,255,200,0.2),transparent);clip-path:polygon(20% 0%,80% 0%,100% 100%,0% 100%);pointer-events:none;opacity:0;transition:opacity 0.8s ease;z-index:1}
+.light-beam.active{opacity:0.6}
+@media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:9px;gap:4px}.stat{padding:2px 6px}.plant-container{height:80px}.plant-container svg{width:65px;height:80px}.tab{font-size:7px;padding:4px 4px;min-width:32px}}
 </style>
 </head>
 <body>
@@ -137,15 +148,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="level-badge" id="xp-badge">0 XP</div>
 </div>
 <div class="tabs">
-  <div class="tab active" data-tab="farm">🌱 Ферма</div>
-  <div class="tab" data-tab="shop">🛒 Магазин</div>
-  <div class="tab" data-tab="inventory">📦 Склад</div>
-  <div class="tab" data-tab="room">🏠 Комната</div>
-  <div class="tab" data-tab="profile">👤 Профиль</div>
-  <div class="tab" data-tab="quests">📅 Задания</div>
-  <div class="tab" data-tab="achievements">🏆 Достиж</div>
-  <div class="tab" data-tab="process">⚗️ Цех</div>
-  <div class="tab" data-tab="friends">👥 Друзья</div>
+  <div class="tab active" data-tab="farm">🌱</div>
+  <div class="tab" data-tab="shop">🛒</div>
+  <div class="tab" data-tab="inventory">📦</div>
+  <div class="tab" data-tab="room">🏠</div>
+  <div class="tab" data-tab="profile">👤</div>
+  <div class="tab" data-tab="quests">📅</div>
+  <div class="tab" data-tab="achievements">🏆</div>
+  <div class="tab" data-tab="process">⚗️</div>
+  <div class="tab" data-tab="friends">👥</div>
 </div>
 <div class="content">
   <div class="section active" id="section-farm">
@@ -166,7 +177,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="section" id="section-shop"><div class="card-list" id="shop-list"></div></div>
   <div class="section" id="section-inventory"><div class="card-list" id="inventory-list"></div><div style="margin-top:10px"><button class="btn btn-full" onclick="sellAll()" id="btn-sell-all">💰 Продать всё</button></div></div>
   <div class="section" id="section-room"><div class="room-info" id="room-info"></div><div id="daily-box"></div><div class="card-list" id="room-list"></div></div>
-  
   <div class="section" id="section-profile">
     <div class="profile-card" id="profile-card">
       <div style="font-size:48px;margin-bottom:8px;">👤</div>
@@ -185,17 +195,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div class="profile-stat"><span class="label">🌀 Состояние</span><span class="value" id="profile-state">🧠 Норма</span></div>
     </div>
   </div>
-  
   <div class="section" id="section-quests">
     <div class="section-title">📅 Ежедневные задания</div>
     <div id="quests-list"></div>
   </div>
-  
   <div class="section" id="section-achievements">
     <div class="section-title">🏆 Достижения</div>
     <div id="achievements-list"></div>
   </div>
-  
   <div class="section" id="section-process"><div class="section-title">Переработка сырья</div><div class="card-list" id="process-list"></div><div class="section-title" style="margin-top:12px">Готовая продукция</div><div class="card-list" id="products-list"></div></div>
   <div class="section" id="section-friends">
     <div class="ref-card">
@@ -230,31 +237,24 @@ const BOT_USERNAME = 'Rastafaray420_bot';
 // ====== ЕЖЕДНЕВНЫЕ ЗАДАНИЯ (21 задание на неделю) ======
 // ============================================================
 const WEEKLY_QUESTS = [
-  // День 1
   { day: 1, id: 'w1_1', name: '🌱 Первые шаги', desc: 'Собрать 2 урожая', target: 2, reward: 50, icon: '🌱' },
   { day: 1, id: 'w1_2', name: '💧 Поливальщик', desc: 'Полить растения 5 раз', target: 5, reward: 30, icon: '💧' },
   { day: 1, id: 'w1_3', name: '💰 Первый доход', desc: 'Заработать 100$', target: 100, reward: 40, icon: '💰' },
-  // День 2
   { day: 2, id: 'w2_1', name: '🌿 Опытный садовод', desc: 'Собрать 4 урожая', target: 4, reward: 70, icon: '🌿' },
   { day: 2, id: 'w2_2', name: '💧 Водолей', desc: 'Полить растения 8 раз', target: 8, reward: 40, icon: '💧' },
   { day: 2, id: 'w2_3', name: '💰 Бизнесмен', desc: 'Заработать 200$', target: 200, reward: 60, icon: '💰' },
-  // День 3
   { day: 3, id: 'w3_1', name: '🌸 Цветущий сад', desc: 'Собрать 6 урожаев', target: 6, reward: 90, icon: '🌸' },
   { day: 3, id: 'w3_2', name: '💧 Фонтан', desc: 'Полить растения 12 раз', target: 12, reward: 50, icon: '💧' },
   { day: 3, id: 'w3_3', name: '💰 Инвестор', desc: 'Заработать 400$', target: 400, reward: 80, icon: '💰' },
-  // День 4
   { day: 4, id: 'w4_1', name: '🌟 Мастер урожая', desc: 'Собрать 8 урожаев', target: 8, reward: 110, icon: '🌟' },
   { day: 4, id: 'w4_2', name: '💧 Океан', desc: 'Полить растения 16 раз', target: 16, reward: 60, icon: '💧' },
   { day: 4, id: 'w4_3', name: '💰 Магнат', desc: 'Заработать 600$', target: 600, reward: 100, icon: '💰' },
-  // День 5
   { day: 5, id: 'w5_1', name: '👑 Король фермы', desc: 'Собрать 10 урожаев', target: 10, reward: 130, icon: '👑' },
   { day: 5, id: 'w5_2', name: '💧 Цунами', desc: 'Полить растения 20 раз', target: 20, reward: 70, icon: '💧' },
   { day: 5, id: 'w5_3', name: '💰 Миллионер', desc: 'Заработать 1000$', target: 1000, reward: 150, icon: '💰' },
-  // День 6
   { day: 6, id: 'w6_1', name: '🌈 Легенда', desc: 'Собрать 14 урожаев', target: 14, reward: 160, icon: '🌈' },
   { day: 6, id: 'w6_2', name: '💧 Потоп', desc: 'Полить растения 25 раз', target: 25, reward: 80, icon: '💧' },
   { day: 6, id: 'w6_3', name: '💰 Король денег', desc: 'Заработать 1500$', target: 1500, reward: 180, icon: '💰' },
-  // День 7
   { day: 7, id: 'w7_1', name: '⭐ Божественный сад', desc: 'Собрать 20 урожаев', target: 20, reward: 200, icon: '⭐' },
   { day: 7, id: 'w7_2', name: '💧 Всемирный потоп', desc: 'Полить растения 35 раз', target: 35, reward: 100, icon: '💧' },
   { day: 7, id: 'w7_3', name: '💰 Бог денег', desc: 'Заработать 2500$', target: 2500, reward: 250, icon: '💰' }
@@ -291,13 +291,11 @@ function applyHighEffect() {
     showToast('🌀 Тебя накурило! Иконки дрожат 30 секунд!', false, 'high');
     haptic('warning');
     
-    // Добавляем класс всем элементам
     document.querySelectorAll('.pot-emoji, .card-emoji, .plant-container svg, .btn').forEach(el => {
         el.classList.add('high');
         highElements.push(el);
     });
     
-    // Обновляем статус в профиле
     document.getElementById('profile-state').textContent = '🌀 Накурило!';
     
     highTimer = setTimeout(() => {
@@ -425,7 +423,7 @@ let state = {
     totalEvents: 0,
     questsProgress: {},
     highCount: 0,
-    consumedCount: 0 // счётчик употреблений для эффекта "Накурило"
+    consumedCount: 0
 };
 let selectedPotId = null;
 
@@ -549,7 +547,6 @@ function resetDailyQuests() {
             if (!state.questsProgress[q.id]) {
                 state.questsProgress[q.id] = { progress: 0, completed: false };
             } else {
-                // Сбрасываем прогресс, но не completed (если уже выполнено)
                 if (!state.questsProgress[q.id].completed) {
                     state.questsProgress[q.id].progress = 0;
                 }
@@ -573,7 +570,6 @@ function updateQuestProgress(type, amount) {
         if (!state.questsProgress[q.id]) {
             state.questsProgress[q.id] = { progress: 0, completed: false };
         }
-        // Проверяем тип задания
         if (type === 'harvest' && q.desc.includes('Собрать')) {
             state.questsProgress[q.id].progress += amount;
         } else if (type === 'water' && q.desc.includes('Полить')) {
@@ -651,7 +647,6 @@ function consumeProduct(key, type) {
     if (state.consumedCount >= 3) {
         applyHighEffect();
         state.consumedCount = 0;
-        // Обновляем профиль
         document.getElementById('profile-state').textContent = '🌀 Накурило!';
     }
     save();
@@ -1419,6 +1414,32 @@ function renderFarm() {
         div.className = 'pot ' + pt.class;
         if (state.level < pt.unlockLevel) div.classList.add('locked');
         
+        // ====== СВЕЧЕНИЕ ЛАМПЫ ======
+        if (pot.lamp && pot.strain) {
+            const lamp = getLamp(pot.lamp);
+            if (lamp) {
+                const glow = document.createElement('div');
+                let glowClass = 'pot-glow';
+                switch(pot.lamp) {
+                    case 'lamp1': glowClass += ' glow-cfl'; break;
+                    case 'lamp2': glowClass += ' glow-led'; break;
+                    case 'lamp3': glowClass += ' glow-hps'; break;
+                    case 'lamp4': glowClass += ' glow-quantum'; break;
+                }
+                if (state.energy > 5) {
+                    glowClass += ' active pulsing';
+                } else {
+                    glowClass += ' active';
+                }
+                glow.className = glowClass;
+                div.appendChild(glow);
+                
+                const beam = document.createElement('div');
+                beam.className = 'light-beam' + (state.energy > 5 ? ' active' : '');
+                div.appendChild(beam);
+            }
+        }
+        
         const upgradeLevel = state.potUpgrades[pot.id] || 0;
         if (upgradeLevel > 0) div.classList.add('pot-upgraded');
         
@@ -1454,6 +1475,7 @@ function renderFarm() {
             
             let tags = '';
             if (pot.disease) tags += '<span class="boost-tag sick" style="animation:blink 0.8s infinite;">🦠ВРЕДИТЕЛИ!</span>';
+            // Индикатор лампы на горшке
             if (pot.lamp) {
                 const l = getLamp(pot.lamp);
                 if (l) {
