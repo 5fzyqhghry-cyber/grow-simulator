@@ -239,8 +239,10 @@ if (tg) {
 }
 
 // ============================================================
-// ====== ДАННЫЕ (ИСПРАВЛЕНЫ) ======
+// ====== ДАННЫЕ (ВСЕ С НАЗВАНИЯМИ) ======
 // ============================================================
+
+// СОРТА
 const STRAINS = [
     {id:'skunk',name:'🦨 Skunk',seedPrice:50,baseTime:120,yield:3,sellPrice:50,energyCost:5,unlock:1,quality:1},
     {id:'haze',name:'💜 Purple Haze',seedPrice:130,baseTime:160,yield:5,sellPrice:85,energyCost:8,unlock:3,quality:1.2},
@@ -259,15 +261,16 @@ const STRAINS = [
     {id:'glue',name:'🦍 Gorilla Glue',seedPrice:2200,baseTime:320,yield:35,sellPrice:650,energyCost:40,unlock:30,quality:2.5}
 ];
 
+// ГОРШКИ
 const POT_LEVELS = [
-    {id:1,name:'🪴 Базовый',price:0,desc:'Стандартный горшок'},
-    {id:2,name:'🪣 Железный',price:1000,desc:'Прочный железный'},
-    {id:3,name:'🏺 Глиняный',price:2500,desc:'Дышит, корням комфортно'},
-    {id:4,name:'🎒 Мешок-горшок',price:5000,desc:'Специальный тканевый'},
-    {id:5,name:'💎 Космический',price:10000,desc:'Инопланетная технология'}
+    {id:1,name:'🪴 Базовый горшок',price:0,desc:'Стандартный горшок'},
+    {id:2,name:'🪣 Железный горшок',price:1000,desc:'Прочный железный горшок'},
+    {id:3,name:'🏺 Глиняный горшок',price:2500,desc:'Дышит, корням комфортно'},
+    {id:4,name:'🎒 Мешок-горшок',price:5000,desc:'Специальный тканевый мешок'},
+    {id:5,name:'💎 Космический горшок',price:10000,desc:'Инопланетная технология'}
 ];
 
-// ===== ИСПРАВЛЕНО: добавлены названия =====
+// ЛАМПЫ — ВСЕ С НАЗВАНИЯМИ
 const LAMPS = [
     {id:'lamp1',name:'💡 CFL',price:150,power:1.15,desc:'+15% скорость'},
     {id:'lamp2',name:'✨ LED',price:400,power:1.35,desc:'+35% скорость'},
@@ -276,7 +279,7 @@ const LAMPS = [
 ];
 const LAMP_ENERGY_COST = {lamp1:0.2,lamp2:0.4,lamp3:0.8,lamp4:1.2};
 
-// ===== ИСПРАВЛЕНО: добавлены названия =====
+// УДОБРЕНИЯ — ВСЕ С НАЗВАНИЯМИ
 const FERTS = [
     {id:'water_boost',name:'💧 Супер-вода',price:40,effect:'speed',value:0.2,desc:'+20% скорость'},
     {id:'yield_boost',name:'🧪 Удобрение+',price:90,effect:'yield',value:0.4,desc:'+40% урожай'},
@@ -284,6 +287,7 @@ const FERTS = [
     {id:'mega',name:'🚀 Мега-буст',price:350,effect:'both',value:0.35,desc:'+35% всё'}
 ];
 
+// УЛУЧШЕНИЯ КОМНАТЫ
 const ROOM_UPGRADES = [
     {id:'vent',name:'🌀 Вентиляция',price:500,type:'vent',desc:'Болезни реже на 60%'},
     {id:'auto',name:'💦 Автополив',price:1200,type:'auto',desc:'Автоматический полив'},
@@ -1130,6 +1134,9 @@ function getPlantSVG(strainId, stage, health, disease, ready) {
     return svg;
 }
 
+// ============================================================
+// ====== ОТРИСОВКА ИНТЕРФЕЙСА ======
+// ============================================================
 function renderFarm() {
     const grid = document.getElementById('farm-grid');
     grid.innerHTML = '';
@@ -1161,7 +1168,10 @@ function renderFarm() {
             
             let tags = '';
             if (pot.disease) tags += ' 🦠';
-            if (pot.lamp) tags += ' 💡';
+            if (pot.lamp) {
+                const l = getLamp(pot.lamp);
+                if (l) tags += ` 💡${l.emoji}`;
+            }
             if (pot.fert) tags += ' 🧪';
             
             let actions = '';
