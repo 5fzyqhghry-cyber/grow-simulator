@@ -403,8 +403,13 @@ let chatMessages = [];
 // ============================================================
 // ====== БАЗОВЫЕ ФУНКЦИИ ======
 // ============================================================
+function getUserName() {
+    return tg?.initDataUnsafe?.user?.first_name || 'Игрок';
+}
+
 function showToast(m, err=false) {
     const t = document.getElementById('toast');
+    if (!t) return;
     t.textContent = m;
     t.className = 'toast show' + (err ? ' error' : '');
     clearTimeout(toastTimeout);
@@ -435,8 +440,22 @@ function getPotLevel(id) { return POT_LEVELS.find(p => p.id === id); }
 
 function xpFor(l) { return l * 80; }
 
-function getUserName() {
-    return tg?.initDataUnsafe?.user?.first_name || 'Игрок';
+function addXp(a) {
+    state.xp += a;
+    let up = false;
+    while (state.xp >= xpFor(state.level)) {
+        state.xp -= xpFor(state.level);
+        state.level++;
+        state.maxEnergy = 100 + (state.level - 1) * 8;
+        state.energy = state.maxEnergy;
+        up = true;
+    }
+    if (up) {
+        showToast('🎉 Уровень ' + state.level + '!');
+        haptic('success');
+    }
+    save();
+    render();
 }
 
 // ============================================================
@@ -515,7 +534,7 @@ function load() {
 }
 
 // ============================================================
-// ====== РЕЙТИНГ ======
+// ====== ПОЛУЧИТЬ ДАННЫЕ ДРУГА ======
 // ============================================================
 function getFriendData(friendId) {
     try {
@@ -530,14 +549,16 @@ function getFriendData(friendId) {
     return null;
 }
 
+// ============================================================
+// ====== РЕЙТИНГ ======
+// ============================================================
 function loadLeaderboard(period) {
     const list = document.getElementById('leaderboard-list');
     const myRank = document.getElementById('my-rank');
-    list.innerHTML = '<div class="empty">📊 Загрузка...</div>';
-    myRank.style.display = 'none';
+    if (!list) return;
     
-    document.querySelectorAll('#lb-monthly, #lb-yearly').forEach(b => b.style.opacity = '0.5');
-    document.getElementById('lb-' + period).style.opacity = '1';
+    list.innerHTML = '<div class="empty">📊 Загрузка...</div>';
+    if (myRank) myRank.style.display = 'none';
     
     try {
         const players = [];
@@ -549,7 +570,6 @@ function loadLeaderboard(period) {
             name: getUserName(),
             money: myData ? myData.money : Math.floor(state.money),
             level: myData ? myData.level : state.level,
-            harvests: myData ? myData.harvests : (state.totalHarvests || 0),
             isMe: true
         });
         
@@ -562,7 +582,6 @@ function loadLeaderboard(period) {
                     name: friend.name || 'Игрок',
                     money: data ? data.money : 0,
                     level: data ? data.level : 1,
-                    harvests: data ? data.harvests : 0,
                     isMe: false
                 });
             });
@@ -572,15 +591,14 @@ function loadLeaderboard(period) {
         const sorted = players.sort((a, b) => b.money - a.money);
         
         if (sorted.length === 0) {
-            list.innerHTML = '<div class="empty">📊 Пока нет игроков. Приглашай друзей!</div>';
+            list.innerHTML = '<div class="empty">📊 Пока нет игроков</div>';
             return;
         }
         
         let html = '';
-        const top = sorted.slice(0, 50);
         let myPosition = -1;
         
-        top.forEach((player, index) => {
+        sorted.forEach((player, index) => {
             const pos = index + 1;
             let rankClass = 'rank-card';
             if (pos === 1) rankClass += ' top1';
@@ -608,7 +626,7 @@ function loadLeaderboard(period) {
         
         list.innerHTML = html;
         
-        if (myPosition > 0) {
+        if (myRank && myPosition > 0) {
             myRank.innerHTML = `
                 <div class="my-rank">
                     <div style="font-size:10px;color:var(--hint);">👑 Ваше место</div>
@@ -617,24 +635,1275 @@ function loadLeaderboard(period) {
                 </div>
             `;
             myRank.style.display = 'block';
-        } else {
-            myRank.innerHTML = `
-                <div class="my-rank">
-                    <div style="font-size:10px;color:var(--hint);">👤 Вы пока не в рейтинге</div>
-                    <div style="font-size:9px;color:var(--hint);">Зарабатывайте больше!</div>
-                </div>
-            `;
-            myRank.style.display = 'block';
         }
     } catch (e) {
-        console.log('Ошибка загрузки рейтинга:', e);
+        console.log('Ошибка рейтинга:', e);
         list.innerHTML = '<div class="empty">❌ Ошибка загрузки</div>';
     }
 }
 
 // ============================================================
-// ====== ОТРИСОВКА ДРУЗЕЙ ======
+// ====== РЫНОК ======
 // ============================================================
+function updateMarketPrices() {
+    const now = Date.now();
+    if (now - state.marketUpdateTime < 3600000) return;
+    state.marketUpdateTime = now;
+    STRAINS.forEach(s => {
+        const basePrice = s.sellPrice;
+        const hour = new Date().getHours();
+        const volatility = Math.sin(hour / 24 * Math.PI * 2) * 0.3 + 0.7;
+        const randomFactor = 0.75 + Math.random() * 0.5;
+        state.marketPrices[s.id] = Math.floor(basePrice * volatility * randomFactor);
+    });
+    save();
+}
+
+function getMarketPrice(strainId) {
+    return state.marketPrices[strainId] || STRAINS.find(s => s.id === strainId)?.sellPrice || 50;
+}
+
+function getPriceChange(strainId) {
+    const current = getMarketPrice(strainId);
+    const base = STRAINS.find(s => s.id === strainId)?.sellPrice || 50;
+    return ((current - base) / base * 100);
+}
+
+// ============================================================
+// ====== РЕФЕРАЛЫ ======
+// ============================================================
+function getRefLink() {
+    return `https://t.me/${BOT_USERNAME}?startapp=ref_${userId}`;
+}
+
+function shareReferral() {
+    const link = getRefLink();
+    if (tg?.openTelegramLink) {
+        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('🌿 Присоединяйся к Weed Grow Simulator!')}`);
+    } else {
+        navigator.clipboard?.writeText(link).then(() => showToast('📋 Ссылка скопирована'));
+    }
+}
+
+function copyReferral() {
+    const link = getRefLink();
+    navigator.clipboard?.writeText(link).then(() => showToast('📋 Ссылка скопирована'));
+}
+
+function handleReferral() {
+    if (tg?.initDataUnsafe?.start_param) {
+        const param = tg.initDataUnsafe.start_param;
+        if (param.startsWith('ref_')) {
+            const refId = param.replace('ref_', '');
+            if (refId !== userId && !state.referredBy) {
+                state.referredBy = refId;
+                state.money += 100;
+                state.energy = Math.min(state.maxEnergy, state.energy + 30);
+                showToast('🎁 Бонус новичка! +100$ +30⚡');
+                save();
+                render();
+            }
+        }
+    }
+}
+
+// ============================================================
+// ====== РОСТ РАСТЕНИЙ ======
+// ============================================================
+function tickPots() {
+    const now = Date.now();
+    const dt = (now - (state.lastTick || now)) / 1000;
+    state.lastTick = now;
+    
+    state.pots.forEach(pot => {
+        if (!pot.strain) return;
+        
+        let waterDrain = 0.15;
+        if (state.room.auto) waterDrain *= 0.3;
+        pot.water = Math.max(0, pot.water - waterDrain * dt);
+        if (state.room.auto && pot.water < 60) {
+            pot.water = Math.min(100, pot.water + 0.15 * dt);
+        }
+        
+        if (pot.lamp && pot.stage > 0 && pot.stage < 5) {
+            const cost = LAMP_ENERGY_COST[pot.lamp] || 0;
+            state.energy = Math.max(0, state.energy - cost * dt * 0.2);
+        }
+        
+        let healthRegen = 0.15;
+        let diseaseChance = 0.004;
+        if (state.room.vent) { diseaseChance *= 0.3; healthRegen *= 1.4; }
+        if (state.room.heater) healthRegen *= 1.15;
+        
+        if (pot.water < 15) {
+            pot.health = Math.max(0, pot.health - 0.3 * dt);
+        } else if (pot.water > 35) {
+            pot.health = Math.min(100, pot.health + healthRegen * dt);
+        }
+        
+        if (!pot.disease && pot.health < 30 && Math.random() < diseaseChance) {
+            pot.disease = true;
+            showToast('🦠 Вредители!', true);
+            haptic('error');
+        }
+        if (pot.disease) {
+            pot.health = Math.max(0, pot.health - 0.2 * dt);
+        }
+        
+        if (pot.health <= 0) {
+            showToast('💀 Растение погибло!', true);
+            if (pot.strain) {
+                const s = getStrain(pot.strain);
+                if (s) {
+                    const refund = Math.floor(s.seedPrice * 0.2);
+                    state.money += refund;
+                }
+            }
+            pot.strain = null;
+            pot.plantedAt = null;
+            pot.stage = 0;
+            pot.disease = false;
+            pot.water = 100;
+            pot.health = 100;
+            pot.lamp = null;
+            pot.fert = null;
+            pot.speedMult = 1;
+            pot.yieldMult = 1;
+        }
+        updatePotStage(pot);
+    });
+}
+
+function getEffectiveTime(pot) {
+    const s = getStrain(pot.strain);
+    if (!s) return 9999;
+    let mult = (pot.speedMult || 1);
+    if (pot.lamp && state.energy > 2) {
+        const l = getLamp(pot.lamp);
+        if (l) {
+            const ef = Math.min(1, state.energy / 15);
+            mult *= (1 + (l.power - 1) * ef);
+        }
+    }
+    if (state.room.heater) mult *= 1.15;
+    if (state.room.vent) mult *= 1.05;
+    if (mult < 0.1) mult = 0.1;
+    return s.baseTime / mult;
+}
+
+function getProgress(pot) {
+    if (!pot.strain || !pot.plantedAt) return 0;
+    const t = getEffectiveTime(pot);
+    if (t <= 0) return 1;
+    const progress = (Date.now() - pot.plantedAt) / 1000 / t;
+    return Math.min(1, progress);
+}
+
+function updatePotStage(pot) {
+    const p = getProgress(pot);
+    if (p >= 1) pot.stage = 5;
+    else if (p >= 0.75) pot.stage = 4;
+    else if (p >= 0.45) pot.stage = 3;
+    else if (p >= 0.2) pot.stage = 2;
+    else pot.stage = 1;
+}
+
+function getQuality(pot) {
+    let q = 1.0;
+    if (pot.health >= 90) q += 0.25;
+    else if (pot.health >= 70) q += 0.1;
+    else if (pot.health < 40) q -= 0.3;
+    if (pot.lamp && state.energy > 5) {
+        const l = getLamp(pot.lamp);
+        if (l) {
+            const ef = Math.min(1, state.energy / 25);
+            q += (l.power - 1) * 0.3 * ef;
+        }
+    }
+    if (pot.fert) q += 0.15;
+    if (pot.disease) q -= 0.4;
+    const strain = getStrain(pot.strain);
+    if (strain) q *= strain.quality || 1;
+    if (q < 0.3) q = 0.3;
+    if (q > 3.0) q = 3.0;
+    return q;
+}
+
+function qualityName(q) {
+    if (q >= 2.2) return '💎 Легендарное';
+    if (q >= 1.7) return '🌟 Отличное';
+    if (q >= 1.2) return '⭐ Хорошее';
+    if (q >= 0.8) return '🌿 Обычное';
+    return '🥀 Слабое';
+}
+
+// ============================================================
+// ====== СБОР УРОЖАЯ ======
+// ============================================================
+function harvest(id) {
+    const pot = state.pots.find(p => p.id === id);
+    if (!pot) { showToast('Горшок не найден', true); return; }
+    if (!pot.strain) { showToast('Нет растения', true); return; }
+    
+    const prog = getProgress(pot);
+    if (prog < 0.99) {
+        const left = getEffectiveTime(pot) - (Date.now() - pot.plantedAt) / 1000;
+        showToast('Растение ещё не выросло! Осталось: ' + formatTime(Math.max(0, left)), true);
+        return;
+    }
+    if (pot.health < 20) { showToast('Растение слишком слабое!', true); return; }
+    
+    const s = getStrain(pot.strain);
+    if (!s) { showToast('Ошибка: сорт не найден', true); return; }
+    
+    const q = getQuality(pot);
+    const qName = qualityName(q);
+    let amount = Math.floor(s.yield * (pot.yieldMult || 1) * (pot.health / 100) * (q >= 1.5 ? 1.2 : 1));
+    if (amount < 1) amount = 1;
+    
+    const marketPrice = getMarketPrice(s.id);
+    const totalPrice = amount * marketPrice;
+    state.money += totalPrice;
+    state.totalHarvests = (state.totalHarvests || 0) + 1;
+    state.inventory[s.id] = (state.inventory[s.id] || 0) + amount;
+    
+    showToast(`🌿 ${qName}! +${amount} ${s.emoji} ${s.name} (${totalPrice}$)`);
+    haptic('success');
+    addXp(amount * 2 + Math.floor(q * 3));
+    
+    pot.strain = null;
+    pot.plantedAt = null;
+    pot.stage = 0;
+    pot.disease = false;
+    pot.water = 100;
+    pot.health = 100;
+    pot.fert = null;
+    pot.lamp = null;
+    pot.speedMult = 1;
+    pot.yieldMult = 1;
+    
+    save();
+    render();
+}
+
+// ============================================================
+// ====== ЦЕХ ======
+// ============================================================
+function getProductInfo(key) {
+    const s = getStrain(key);
+    if (s) {
+        return { name: s.emoji + ' ' + s.name + ' (сырец)', emoji: s.emoji, sellPrice: s.sellPrice, strain: key, type: 'raw' };
+    }
+    if (key.endsWith('_dried')) {
+        const sid = key.replace('_dried', '');
+        const s2 = getStrain(sid);
+        if (s2) {
+            return { name: s2.emoji + ' ' + s2.name + ' (сушка)', emoji: '🍂', sellPrice: Math.floor(s2.sellPrice * 1.4), strain: sid, type: 'dried' };
+        }
+    }
+    if (key.endsWith('_joint')) {
+        const sid = key.replace('_joint', '');
+        const s2 = getStrain(sid);
+        if (s2) {
+            return { name: s2.emoji + ' ' + s2.name + ' косяк', emoji: '🚬', sellPrice: Math.floor(s2.sellPrice * 1.9), strain: sid, type: 'joint' };
+        }
+    }
+    if (key.endsWith('_oil')) {
+        const sid = key.replace('_oil', '');
+        const s2 = getStrain(sid);
+        if (s2) {
+            return { name: s2.emoji + ' ' + s2.name + ' масло', emoji: '🧴', sellPrice: Math.floor(s2.sellPrice * 2.4), strain: sid, type: 'oil' };
+        }
+    }
+    if (key.endsWith('_edible')) {
+        const sid = key.replace('_edible', '');
+        const s2 = getStrain(sid);
+        if (s2) {
+            return { name: s2.emoji + ' ' + s2.name + ' еда', emoji: '🍪', sellPrice: Math.floor(s2.sellPrice * 2.8), strain: sid, type: 'edible' };
+        }
+    }
+    return null;
+}
+
+function processItem(strainId, productType) {
+    const p = PRODUCTS[productType];
+    if (!p) return;
+    const rawKey = strainId;
+    const driedKey = strainId + '_dried';
+    const outKey = strainId + '_' + productType;
+    
+    if (productType === 'dried') {
+        if ((state.inventory[rawKey] || 0) < 1) { showToast('Нет сырья', true); return; }
+        if (state.energy < p.energy) { showToast('Мало энергии', true); return; }
+        state.inventory[rawKey]--;
+        if (state.inventory[rawKey] <= 0) delete state.inventory[rawKey];
+        state.energy -= p.energy;
+        state.inventory[driedKey] = (state.inventory[driedKey] || 0) + 1;
+        showToast('🍂 Высушено!');
+    } else {
+        const need = p.need || 1;
+        if ((state.inventory[driedKey] || 0) < need) { showToast('Нужна сушка ×' + need, true); return; }
+        if (state.energy < p.energy) { showToast('Мало энергии', true); return; }
+        state.inventory[driedKey] -= need;
+        if (state.inventory[driedKey] <= 0) delete state.inventory[driedKey];
+        state.energy -= p.energy;
+        state.inventory[outKey] = (state.inventory[outKey] || 0) + 1;
+        showToast(p.emoji + ' ' + p.name + ' готов!');
+    }
+    haptic('success');
+    addXp(4);
+    save();
+    render();
+}
+
+function sellProduct(key) {
+    const amt = state.inventory[key] || 0;
+    if (amt <= 0) return;
+    const info = getProductInfo(key);
+    if (!info) return;
+    const total = amt * info.sellPrice;
+    state.money += total;
+    delete state.inventory[key];
+    showToast('💰 Продано за ' + total + '$');
+    haptic('success');
+    addXp(Math.floor(total / 10));
+    save();
+    render();
+}
+
+function consumeProduct(key, type) {
+    const amt = state.inventory[key] || 0;
+    if (amt <= 0) { showToast('Нет товара', true); return; }
+    if (state.consumedCount >= 3) { showToast('🌀 Ты уже накурился!', true); return; }
+    
+    state.inventory[key]--;
+    if (state.inventory[key] <= 0) delete state.inventory[key];
+    state.consumedCount = (state.consumedCount || 0) + 1;
+    
+    const names = { 'dried': 'сушку', 'joint': 'косяк', 'oil': 'масло', 'edible': 'еду' };
+    showToast(`💨 Покурил ${names[type] || 'товар'} (${state.consumedCount}/3)`);
+    haptic('medium');
+    
+    if (state.consumedCount >= 3) {
+        applyHighEffect();
+        state.consumedCount = 0;
+    }
+    save();
+    render();
+}
+
+// ============================================================
+// ====== ЭФФЕКТ "НАКУРИЛО" ======
+// ============================================================
+function applyHighEffect() {
+    if (highTimer) return;
+    showToast('🌀 Тебя накурило! 30 секунд!', false);
+    haptic('warning');
+    document.querySelectorAll('.pot-emoji, .card-emoji, .plant-container svg, .btn').forEach(el => {
+        el.classList.add('snoop-high');
+        highElements.push(el);
+    });
+    document.getElementById('profile-state').textContent = '🌀 Накурило!';
+    highTimer = setTimeout(() => {
+        highElements.forEach(el => el.classList.remove('snoop-high'));
+        highElements = [];
+        highTimer = null;
+        document.getElementById('profile-state').textContent = '🧠 Норма';
+        showToast('🌀 Эффект прошёл...');
+    }, 30000);
+}
+
+// ============================================================
+// ====== СНУП ДОГГ ======
+// ============================================================
+function trySpawnSnoop() {
+    if (state.snoopActive) return;
+    if (Date.now() - state.snoopCooldown < 120000) return;
+    if (Math.random() > 0.12) return;
+    document.getElementById('snoopPopup').classList.add('show');
+    document.getElementById('snoopOverlay').classList.add('active');
+    state.snoopActive = true;
+    haptic('warning');
+}
+
+function acceptSnoop() {
+    document.getElementById('snoopPopup').classList.remove('show');
+    document.getElementById('snoopOverlay').classList.remove('active');
+    state.money += 50;
+    state.energy = Math.min(state.maxEnergy, state.energy + 20);
+    showToast('🔥 Сильный накур! +50$ +20⚡');
+    haptic('success');
+    document.body.classList.add('snoop-high');
+    document.getElementById('snoopOverlay').classList.add('active');
+    document.getElementById('profile-state').textContent = '🔥 Убойная трава!';
+    clearTimeout(snoopTimer);
+    snoopTimer = setTimeout(() => {
+        document.body.classList.remove('snoop-high');
+        document.getElementById('snoopOverlay').classList.remove('active');
+        document.getElementById('profile-state').textContent = '🧠 Норма';
+        showToast('🌀 Эффект убойной травы прошёл...');
+    }, 30000);
+    state.snoopActive = false;
+    state.snoopCooldown = Date.now();
+    save();
+    render();
+}
+
+function rejectSnoop() {
+    document.getElementById('snoopPopup').classList.remove('show');
+    document.getElementById('snoopOverlay').classList.remove('active');
+    state.snoopActive = false;
+    state.snoopCooldown = Date.now();
+    showToast('Снуп Догг ушёл...');
+}
+
+// ============================================================
+// ====== ДЕЙСТВИЯ ======
+// ============================================================
+function waterPot(id) {
+    const pot = state.pots.find(p => p.id === id);
+    if (!pot || !pot.strain) return;
+    if (state.energy < 2) { showToast('Нужно 2⚡', true); return; }
+    state.energy -= 2;
+    pot.water = Math.min(100, pot.water + 45);
+    showToast('💧 Полито');
+    haptic('medium');
+    addXp(1);
+    save();
+    render();
+}
+
+function openSeedModal(id) {
+    selectedPotId = id;
+    const list = document.getElementById('seed-list');
+    list.innerHTML = '';
+    STRAINS.forEach(s => {
+        const unlocked = state.level >= s.unlock;
+        const can = state.money >= s.seedPrice && state.energy >= s.energyCost;
+        const c = document.createElement('div');
+        c.className = 'card' + (unlocked ? '' : ' card-locked');
+        c.innerHTML = `
+            <div class="card-emoji">${s.emoji}</div>
+            <div class="card-info">
+                <div class="card-title">${s.emoji} ${s.name} ${!unlocked ? '🔒' : ''}</div>
+                <div class="card-desc">⏱ ${Math.floor(s.baseTime/60)}м · ${s.yield} шт · 💰${s.sellPrice}$</div>
+            </div>
+            <div style="text-align:right">
+                <div style="color:${unlocked ? 'var(--accent)' : 'var(--hint)'};font-weight:700;">${s.seedPrice}$</div>
+                <div style="font-size:8px;color:var(--hint)">⚡${s.energyCost}</div>
+            </div>
+        `;
+        if (unlocked && can) {
+            c.style.cursor = 'pointer';
+            c.onclick = () => plantSeed(s.id);
+        }
+        list.appendChild(c);
+    });
+    document.getElementById('modal-seed').classList.add('show');
+}
+
+function plantSeed(sid) {
+    const s = getStrain(sid);
+    if (!s) return;
+    if (state.money < s.seedPrice || state.energy < s.energyCost) {
+        showToast('Не хватает ресурсов', true);
+        return;
+    }
+    const pot = state.pots.find(p => p.id === selectedPotId);
+    if (!pot || pot.strain) return;
+    state.money -= s.seedPrice;
+    state.energy -= s.energyCost;
+    pot.strain = sid;
+    pot.plantedAt = Date.now();
+    pot.water = 80;
+    pot.health = 100;
+    pot.stage = 1;
+    pot.disease = false;
+    pot.speedMult = 1;
+    pot.yieldMult = 1;
+    pot.lastTick = Date.now();
+    closeModal('modal-seed');
+    showToast('🌱 Посажено: ' + s.emoji + ' ' + s.name);
+    haptic('medium');
+    addXp(3);
+    save();
+    render();
+}
+
+function buyPot() {
+    let maxLevel = 1;
+    for (let i = 0; i < POT_LEVELS.length; i++) {
+        if (state.level >= (i + 1) * 2) maxLevel = POT_LEVELS[i].id;
+    }
+    const level = getPotLevel(maxLevel);
+    if (!level) { showToast('Ошибка', true); return; }
+    const price = level.price + state.pots.length * 50;
+    if (state.money < price) { showToast('Мало денег', true); return; }
+    state.money -= price;
+    state.pots.push({
+        id: state.nextPotId++,
+        strain: null,
+        plantedAt: null,
+        water: 100,
+        health: 100,
+        stage: 0,
+        disease: false,
+        lamp: null,
+        fert: null,
+        speedMult: 1,
+        yieldMult: 1,
+        lastTick: Date.now(),
+        _lastWarning: null,
+        potLevel: maxLevel
+    });
+    showToast('🪴 Новый горшок!');
+    haptic('success');
+    addXp(5);
+    save();
+    render();
+}
+
+function buyLamp(lid) {
+    const l = getLamp(lid);
+    if (!l) return;
+    if (state.money < l.price) { showToast('Мало денег', true); return; }
+    state.money -= l.price;
+    state.lamps[lid] = (state.lamps[lid] || 0) + 1;
+    showToast('💡 Куплена: ' + l.emoji + ' ' + l.name);
+    haptic('medium');
+    save();
+    render();
+}
+
+function buyFert(fid) {
+    const f = getFert(fid);
+    if (!f) return;
+    if (state.money < f.price) { showToast('Мало денег', true); return; }
+    state.money -= f.price;
+    state.ferts[fid] = (state.ferts[fid] || 0) + 1;
+    showToast('🧪 Куплено: ' + f.emoji + ' ' + f.name);
+    save();
+    render();
+}
+
+function buyEnergy() {
+    if (state.money < 80) { showToast('Мало денег', true); return; }
+    state.money -= 80;
+    state.energy = Math.min(state.maxEnergy, state.energy + 50);
+    showToast('⚡ +50 энергии');
+    save();
+    render();
+}
+
+function buyRoomUpgrade(uid) {
+    const u = ROOM_UPGRADES.find(x => x.id === uid);
+    if (!u || state.money < u.price) { showToast('Мало денег', true); return; }
+    if (u.type === 'vent' && state.room.vent) { showToast('Уже куплено'); return; }
+    if (u.type === 'auto' && state.room.auto) { showToast('Уже куплено'); return; }
+    if (u.type === 'heater' && state.room.heater) { showToast('Уже куплено'); return; }
+    state.money -= u.price;
+    if (u.type === 'vent') state.room.vent = true;
+    if (u.type === 'auto') state.room.auto = true;
+    if (u.type === 'heater') state.room.heater = true;
+    showToast('🏠 Куплено: ' + u.emoji + ' ' + u.name);
+    haptic('success');
+    addXp(10);
+    save();
+    render();
+}
+
+function openFertModal(id) {
+    selectedPotId = id;
+    const list = document.getElementById('fert-list');
+    list.innerHTML = '';
+    let any = false;
+    FERTS.forEach(f => {
+        const cnt = state.ferts[f.id] || 0;
+        if (cnt <= 0) return;
+        any = true;
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `
+            <div class="card-emoji">${f.emoji}</div>
+            <div class="card-info">
+                <div class="card-title">${f.emoji} ${f.name} <span class="inv-count">×${cnt}</span></div>
+                <div class="card-desc">${f.desc}</div>
+            </div>
+            <button class="btn btn-small btn-warning" onclick="applyFert('${f.id}')">🧪 Применить</button>
+        `;
+        list.appendChild(c);
+    });
+    if (!any) list.innerHTML = '<div class="empty"><div class="empty-emoji">🧪</div>Нет удобрений</div>';
+    document.getElementById('modal-fert').classList.add('show');
+}
+
+function applyFert(fid) {
+    const pot = state.pots.find(p => p.id === selectedPotId);
+    if (!pot || !pot.strain) return;
+    if ((state.ferts[fid] || 0) <= 0) return;
+    const f = getFert(fid);
+    state.ferts[fid]--;
+    if (f.effect === 'heal') {
+        pot.disease = false;
+        pot.health = Math.min(100, pot.health + 40);
+        showToast('💊 Вылечено!');
+    } else {
+        if (f.effect === 'speed' || f.effect === 'both') {
+            pot.speedMult = (pot.speedMult || 1) * (1 + f.value);
+        }
+        if (f.effect === 'yield' || f.effect === 'both') {
+            pot.yieldMult = (pot.yieldMult || 1) * (1 + f.value);
+        }
+        pot.fert = fid;
+        showToast(f.emoji + ' ' + f.name + ' применено');
+    }
+    closeModal('modal-fert');
+    haptic('success');
+    addXp(2);
+    save();
+    render();
+}
+
+function openLampModal(id) {
+    selectedPotId = id;
+    const list = document.getElementById('lamp-list');
+    list.innerHTML = '';
+    let any = false;
+    LAMPS.forEach(l => {
+        const cnt = state.lamps[l.id] || 0;
+        if (cnt <= 0) return;
+        any = true;
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `
+            <div class="card-emoji">${l.emoji}</div>
+            <div class="card-info">
+                <div class="card-title">${l.emoji} ${l.name} <span class="inv-count">×${cnt}</span></div>
+                <div class="card-desc">${l.desc} · ⚡${LAMP_ENERGY_COST[l.id].toFixed(1)}/с</div>
+            </div>
+            <button class="btn btn-small btn-purple" onclick="applyLamp(${selectedPotId},'${l.id}')">💡 Установить</button>
+        `;
+        list.appendChild(c);
+    });
+    if (!any) list.innerHTML = '<div class="empty"><div class="empty-emoji">💡</div>Нет ламп</div>';
+    document.getElementById('modal-lamp').classList.add('show');
+}
+
+function applyLamp(potId, lampId) {
+    const pot = state.pots.find(p => p.id === potId);
+    if (!pot || !pot.strain) { showToast('Сначала посади растение', true); return; }
+    if ((state.lamps[lampId] || 0) <= 0) { showToast('Нет лампы', true); return; }
+    if (pot.lamp) { state.lamps[pot.lamp] = (state.lamps[pot.lamp] || 0) + 1; }
+    state.lamps[lampId]--;
+    pot.lamp = lampId;
+    showToast('💡 Лампа установлена');
+    haptic('success');
+    closeModal('modal-lamp');
+    save();
+    render();
+}
+
+function sellAll() {
+    let total = 0, items = 0;
+    for (const [id, amt] of Object.entries(state.inventory)) {
+        if (amt <= 0) continue;
+        const info = getProductInfo(id);
+        if (info) {
+            total += amt * info.sellPrice;
+            items += amt;
+        }
+    }
+    if (!items) { showToast('Склад пуст', true); return; }
+    state.money += total;
+    state.inventory = {};
+    showToast('💰 Продано за ' + total + '$');
+    haptic('success');
+    addXp(Math.floor(total / 10));
+    save();
+    render();
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+}
+
+// ============================================================
+// ====== СОЦИАЛЬНЫЕ ФУНКЦИИ ======
+// ============================================================
+function addFriend() {
+    const input = document.getElementById('friend-search');
+    const name = input.value.trim();
+    if (!name) { showToast('Введите имя игрока', true); return; }
+    if (name === getUserName()) { showToast('Это вы!', true); return; }
+    if (state.friends.find(f => f.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Уже в друзьях', true);
+        return;
+    }
+    if (state.friendRequests.find(r => r.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Заявка уже отправлена', true);
+        return;
+    }
+    
+    const request = { from: userId, name: name, date: new Date().toISOString() };
+    state.friendRequests.push(request);
+    showToast(`📨 Заявка отправлена ${name}`);
+    haptic('medium');
+    input.value = '';
+    save();
+    renderSocial();
+}
+
+function acceptFriend(index) {
+    const req = state.friendRequests[index];
+    if (!req) return;
+    state.friends.push({ 
+        id: 'friend_' + Date.now(), 
+        name: req.name, 
+        addedAt: new Date().toISOString() 
+    });
+    state.friendRequests.splice(index, 1);
+    showToast(`👫 ${req.name} теперь в друзьях!`);
+    haptic('success');
+    state.money += 20;
+    save();
+    renderSocial();
+}
+
+function rejectFriend(index) {
+    state.friendRequests.splice(index, 1);
+    showToast('Заявка отклонена');
+    save();
+    renderSocial();
+}
+
+function removeFriend(index) {
+    const friend = state.friends[index];
+    if (!friend) return;
+    if (!confirm(`Удалить ${friend.name} из друзей?`)) return;
+    state.friends.splice(index, 1);
+    showToast(`👋 ${friend.name} удалён`);
+    save();
+    renderSocial();
+}
+
+// ============================================================
+// ====== ЕЖЕДНЕВНЫЙ БОНУС ======
+// ============================================================
+function updateBonusTimer() {
+    const now = Date.now();
+    const lastBonus = state.lastBonusTime || 0;
+    const cooldown = 24 * 60 * 60 * 1000;
+    const remaining = Math.max(0, cooldown - (now - lastBonus));
+    
+    const timerEl = document.getElementById('bonus-countdown');
+    const btnEl = document.getElementById('btn-bonus');
+    
+    if (remaining <= 0) {
+        timerEl.textContent = '🎁 Бонус доступен!';
+        if (btnEl) btnEl.disabled = false;
+        if (btnEl) btnEl.style.opacity = '1';
+        return;
+    }
+    
+    const hours = Math.floor(remaining / (60 * 60 * 1000));
+    const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((remaining % (60 * 1000)) / 1000);
+    timerEl.textContent = `⏳ ${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+    if (btnEl) btnEl.disabled = true;
+    if (btnEl) btnEl.style.opacity = '0.5';
+}
+
+function sendDailyBonus() {
+    const now = Date.now();
+    const lastBonus = state.lastBonusTime || 0;
+    const cooldown = 24 * 60 * 60 * 1000;
+    
+    if (now - lastBonus < cooldown) {
+        showToast('Бонус ещё недоступен!', true);
+        return;
+    }
+    
+    if (state.friends.length === 0) {
+        showToast('Нет друзей для отправки бонуса', true);
+        return;
+    }
+    
+    const bonusAmount = 50 + state.friends.length * 10;
+    const energyBonus = 10 + state.friends.length * 2;
+    
+    state.money += bonusAmount;
+    state.energy = Math.min(state.maxEnergy, state.energy + energyBonus);
+    state.lastBonusTime = now;
+    
+    const logEntry = {
+        date: new Date().toISOString(),
+        amount: bonusAmount,
+        energy: energyBonus,
+        friends: state.friends.length
+    };
+    state.bonusLog.unshift(logEntry);
+    if (state.bonusLog.length > 50) state.bonusLog.pop();
+    
+    showToast(`🎁 Бонус отправлен всем друзьям! +${bonusAmount}$ +${energyBonus}⚡`);
+    haptic('success');
+    save();
+    renderSocial();
+    updateBonusTimer();
+}
+
+// ============================================================
+// ====== ЧАТ ======
+// ============================================================
+function loadChat() {
+    try {
+        const saved = localStorage.getItem('chat_' + userId);
+        if (saved) {
+            chatMessages = JSON.parse(saved);
+        }
+    } catch(e) {}
+}
+
+function saveChat() {
+    try {
+        localStorage.setItem('chat_' + userId, JSON.stringify(chatMessages));
+    } catch(e) {}
+}
+
+function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    
+    const msg = {
+        from: userId,
+        name: getUserName(),
+        text: text,
+        time: new Date().toISOString()
+    };
+    
+    chatMessages.push(msg);
+    saveChat();
+    input.value = '';
+    renderChat();
+    
+    if (tg) {
+        try {
+            tg.sendData(JSON.stringify({
+                type: 'chat',
+                message: msg
+            }));
+        } catch(e) {}
+    }
+}
+
+function renderChat() {
+    const el = document.getElementById('chatWindow');
+    if (!el) return;
+    
+    const msgs = chatMessages.slice(-20);
+    if (msgs.length === 0) {
+        el.innerHTML = `
+            <div class="chat-message">
+                <span class="sender">💬</span>
+                <div>Нет сообщений. Напиши первое!</div>
+            </div>
+        `;
+        return;
+    }
+    
+    el.innerHTML = msgs.map(msg => `
+        <div class="chat-message">
+            <span class="sender">${msg.from === userId ? '👤' : ''} ${msg.name}</span>
+            <span class="time">${new Date(msg.time).toLocaleTimeString()}</span>
+            <div>${msg.text}</div>
+        </div>
+    `).join('');
+    el.scrollTop = el.scrollHeight;
+}
+
+// ============================================================
+// ====== ОТРИСОВКА ======
+// ============================================================
+function getPlantSVG(strainId, stage, health, disease, ready) {
+    const colors = {
+        skunk: { leaf: '#4caf50', dark: '#2e7d32', flower: '#8bc34a' },
+        haze: { leaf: '#7b1fa2', dark: '#4a148c', flower: '#ce93d8' },
+        widow: { leaf: '#e8f5e9', dark: '#a5d6a7', flower: '#ffffff' },
+        alien: { leaf: '#00bcd4', dark: '#006064', flower: '#4dd0e1' },
+        og: { leaf: '#f57c00', dark: '#e65100', flower: '#ffcc80' },
+        cheese: { leaf: '#fdd835', dark: '#f9a825', flower: '#ffee58' },
+        lemon: { leaf: '#c0ca33', dark: '#827717', flower: '#fff176' },
+        blue: { leaf: '#42a5f5', dark: '#0d47a1', flower: '#90caf9' },
+        cookies: { leaf: '#8d6e63', dark: '#4e342e', flower: '#a1887f' },
+        gelato: { leaf: '#ce93d8', dark: '#6a1b9a', flower: '#e1bee7' },
+        wedding: { leaf: '#ef9a9a', dark: '#b71c1c', flower: '#ffcdd2' },
+        runtz: { leaf: '#ffab91', dark: '#bf360c', flower: '#ffccbc' },
+        zkittlez: { leaf: '#80cbc4', dark: '#00695c', flower: '#b2dfdb' },
+        kush: { leaf: '#a5d6a7', dark: '#1b5e20', flower: '#c8e6c9' },
+        glue: { leaf: '#78909c', dark: '#263238', flower: '#b0bec5' }
+    };
+    const c = colors[strainId] || colors.skunk;
+    const hf = health / 100;
+    const isSick = disease;
+    const s = stage || 0;
+    let svg = '';
+    if (s === 1) {
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="85" rx="25" ry="6" fill="#3e2723" opacity="0.3"/><circle cx="50" cy="75" r="6" fill="${c.leaf}" opacity="${hf*0.8}"/><circle cx="47" cy="73" r="3" fill="${c.dark}" opacity="0.4"/><path d="M50 75 L48 60 L52 60 Z" fill="${c.dark}" opacity="0.3"/></svg>`;
+    } else if (s === 2) {
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="90" rx="28" ry="6" fill="#3e2723" opacity="0.3"/><line x1="50" y1="85" x2="50" y2="55" stroke="${c.dark}" stroke-width="2.5" opacity="${hf}"/><path d="M50 55 Q38 50 32 62 Q40 58 50 55" fill="${c.leaf}" opacity="${hf*0.7}"/><path d="M50 55 Q62 50 68 62 Q60 58 50 55" fill="${c.leaf}" opacity="${hf*0.7}"/>${isSick?`<circle cx="50" cy="65" r="10" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="8" to="12" dur="0.8s" repeatCount="indefinite"/></circle>`:''}</svg>`;
+    } else if (s === 3) {
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="92" rx="30" ry="6" fill="#3e2723" opacity="0.3"/><line x1="50" y1="88" x2="50" y2="40" stroke="${c.dark}" stroke-width="3" opacity="${hf}"/><path d="M50 50 Q35 40 28 58 Q40 50 50 50" fill="${c.leaf}" opacity="${hf*0.7}"/><path d="M50 50 Q65 40 72 58 Q60 50 50 50" fill="${c.leaf}" opacity="${hf*0.7}"/><path d="M50 40 Q38 32 32 48 Q42 40 50 40" fill="${c.dark}" opacity="${hf*0.4}"/><path d="M50 40 Q62 32 68 48 Q58 40 50 40" fill="${c.dark}" opacity="${hf*0.4}"/>${isSick?`<circle cx="50" cy="60" r="12" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="10" to="14" dur="0.8s" repeatCount="indefinite"/></circle>`:''}</svg>`;
+    } else if (s === 4) {
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="94" rx="32" ry="6" fill="#3e2723" opacity="0.3"/><line x1="50" y1="90" x2="50" y2="30" stroke="${c.dark}" stroke-width="3.5" opacity="${hf}"/><path d="M50 42 Q30 30 22 52 Q35 42 50 42" fill="${c.leaf}" opacity="${hf*0.6}"/><path d="M50 42 Q70 30 78 52 Q65 42 50 42" fill="${c.leaf}" opacity="${hf*0.6}"/><path d="M50 58 Q35 48 28 65 Q40 56 50 58" fill="${c.leaf}" opacity="${hf*0.5}"/><path d="M50 58 Q65 48 72 65 Q60 56 50 58" fill="${c.leaf}" opacity="${hf*0.5}"/><circle cx="50" cy="35" r="10" fill="${c.flower}" opacity="${hf*0.5}"/><circle cx="38" cy="45" r="6" fill="${c.flower}" opacity="${hf*0.4}"/><circle cx="62" cy="45" r="6" fill="${c.flower}" opacity="${hf*0.4}"/>${isSick?`<circle cx="50" cy="55" r="16" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="12" to="18" dur="0.8s" repeatCount="indefinite"/></circle>`:''}</svg>`;
+    } else if (s === 5) {
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="94" rx="34" ry="6" fill="#3e2723" opacity="0.3"/><line x1="50" y1="90" x2="50" y2="25" stroke="${c.dark}" stroke-width="4" opacity="${hf}"/><path d="M50 38 Q25 25 16 50 Q32 38 50 38" fill="${c.leaf}" opacity="${hf*0.5}"/><path d="M50 38 Q75 25 84 50 Q68 38 50 38" fill="${c.leaf}" opacity="${hf*0.5}"/><path d="M50 55 Q32 42 22 62 Q38 52 50 55" fill="${c.leaf}" opacity="${hf*0.4}"/><path d="M50 55 Q68 42 78 62 Q62 52 50 55" fill="${c.leaf}" opacity="${hf*0.4}"/><circle cx="50" cy="30" r="14" fill="${c.flower}" opacity="${hf*0.6}"/><circle cx="32" cy="45" r="8" fill="${c.flower}" opacity="${hf*0.5}"/><circle cx="68" cy="45" r="8" fill="${c.flower}" opacity="${hf*0.5}"/><circle cx="42" cy="52" r="6" fill="${c.flower}" opacity="${hf*0.4}"/><circle cx="58" cy="52" r="6" fill="${c.flower}" opacity="${hf*0.4}"/>${ready?`<text x="50" y="12" font-size="14" text-anchor="middle" fill="#ffd700">✨</text>`:''}${isSick?`<circle cx="50" cy="60" r="20" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.4"><animate attributeName="r" from="16" to="22" dur="0.8s" repeatCount="indefinite"/></circle>`:''}</svg>`;
+    }
+    return svg;
+}
+
+function renderFarm() {
+    const grid = document.getElementById('farm-grid');
+    grid.innerHTML = '';
+    if (state.pots.length === 0) {
+        grid.innerHTML = '<div class="empty"><div class="empty-emoji">🪴</div>Нет горшков</div>';
+        document.getElementById('btn-buy-pot').textContent = '➕ Купить горшок';
+        return;
+    }
+    state.pots.forEach(pot => {
+        const div = document.createElement('div');
+        div.className = 'pot';
+        
+        if (!pot.strain) {
+            div.innerHTML += `
+                <div class="pot-emoji">🪴</div>
+                <div class="pot-name">Пустой горшок</div>
+                <div class="pot-status">Готов к посадке</div>
+                <button class="btn btn-full" onclick="openSeedModal(${pot.id})">🌱 Посадить</button>
+            `;
+        } else {
+            const s = getStrain(pot.strain);
+            const prog = getProgress(pot);
+            const left = Math.max(0, Math.ceil(getEffectiveTime(pot) - (Date.now() - pot.plantedAt) / 1000));
+            updatePotStage(pot);
+            const ready = prog >= 1;
+            if (ready) div.classList.add('ready');
+            else if (pot.water < 25) div.classList.add('needs-water');
+            if (pot.disease) div.classList.add('sick');
+            
+            let tags = '';
+            if (pot.disease) tags += ' 🦠';
+            if (pot.lamp) {
+                const l = getLamp(pot.lamp);
+                if (l) tags += ` ${l.emoji}`;
+            }
+            if (pot.fert) tags += ' 🧪';
+            
+            let actions = '';
+            if (ready) {
+                actions = `<button class="btn btn-full" onclick="harvest(${pot.id})">🌿 Собрать урожай</button>`;
+            } else {
+                actions = `
+                    <div class="pot-actions">
+                        <button class="btn btn-blue btn-small" onclick="waterPot(${pot.id})">💧</button>
+                        <button class="btn btn-warning btn-small" onclick="openFertModal(${pot.id})">🧪</button>
+                        <button class="btn btn-purple btn-small" onclick="openLampModal(${pot.id})">💡</button>
+                    </div>
+                `;
+            }
+            
+            div.innerHTML += `
+                <div class="pot-emoji">${STAGE_EMOJI[pot.stage] || '🌱'}</div>
+                <div class="pot-name">${s.emoji} ${s.name} ${tags}</div>
+                <div class="pot-status">${ready ? '✅ Готово!' : STAGE_NAMES[pot.stage] + ' · ' + formatTime(left)}</div>
+                <div class="plant-container">${getPlantSVG(pot.strain, pot.stage, pot.health, pot.disease, ready)}</div>
+                <div class="bars">
+                    <div class="bar-row"><span>💧</span><div class="bar"><div class="bar-fill water" style="width:${pot.water}%"></div></div></div>
+                    <div class="bar-row"><span>❤️</span><div class="bar"><div class="bar-fill health" style="width:${pot.health}%"></div></div></div>
+                    <div class="bar-row"><span>⏱</span><div class="bar"><div class="bar-fill growth" style="width:${prog * 100}%"></div></div></div>
+                </div>
+                ${actions}
+            `;
+        }
+        grid.appendChild(div);
+    });
+    const maxLevel = Math.min(5, Math.floor((state.level + 1) / 2) + 1);
+    const buyLevel = getPotLevel(maxLevel) || POT_LEVELS[0];
+    const price = buyLevel.price + state.pots.length * 50;
+    document.getElementById('btn-buy-pot').textContent = '➕ Купить горшок (' + price + '$)';
+}
+
+function renderMarket() {
+    const grid = document.getElementById('market-grid');
+    grid.innerHTML = '';
+    STRAINS.forEach(s => {
+        const price = getMarketPrice(s.id);
+        const change = getPriceChange(s.id);
+        const changeClass = change >= 0 ? 'up' : 'down';
+        const changeSign = change >= 0 ? '+' : '';
+        const div = document.createElement('div');
+        div.className = 'market-item';
+        div.innerHTML = `
+            <span>${s.emoji} ${s.name}</span>
+            <span>
+                <span class="price">${price}$</span>
+                <span class="change ${changeClass}">${changeSign}${change.toFixed(1)}%</span>
+            </span>
+        `;
+        grid.appendChild(div);
+    });
+    const now = Date.now();
+    const nextUpdate = state.marketUpdateTime + 3600000;
+    const remaining = Math.max(0, Math.floor((nextUpdate - now) / 1000));
+    const min = Math.floor(remaining / 60);
+    const sec = remaining % 60;
+    document.getElementById('market-timer').textContent = `🔄 Обновление через: ${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+function renderShop() {
+    const list = document.getElementById('shop-list');
+    list.innerHTML = `
+        <div class="card">
+            <div class="card-emoji">⚡</div>
+            <div class="card-info">
+                <div class="card-title">Энергетик</div>
+                <div class="card-desc">+50 энергии</div>
+            </div>
+            <button class="btn btn-small" onclick="buyEnergy()">80$</button>
+        </div>
+        <div class="section-title">💡 Лампы</div>
+    `;
+    LAMPS.forEach(l => {
+        const owned = state.lamps[l.id] || 0;
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `
+            <div class="card-emoji">${l.emoji}</div>
+            <div class="card-info">
+                <div class="card-title">${l.emoji} ${l.name} ${owned ? `<span class="inv-count">×${owned}</span>` : ''}</div>
+                <div class="card-desc">${l.desc} · ⚡${LAMP_ENERGY_COST[l.id].toFixed(1)}/с</div>
+            </div>
+            <button class="btn btn-small btn-warning" onclick="buyLamp('${l.id}')">${l.price}$</button>
+        `;
+        list.appendChild(c);
+    });
+    list.innerHTML += `<div class="section-title">🧪 Удобрения</div>`;
+    FERTS.forEach(f => {
+        const owned = state.ferts[f.id] || 0;
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `
+            <div class="card-emoji">${f.emoji}</div>
+            <div class="card-info">
+                <div class="card-title">${f.emoji} ${f.name} ${owned ? `<span class="inv-count">×${owned}</span>` : ''}</div>
+                <div class="card-desc">${f.desc}</div>
+            </div>
+            <button class="btn btn-small" onclick="buyFert('${f.id}')">${f.price}$</button>
+        `;
+        list.appendChild(c);
+    });
+}
+
+function renderInventory() {
+    const list = document.getElementById('inventory-list');
+    const entries = Object.entries(state.inventory).filter(([_, a]) => a > 0);
+    if (!entries.length) {
+        list.innerHTML = '<div class="empty"><div class="empty-emoji">📦</div>Склад пуст</div>';
+        document.getElementById('btn-sell-all').style.display = 'none';
+        return;
+    }
+    document.getElementById('btn-sell-all').style.display = 'block';
+    list.innerHTML = '';
+    entries.forEach(([id, amt]) => {
+        const s = getStrain(id);
+        if (!s) return;
+        const price = getMarketPrice(id);
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `
+            <div class="card-emoji">${s.emoji}</div>
+            <div class="card-info">
+                <div class="card-title">${s.emoji} ${s.name} <span class="inv-count">×${amt}</span></div>
+                <div class="card-desc">💰${price}$ · ${amt * price}$</div>
+            </div>
+            <button class="btn btn-small" onclick="sellProduct('${id}')">💰</button>
+        `;
+        list.appendChild(c);
+    });
+}
+
+function renderProcess() {
+    const list = document.getElementById('process-list');
+    list.innerHTML = '';
+    
+    const raws = Object.entries(state.inventory).filter(([k, v]) => v > 0 && getStrain(k));
+    if (!raws.length) {
+        list.innerHTML = '<div class="empty"><div class="empty-emoji">⚗️</div>Нет сырья для переработки</div>';
+    } else {
+        raws.forEach(([id, amt]) => {
+            const s = getStrain(id);
+            const c = document.createElement('div');
+            c.className = 'card';
+            c.innerHTML = `
+                <div class="card-emoji">${s.emoji}</div>
+                <div class="card-info">
+                    <div class="card-title">${s.emoji} ${s.name} <span class="inv-count">×${amt}</span></div>
+                    <div class="card-desc">Сырец</div>
+                </div>
+                <button class="btn btn-small btn-warning" onclick="processItem('${id}','dried')">🍂 Сушить</button>
+            `;
+            list.appendChild(c);
+        });
+    }
+    
+    const dried = Object.entries(state.inventory).filter(([k, v]) => v > 0 && k.endsWith('_dried'));
+    dried.forEach(([key, amt]) => {
+        const info = getProductInfo(key);
+        if (!info) return;
+        const sid = info.strain;
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `
+            <div class="card-emoji">🍂</div>
+            <div class="card-info">
+                <div class="card-title">${info.name} <span class="inv-count">×${amt}</span></div>
+                <div class="card-desc">Переработка</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                <button class="btn btn-small" onclick="processItem('${sid}','joint')">🚬 Косяк</button>
+                <button class="btn btn-small" onclick="processItem('${sid}','oil')">🧴 Масло</button>
+                <button class="btn btn-small" onclick="processItem('${sid}','edible')">🍪 Еда</button>
+            </div>
+        `;
+        list.appendChild(c);
+    });
+    
+    const plist = document.getElementById('products-list');
+    plist.innerHTML = '';
+    const products = Object.entries(state.inventory).filter(([k, v]) => v > 0 && 
+        (k.includes('_joint') || k.includes('_oil') || k.includes('_edible') || k.includes('_dried')));
+    
+    if (!products.length) {
+        plist.innerHTML = '<div class="empty"><div class="empty-emoji">🍃</div>Нет готовой продукции</div>';
+    } else {
+        products.forEach(([key, amt]) => {
+            const info = getProductInfo(key);
+            if (!info) return;
+            const isConsumable = info.type === 'dried' || info.type === 'joint' || info.type === 'oil' || info.type === 'edible';
+            const btnLabel = info.type === 'dried' ? '🚬 Покурить' : '🍽 Попробовать';
+            const btnClass = info.type === 'dried' ? 'btn-smoke' : 'btn-taste';
+            const c = document.createElement('div');
+            c.className = 'card';
+            c.innerHTML = `
+                <div class="card-emoji">${info.emoji}</div>
+                <div class="card-info">
+                    <div class="card-title">${info.name} <span class="inv-count">×${amt}</span></div>
+                    <div class="card-desc">${info.sellPrice}$ · ${amt * info.sellPrice}$</div>
+                </div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <button class="btn btn-small" onclick="sellProduct('${key}')">💰</button>
+                    ${isConsumable ? `<button class="btn btn-small ${btnClass}" onclick="consumeProduct('${key}','${info.type}')">${btnLabel}</button>` : ''}
+                </div>
+            `;
+            plist.appendChild(c);
+        });
+    }
+}
+
+function renderRoom() {
+    const info = document.getElementById('room-info');
+    info.innerHTML = `
+        <div class="room-grid">
+            <div class="room-item"><span class="big">🪴</span><div>${state.pots.length}</div><div class="label">Горшков</div></div>
+            <div class="room-item"><span class="big">${state.room.vent ? '✅' : '❌'}</span><div>${state.room.vent ? 'Вкл' : 'Выкл'}</div><div class="label">Вентиляция</div></div>
+            <div class="room-item"><span class="big">${state.room.auto ? '✅' : '❌'}</span><div>${state.room.auto ? 'Вкл' : 'Выкл'}</div><div class="label">Автополив</div></div>
+            <div class="room-item" style="grid-column:span 3;"><span class="big">${state.room.heater ? '✅' : '❌'}</span><div>${state.room.heater ? 'Вкл' : 'Выкл'}</div><div class="label">Обогреватель</div></div>
+        </div>
+    `;
+    const list = document.getElementById('room-list');
+    list.innerHTML = '';
+    list.innerHTML += '<div class="section-title">🪴 Уровни горшков</div>';
+    POT_LEVELS.forEach(pl => {
+        const unlocked = state.level >= pl.id * 2;
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.style.opacity = unlocked ? '1' : '0.5';
+        c.innerHTML = `
+            <div class="card-emoji">${pl.emoji}</div>
+            <div class="card-info">
+                <div class="card-title">${pl.emoji} ${pl.name} ${unlocked ? '✅' : '🔒'}</div>
+                <div class="card-desc">${pl.desc} · ${pl.price}$</div>
+            </div>
+            <span style="font-size:9px;color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${unlocked ? 'Доступен' : 'Ур. ' + pl.id * 2}</span>
+        `;
+        list.appendChild(c);
+    });
+    list.innerHTML += '<div class="section-title">🏠 Улучшения</div>';
+    ROOM_UPGRADES.forEach(u => {
+        let bought = false;
+        if (u.type === 'vent' && state.room.vent) bought = true;
+        if (u.type === 'auto' && state.room.auto) bought = true;
+        if (u.type === 'heater' && state.room.heater) bought = true;
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.style.opacity = bought ? '0.5' : '1';
+        c.innerHTML = `
+            <div class="card-emoji">${u.emoji}</div>
+            <div class="card-info">
+                <div class="card-title">${u.emoji} ${u.name}</div>
+                <div class="card-desc">${u.desc}</div>
+            </div>
+            ${bought ? '<span style="color:var(--hint);font-size:10px;">✅ Куплено</span>' : `<button class="btn btn-small" onclick="buyRoomUpgrade('${u.id}')">${u.price}$</button>`}
+        `;
+        list.appendChild(c);
+    });
+}
+
+function renderProfile() {
+    const name = tg?.initDataUnsafe?.user?.first_name || 'Игрок';
+    document.getElementById('profile-name').textContent = name;
+    document.getElementById('profile-id').textContent = 'ID: ' + userId;
+    const regDate = new Date(state.registerDate);
+    document.getElementById('profile-regdate').textContent = regDate.toLocaleDateString();
+    document.getElementById('profile-level').textContent = state.level;
+    document.getElementById('profile-money').textContent = Math.floor(state.money) + '$';
+    document.getElementById('profile-energy').textContent = Math.floor(state.energy) + '/' + state.maxEnergy;
+    document.getElementById('profile-harvests').textContent = state.totalHarvests || 0;
+    document.getElementById('profile-pots').textContent = state.pots.length;
+    const stateText = document.body.classList.contains('snoop-high') ? '🔥 Убойная трава!' : (highTimer ? '🌀 Накурило!' : '🧠 Норма');
+    document.getElementById('profile-state').textContent = stateText;
+}
+
+function renderFriends() {
+    document.getElementById('ref-count').textContent = state.referrals || 0;
+    document.getElementById('ref-earned').textContent = state.referralEarned || 0;
+    
+    const container = document.getElementById('friends-list');
+    if (!container) return;
+    
+    const friends = state.referralsList || [];
+    if (friends.length === 0) {
+        container.innerHTML = `
+            <div style="color:var(--hint);font-size:10px;text-align:center;padding:8px;">
+                👤 Пока нет друзей по реферальной ссылке<br>
+                <span style="font-size:8px;">Пригласи друзей и получай бонусы!</span>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '<div style="font-size:10px;font-weight:600;color:var(--hint);margin-top:4px;">👥 Приглашённые друзья</div>';
+    friends.forEach((friend, index) => {
+        const date = friend.date ? new Date(friend.date).toLocaleDateString() : 'Недавно';
+        html += `
+            <div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10px;display:flex;justify-content:space-between;">
+                <span>${friend.name || 'Друг'}</span>
+                <span style="color:var(--gold);font-size:9px;">+${friend.bonus || 150}$</span>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
 function renderSocial() {
     // Заявки
     const reqDiv = document.getElementById('friend-requests');
@@ -664,7 +1933,6 @@ function renderSocial() {
     }
     
     let html = '<div class="section-title">👫 Мои друзья</div>';
-    
     state.friends.forEach((friend, i) => {
         const data = getFriendData(friend.id);
         const money = data ? data.money : 0;
@@ -683,33 +1951,140 @@ function renderSocial() {
             </div>
         `;
     });
-    
     friendsDiv.innerHTML = html;
+    
+    // Бонус лог
+    const logDiv = document.getElementById('bonus-log');
+    if (state.bonusLog.length === 0) {
+        logDiv.innerHTML = 'История бонусов пуста';
+    } else {
+        let html2 = '<div style="font-weight:600;font-size:9px;color:var(--hint);">📜 История бонусов</div>';
+        state.bonusLog.slice(0, 10).forEach(entry => {
+            const date = new Date(entry.date).toLocaleDateString();
+            html2 += `
+                <div style="padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:9px;display:flex;justify-content:space-between;">
+                    <span>${date}</span>
+                    <span style="color:var(--gold);">+${entry.amount}$ +${entry.energy}⚡ (${entry.friends} друзей)</span>
+                </div>
+            `;
+        });
+        logDiv.innerHTML = html2;
+    }
+    
+    renderChat();
+}
+
+function renderHeader() {
+    document.getElementById('money').textContent = Math.floor(state.money);
+    document.getElementById('energy').textContent = Math.floor(state.energy);
+    document.getElementById('level').textContent = state.level;
+    document.getElementById('rep').textContent = state.rep;
+    document.getElementById('xp-badge').textContent = `${state.xp}/${xpFor(state.level)} XP`;
+}
+
+function render() {
+    renderHeader();
+    renderFarm();
+    renderMarket();
+    renderShop();
+    renderInventory();
+    renderProcess();
+    renderRoom();
+    renderProfile();
+    renderFriends();
+    renderSocial();
+    updateBonusTimer();
 }
 
 // ============================================================
-// ====== ОСТАЛЬНЫЕ ФУНКЦИИ (сокращённо) ======
+// ====== ТАБЫ ======
 // ============================================================
-// [Здесь идут все остальные функции игры: вода, посадка, сбор и т.д.]
-// Они такие же как в предыдущей версии, я их сохранил.
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        const tabName = this.dataset.tab;
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('section-' + tabName).classList.add('active');
+        if (tabName === 'market') renderMarket();
+        if (tabName === 'leaderboard') loadLeaderboard('monthly');
+        if (tabName === 'friends') { renderSocial(); updateBonusTimer(); }
+        haptic('light');
+    });
+});
+
+// ============================================================
+// ====== ЦИКЛ ИГРЫ ======
+// ============================================================
+setInterval(() => {
+    if (state.energy < state.maxEnergy) {
+        state.energy = Math.min(state.maxEnergy, state.energy + 0.3);
+    }
+    tickPots();
+    updateMarketPrices();
+    trySpawnSnoop();
+    renderHeader();
+    renderFarm();
+    renderMarket();
+    updateBonusTimer();
+    save();
+}, 1500);
+
+// Обновляем статус друзей каждые 10 секунд
+setInterval(() => {
+    renderSocial();
+}, 10000);
+
+// Обновляем рейтинг каждые 30 секунд
+setInterval(() => {
+    loadLeaderboard('monthly');
+}, 30000);
 
 // ============================================================
 // ====== ЗАПУСК ======
 // ============================================================
 load();
+handleReferral();
 render();
 setTimeout(() => loadLeaderboard('monthly'), 1000);
 
-// Обновляем рейтинг каждые 30 секунд
-setInterval(() => {
-    loadLeaderboard('monthly');
-    renderSocial();
-    savePublicData();
-}, 30000);
+// ============================================================
+// ====== ЭКСПОРТЫ ======
+// ============================================================
+window.openSeedModal = openSeedModal;
+window.closeModal = closeModal;
+window.plantSeed = plantSeed;
+window.harvest = harvest;
+window.waterPot = waterPot;
+window.openFertModal = openFertModal;
+window.applyFert = applyFert;
+window.openLampModal = openLampModal;
+window.applyLamp = applyLamp;
+window.buyLamp = buyLamp;
+window.buyFert = buyFert;
+window.buyEnergy = buyEnergy;
+window.buyPot = buyPot;
+window.buyRoomUpgrade = buyRoomUpgrade;
+window.sellAll = sellAll;
+window.sellProduct = sellProduct;
+window.processItem = processItem;
+window.consumeProduct = consumeProduct;
+window.shareReferral = shareReferral;
+window.copyReferral = copyReferral;
+window.loadLeaderboard = loadLeaderboard;
+window.acceptSnoop = acceptSnoop;
+window.rejectSnoop = rejectSnoop;
+window.addFriend = addFriend;
+window.acceptFriend = acceptFriend;
+window.rejectFriend = rejectFriend;
+window.removeFriend = removeFriend;
+window.sendDailyBonus = sendDailyBonus;
+window.sendChatMessage = sendChatMessage;
 
 console.log('🌿 Игра загружена!');
 console.log('👥 Друзей:', state.friends?.length || 0);
-console.log('🔑 Ключ данных:', 'grow_sim_public_' + userId);
+console.log('💬 Чат активирован!');
 </script>
 </body>
 </html>
