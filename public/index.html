@@ -3,119 +3,112 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>🌿 Weed Grow Simulator</title>
+<title>🌿 Grow Simulator</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{--bg:#0a0f0a;--text:#e0e8e0;--hint:#6a8a6a;--button:#2e7d32;--button-text:#fff;--secondary:#0d1a0d;--accent:#4caf50;--danger:#e53935;--warning:#ffb300;--purple:#7b1fa2;--blue:#1e88e5;--gold:#ffd700;--soil:#3e2723}
+:root{--bg:#0d1a0d;--text:#e0e8e0;--hint:#6a8a6a;--button:#2e7d32;--button-text:#fff;--secondary:#1a2e1a;--accent:#4caf50;--danger:#e53935;--warning:#ffb300;--purple:#7b1fa2;--blue:#1e88e5;--gold:#ffd700}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:20px;overflow-x:hidden;background:linear-gradient(180deg,#0a1a0a,#0d1a0d 40%,#1a2a1a)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:20px;overflow-x:hidden}
 .snoop-high{animation:snoopShake 0.08s ease-in-out infinite alternate,snoopFlash 0.15s ease-in-out infinite alternate}
-@keyframes snoopShake{0%{transform:translateX(-4px) rotate(-0.5deg)}100%{transform:translateX(4px) rotate(0.5deg)}}
+@keyframes snoopShake{0%{transform:translateX(-3px)}100%{transform:translateX(3px)}}
 @keyframes snoopFlash{0%{opacity:1}50%{opacity:0.3}100%{opacity:1}}
-.snoop-overlay{position:fixed;inset:0;background:rgba(139,69,19,0.15);pointer-events:none;z-index:999;display:none}
+.snoop-overlay{position:fixed;inset:0;background:rgba(139,69,19,0.12);pointer-events:none;z-index:999;display:none}
 .snoop-overlay.active{display:block;animation:snoopFlash 0.15s ease-in-out infinite alternate}
-.snoop-popup{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) scale(0.8);background:linear-gradient(145deg,#1a0d0a,#2d1a10);border:2px solid #d7a86e;border-radius:24px;padding:20px 24px;z-index:1000;display:none;max-width:360px;width:90%;text-align:center;box-shadow:0 10px 50px rgba(0,0,0,0.9);opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+.snoop-popup{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) scale(0.8);background:linear-gradient(145deg,#1a0d0a,#2d1a10);border:2px solid #d7a86e;border-radius:20px;padding:18px 22px;z-index:1000;display:none;max-width:340px;width:90%;text-align:center;box-shadow:0 10px 50px rgba(0,0,0,0.9);opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1)}
 .snoop-popup.show{display:block;opacity:1;transform:translateX(-50%) scale(1)}
-.snoop-popup .snoop-avatar{font-size:72px;display:block;margin-bottom:4px;animation:snoopFloat 2s ease-in-out infinite}
+.snoop-popup .snoop-avatar{font-size:64px;display:block;margin-bottom:4px;animation:snoopFloat 2s ease-in-out infinite}
 @keyframes snoopFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.snoop-popup .snoop-text{font-size:18px;font-weight:700;color:#d7a86e;margin-bottom:4px}
-.snoop-popup .snoop-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:12px}
-.snoop-popup .snoop-btn{background:linear-gradient(135deg,#d7a86e,#a67c52);border:none;border-radius:14px;padding:12px 32px;font-size:16px;font-weight:700;color:#1a100d;cursor:pointer;box-shadow:0 4px 20px rgba(215,168,110,0.25);transition:transform 0.2s;margin:4px 8px;min-width:100px}
+.snoop-popup .snoop-text{font-size:17px;font-weight:700;color:#d7a86e;margin-bottom:4px}
+.snoop-popup .snoop-sub{font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:10px}
+.snoop-popup .snoop-btn{background:linear-gradient(135deg,#d7a86e,#a67c52);border:none;border-radius:12px;padding:10px 24px;font-size:15px;font-weight:700;color:#1a100d;cursor:pointer;box-shadow:0 4px 20px rgba(215,168,110,0.25);transition:transform 0.2s;margin:4px 6px;min-width:80px}
 .snoop-popup .snoop-btn:active{transform:scale(0.94)}
-.snoop-popup .snoop-btn-secondary{background:rgba(255,255,255,0.1);color:#fff;font-size:13px;padding:8px 20px;box-shadow:none}
-.header{position:sticky;top:0;z-index:100;background:rgba(10,20,10,0.95);backdrop-filter:blur(12px);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(76,175,80,0.1)}
-.stats{display:flex;gap:8px;font-size:12px;font-weight:600;flex-wrap:wrap}
-.stat{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.05);padding:4px 12px;border-radius:16px}
-.stat span{color:var(--accent);font-size:14px}
-.level-badge{background:var(--purple);color:#fff;font-size:11px;padding:4px 12px;border-radius:12px;font-weight:700;white-space:nowrap}
-.tabs{display:flex;background:rgba(10,20,10,0.9);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.04);overflow-x:auto;padding:6px 0;justify-content:center}
-.tab{flex:0 0 auto;padding:8px 14px;text-align:center;font-size:11px;font-weight:600;cursor:pointer;opacity:0.5;transition:all 0.3s;border-bottom:3px solid transparent;min-width:44px;white-space:nowrap}
+.snoop-popup .snoop-btn-secondary{background:rgba(255,255,255,0.08);color:#fff;font-size:12px;padding:6px 16px;box-shadow:none}
+.header{position:sticky;top:0;z-index:100;background:rgba(13,26,13,0.95);backdrop-filter:blur(12px);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(76,175,80,0.1)}
+.stats{display:flex;gap:6px;font-size:11px;font-weight:600;flex-wrap:wrap}
+.stat{display:flex;align-items:center;gap:3px;background:rgba(255,255,255,0.05);padding:3px 10px;border-radius:16px}
+.stat span{color:var(--accent);font-size:13px}
+.level-badge{background:var(--purple);color:#fff;font-size:10px;padding:3px 10px;border-radius:10px;font-weight:700;white-space:nowrap}
+.tabs{display:flex;background:rgba(13,26,13,0.9);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.04);overflow-x:auto;padding:5px 0;justify-content:center}
+.tab{flex:0 0 auto;padding:6px 12px;text-align:center;font-size:10px;font-weight:600;cursor:pointer;opacity:0.5;transition:all 0.3s;border-bottom:3px solid transparent;min-width:40px;white-space:nowrap}
 .tab.active{opacity:1;border-bottom-color:var(--accent);color:var(--accent)}
-.content{padding:10px}.section{display:none}.section.active{display:block}
-.farm-scene{background:linear-gradient(180deg,#1a3a1a,#0d1a0d 60%,#1a2a1a);border-radius:16px;padding:12px;margin-bottom:10px;border:1px solid rgba(76,175,80,0.08);position:relative;overflow:hidden;min-height:200px}
-.farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.pot{background:linear-gradient(145deg,#1a2a1a,#0d1a0d);border-radius:16px;padding:12px 8px 10px;text-align:center;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.06);min-height:200px;display:flex;flex-direction:column;align-items:center}
-.pot .soil{position:absolute;bottom:0;left:0;right:0;height:25%;background:linear-gradient(to top,#3e2723,#5d4037);border-radius:0 0 16px 16px;opacity:0.3}
-.pot .pot-emoji{font-size:32px;line-height:1;margin-bottom:4px;position:relative;z-index:2}
-.pot .pot-name{font-size:13px;font-weight:700;z-index:1;position:relative}
-.pot .pot-status{font-size:11px;color:var(--hint);margin:2px 0 4px;z-index:1;position:relative}
-.pot.ready{border-color:var(--accent);box-shadow:0 0 30px rgba(76,175,80,0.15)}
+.content{padding:8px}.section{display:none}.section.active{display:block}
+.farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.pot{background:linear-gradient(145deg,#1a2a1a,#0d1a0d);border-radius:14px;padding:10px 6px 8px;text-align:center;border:2px solid rgba(255,255,255,0.05);min-height:180px;display:flex;flex-direction:column;align-items:center}
+.pot .pot-emoji{font-size:28px;line-height:1;margin-bottom:2px;position:relative;z-index:2}
+.pot .pot-name{font-size:12px;font-weight:700;z-index:1;position:relative}
+.pot .pot-status{font-size:10px;color:var(--hint);margin:2px 0 4px;z-index:1;position:relative}
+.pot.ready{border-color:var(--accent);box-shadow:0 0 25px rgba(76,175,80,0.12)}
 .pot.needs-water{border-color:var(--blue)}
 .pot.sick{border-color:var(--danger);animation:shake 0.4s ease-in-out infinite alternate}
 @keyframes shake{0%{transform:translateX(-2px)}100%{transform:translateX(2px)}}
-.plant-container{position:relative;z-index:1;width:100%;height:90px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:4px}
-.plant-container svg{width:80px;height:85px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3));transition:transform 0.5s}
+.plant-container{position:relative;z-index:1;width:100%;height:80px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px}
+.plant-container svg{width:70px;height:75px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));transition:transform 0.5s}
 .plant-container svg.ready{animation:sway 2s ease-in-out infinite,glowPlant 1.5s ease-in-out infinite}
 @keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
-@keyframes glowPlant{0%,100%{filter:drop-shadow(0 4px 12px rgba(255,215,0,0.1))}50%{filter:drop-shadow(0 4px 30px rgba(255,215,0,0.3))}}
-.bars{width:100%;display:flex;flex-direction:column;gap:3px;margin:4px 0;z-index:1;position:relative}
-.bar-row{display:flex;align-items:center;gap:6px;font-size:10px}
-.bar-row span{width:16px;font-size:11px}
-.bar{flex:1;height:5px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px;transition:width 0.5s}
+@keyframes glowPlant{0%,100%{filter:drop-shadow(0 2px 8px rgba(255,215,0,0.1))}50%{filter:drop-shadow(0 2px 25px rgba(255,215,0,0.3))}}
+.bars{width:100%;display:flex;flex-direction:column;gap:2px;margin:3px 0;z-index:1;position:relative}
+.bar-row{display:flex;align-items:center;gap:4px;font-size:8px}
+.bar-row span{width:14px;font-size:9px}
+.bar{flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;transition:width 0.5s}
 .bar-fill.water{background:linear-gradient(90deg,#1565c0,#42a5f5)}
 .bar-fill.health{background:linear-gradient(90deg,#2e7d32,#66bb6a)}
 .bar-fill.growth{background:linear-gradient(90deg,#f57f17,#ffb300)}
-.pot-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;z-index:1;position:relative;width:100%}
-.btn{background:var(--button);color:var(--button-text);border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px rgba(46,125,50,0.2);min-height:40px;display:flex;align-items:center;gap:6px;justify-content:center}
+.pot-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;z-index:1;position:relative;width:100%}
+.btn{background:var(--button);color:var(--button-text);border:none;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 6px rgba(46,125,50,0.15);min-height:36px;display:inline-flex;align-items:center;gap:4px;justify-content:center}
 .btn:active{transform:scale(0.95)}
-.btn-secondary{background:rgba(255,255,255,0.08);color:var(--text);box-shadow:none}
-.btn-blue{background:var(--blue);box-shadow:0 2px 8px rgba(30,136,229,0.2)}
-.btn-warning{background:var(--warning);color:#111;box-shadow:0 2px 8px rgba(255,179,0,0.2)}
-.btn-purple{background:var(--purple);box-shadow:0 2px 8px rgba(123,31,162,0.2)}
-.btn-gold{background:var(--gold);color:#111;box-shadow:0 2px 8px rgba(255,215,0,0.2)}
-.btn-smoke{background:linear-gradient(135deg,#795548,#4e342e);color:#fff}
-.btn-taste{background:linear-gradient(135deg,#ff6f00,#ff8f00);color:#fff}
-.btn-small{padding:6px 10px;font-size:10px;min-height:32px}
+.btn-secondary{background:rgba(255,255,255,0.06);color:var(--text);box-shadow:none}
+.btn-blue{background:var(--blue);box-shadow:0 2px 6px rgba(30,136,229,0.15)}
+.btn-warning{background:var(--warning);color:#111;box-shadow:0 2px 6px rgba(255,179,0,0.15)}
+.btn-purple{background:var(--purple);box-shadow:0 2px 6px rgba(123,31,162,0.15)}
+.btn-gold{background:var(--gold);color:#111;box-shadow:0 2px 6px rgba(255,215,0,0.15)}
+.btn-small{padding:4px 8px;font-size:9px;min-height:28px}
 .btn-full{width:100%}
-.boost-tag{display:inline-block;background:rgba(33,150,243,0.15);color:#64b5f6;font-size:8px;padding:2px 6px;border-radius:4px;margin-left:2px}
-.boost-tag.fert{background:rgba(255,179,0,0.15);color:#ffb300}
-.boost-tag.sick{background:rgba(229,57,53,0.2);color:#ef5350;animation:blink 0.8s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
-.card{background:rgba(16,30,16,0.85);backdrop-filter:blur(4px);border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,0.04)}
-.card-emoji{font-size:28px;width:40px;text-align:center}
+.card{background:rgba(16,30,16,0.85);border-radius:12px;padding:10px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.04)}
+.card-emoji{font-size:24px;width:36px;text-align:center}
 .card-info{flex:1;min-width:0}
-.card-title{font-weight:600;font-size:13px}
-.card-desc{font-size:11px;color:var(--hint)}
+.card-title{font-weight:600;font-size:12px}
+.card-desc{font-size:10px;color:var(--hint)}
 .card-locked{opacity:0.4;filter:grayscale(0.6)}
-.inv-count{background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;margin-left:4px}
-.section-title{font-size:11px;font-weight:600;color:var(--hint);margin:10px 0 6px;text-transform:uppercase;letter-spacing:0.5px}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:none;align-items:flex-end;justify-content:center;z-index:200;padding:12px}
+.inv-count{background:var(--accent);color:#fff;font-size:8px;font-weight:700;padding:1px 6px;border-radius:6px;margin-left:3px}
+.section-title{font-size:10px;font-weight:600;color:var(--hint);margin:8px 0 4px;text-transform:uppercase;letter-spacing:0.3px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:none;align-items:flex-end;justify-content:center;z-index:200;padding:10px}
 .modal-overlay.show{display:flex}
-.modal{background:var(--secondary);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;padding:18px;border-top:1px solid rgba(76,175,80,0.08)}
-.modal-title{font-size:18px;font-weight:700;margin-bottom:12px;text-align:center}
-.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--accent);color:#fff;padding:10px 20px;border-radius:30px;font-size:14px;font-weight:600;opacity:0;transition:all 0.3s;z-index:300;pointer-events:none;max-width:90%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+.modal{background:var(--secondary);border-radius:18px 18px 0 0;width:100%;max-width:460px;max-height:75vh;overflow-y:auto;padding:14px;border-top:1px solid rgba(76,175,80,0.06)}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:10px;text-align:center}
+.toast{position:fixed;top:65px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--accent);color:#fff;padding:8px 16px;border-radius:30px;font-size:12px;font-weight:600;opacity:0;transition:all 0.3s;z-index:300;pointer-events:none;max-width:90%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.error{background:var(--danger)}
-.toast.event{background:linear-gradient(135deg,#ff6f00,#ff8f00)}
-.empty{text-align:center;padding:20px 12px;color:var(--hint)}
-.empty-emoji{font-size:36px;margin-bottom:4px}
-.room-info{background:rgba(16,30,16,0.85);border-radius:12px;padding:12px;margin-bottom:8px;font-size:12px;border:1px solid rgba(255,255,255,0.04)}
-.ref-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:14px;padding:14px;text-align:center}
-.profile-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:14px;padding:16px;text-align:center;border:1px solid rgba(255,255,255,0.05)}
-.profile-stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px}
+.empty{text-align:center;padding:16px 10px;color:var(--hint)}
+.empty-emoji{font-size:32px;margin-bottom:2px}
+.room-info{background:rgba(16,30,16,0.85);border-radius:10px;padding:10px;margin-bottom:6px;font-size:11px;border:1px solid rgba(255,255,255,0.04)}
+.room-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.room-item{background:rgba(255,255,255,0.03);padding:6px;border-radius:8px;text-align:center;font-size:10px}
+.room-item .big{font-size:20px;display:block}
+.room-item .label{color:var(--hint);font-size:8px}
+.profile-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:12px;padding:14px;text-align:center}
+.profile-stat{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px}
 .profile-stat:last-child{border-bottom:none}
 .profile-stat .label{color:var(--hint)}
 .profile-stat .value{color:var(--text);font-weight:600}
-.market-panel{background:rgba(10,20,10,0.8);border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid rgba(255,215,0,0.06)}
-.market-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.market-item{background:rgba(255,255,255,0.03);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;font-size:12px}
-.market-item .price{color:var(--gold);font-weight:700;font-size:13px}
-.market-item .change{font-size:10px}
+.ref-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:12px;padding:12px;text-align:center}
+.market-panel{background:rgba(10,20,10,0.8);border-radius:10px;padding:8px;margin-bottom:8px;border:1px solid rgba(255,215,0,0.05)}
+.market-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.market-item{background:rgba(255,255,255,0.02);border-radius:6px;padding:4px 6px;display:flex;justify-content:space-between;align-items:center;font-size:10px}
+.market-item .price{color:var(--gold);font-weight:700}
+.market-item .change{font-size:8px}
 .market-item .change.up{color:#4caf50}
 .market-item .change.down{color:#e53935}
-.market-timer{text-align:center;font-size:10px;color:var(--hint);margin-top:6px}
-.rank-card{background:rgba(16,30,16,0.85);border-radius:10px;padding:8px 12px;margin-bottom:4px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.04);font-size:11px}
-.rank-card.top1{border-color:var(--gold);background:rgba(255,215,0,0.08)}
-.rank-card.top2{border-color:#c0c0c0;background:rgba(192,192,192,0.05)}
-.rank-card.top3{border-color:#cd7f32;background:rgba(205,127,50,0.05)}
-.rank-card .rank-pos{font-weight:700;font-size:14px;min-width:28px;color:var(--hint)}
-.rank-card .rank-name{flex:1;font-weight:600;font-size:12px}
-.rank-card .rank-money{font-size:12px;color:var(--gold)}
-.rank-card .rank-level{font-size:10px;color:var(--hint);margin-left:4px}
-.rank-card .rank-badge{font-size:16px}
-.my-rank{background:linear-gradient(135deg,rgba(255,215,0,0.12),rgba(255,215,0,0.03));border:1px solid var(--gold);border-radius:10px;padding:10px;margin-top:8px;text-align:center;font-size:13px}
-@media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:10px;gap:4px}.stat{padding:3px 8px}.plant-container{height:75px}.plant-container svg{width:65px;height:70px}.tab{font-size:9px;padding:6px 8px;min-width:32px}.btn{font-size:10px;padding:6px 10px;min-height:34px}.pot .pot-emoji{font-size:26px}.snoop-popup{padding:16px}.snoop-popup .snoop-avatar{font-size:56px}}
+.market-timer{text-align:center;font-size:9px;color:var(--hint);margin-top:4px}
+.rank-card{background:rgba(16,30,16,0.85);border-radius:8px;padding:4px 8px;margin-bottom:3px;display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,0.04);font-size:10px}
+.rank-card.top1{border-color:var(--gold);background:rgba(255,215,0,0.06)}
+.rank-card.top2{border-color:#c0c0c0;background:rgba(192,192,192,0.04)}
+.rank-card.top3{border-color:#cd7f32;background:rgba(205,127,50,0.04)}
+.rank-card .rank-pos{font-weight:700;font-size:12px;min-width:22px;color:var(--hint)}
+.rank-card .rank-name{flex:1;font-weight:600;font-size:11px}
+.rank-card .rank-money{font-size:11px;color:var(--gold)}
+.my-rank{background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(255,215,0,0.02));border:1px solid var(--gold);border-radius:8px;padding:8px;margin-top:6px;text-align:center;font-size:11px}
+@media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:9px;gap:4px}.stat{padding:2px 6px}.plant-container{height:65px}.plant-container svg{width:55px;height:60px}.tab{font-size:8px;padding:4px 6px;min-width:28px}.btn{font-size:9px;padding:4px 8px;min-height:30px}}
 </style>
 </head>
 <body>
@@ -124,8 +117,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="snoop-overlay" id="snoopOverlay"></div>
 <div class="snoop-popup" id="snoopPopup">
     <span class="snoop-avatar">🐶</span>
-    <div class="snoop-text">🍁 Снуп Догг тут!</div>
-    <div class="snoop-sub">"Эй, братан! Попробуй мою убойную травку — экран будет трястись 30 секунд! И 50$ твои!"</div>
+    <div class="snoop-text">🍁 Снуп Догг!</div>
+    <div class="snoop-sub">"Попробуй убойную травку! 30 сек кайфа +50$!"</div>
     <div>
         <button class="snoop-btn" onclick="acceptSnoop()">🔥 ДАВАЙ!</button>
         <button class="snoop-btn snoop-btn-secondary" onclick="rejectSnoop()">Не сегодня</button>
@@ -155,10 +148,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 <div class="content">
   <div class="section active" id="section-farm">
-    <div class="farm-scene">
-      <div class="farm-grid" id="farm-grid"></div>
-    </div>
-    <div style="margin-top:10px;text-align:center">
+    <div class="farm-grid" id="farm-grid"></div>
+    <div style="margin-top:8px;text-align:center">
       <button class="btn btn-secondary btn-full" id="btn-buy-pot" onclick="buyPot()">➕ Купить горшок</button>
     </div>
   </div>
@@ -176,7 +167,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
   <div class="section" id="section-inventory">
     <div class="card-list" id="inventory-list"></div>
-    <div style="margin-top:10px"><button class="btn btn-full" onclick="sellAll()" id="btn-sell-all">💰 Продать всё</button></div>
+    <div style="margin-top:8px"><button class="btn btn-full" onclick="sellAll()" id="btn-sell-all">💰 Продать всё</button></div>
   </div>
 
   <div class="section" id="section-room">
@@ -186,22 +177,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
   <div class="section" id="section-profile">
     <div class="profile-card">
-      <div style="font-size:48px;margin-bottom:4px;">👤</div>
-      <div style="font-size:18px;font-weight:700;margin-bottom:2px;" id="profile-name">Игрок</div>
-      <div style="font-size:11px;color:var(--hint);margin-bottom:8px;" id="profile-id">ID: загрузка...</div>
-      <div class="profile-stat"><span class="label">📅 Дата регистрации</span><span class="value" id="profile-regdate">--</span></div>
+      <div style="font-size:40px;margin-bottom:2px;">👤</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:2px;" id="profile-name">Игрок</div>
+      <div style="font-size:10px;color:var(--hint);margin-bottom:6px;" id="profile-id">ID: загрузка...</div>
+      <div class="profile-stat"><span class="label">📅 Регистрация</span><span class="value" id="profile-regdate">--</span></div>
       <div class="profile-stat"><span class="label">🏆 Уровень</span><span class="value" id="profile-level">1</span></div>
       <div class="profile-stat"><span class="label">💰 Денег</span><span class="value" id="profile-money">0$</span></div>
       <div class="profile-stat"><span class="label">⚡ Энергии</span><span class="value" id="profile-energy">100</span></div>
       <div class="profile-stat"><span class="label">🌿 Собрано</span><span class="value" id="profile-harvests">0</span></div>
       <div class="profile-stat"><span class="label">🪴 Горшков</span><span class="value" id="profile-pots">0</span></div>
-      <div class="profile-stat"><span class="label">⏱ Время</span><span class="value" id="profile-time">0м</span></div>
       <div class="profile-stat"><span class="label">🌀 Состояние</span><span class="value" id="profile-state">🧠 Норма</span></div>
     </div>
   </div>
 
   <div class="section" id="section-leaderboard">
-    <div style="display:flex;gap:8px;margin-bottom:8px;">
+    <div style="display:flex;gap:6px;margin-bottom:6px;">
       <button class="btn btn-small" id="lb-monthly" onclick="loadLeaderboard('monthly')" style="flex:1;">📅 Месяц</button>
       <button class="btn btn-small" id="lb-yearly" onclick="loadLeaderboard('yearly')" style="flex:1;">📅 Год</button>
     </div>
@@ -211,23 +201,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
   <div class="section" id="section-friends">
     <div class="ref-card">
-      <div style="font-weight:700;margin-bottom:4px;">👥 Пригласи друзей</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:6px;">За каждого: <b>+150$</b> и <b>+20⚡</b></div>
-      <div style="display:flex;justify-content:center;gap:12px;margin-bottom:6px;font-size:12px;">
+      <div style="font-weight:700;margin-bottom:3px;">👥 Пригласи друзей</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:4px;">За каждого: <b>+150$</b> и <b>+20⚡</b></div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-bottom:4px;font-size:11px;">
         <div>Приглашено: <b id="ref-count">0</b></div>
         <div>Заработано: <b id="ref-earned">0</b>$</div>
       </div>
       <button class="btn btn-full" onclick="shareReferral()">📤 Поделиться</button>
-      <button class="btn btn-secondary btn-full" style="margin-top:4px;" onclick="copyReferral()">📋 Скопировать</button>
-      <div id="friends-list" style="margin-top:8px;"></div>
+      <button class="btn btn-secondary btn-full" style="margin-top:3px;" onclick="copyReferral()">📋 Скопировать</button>
+      <div id="friends-list" style="margin-top:6px;"></div>
     </div>
   </div>
 </div>
 
 <!-- МОДАЛКИ -->
-<div class="modal-overlay" id="modal-seed"><div class="modal"><div class="modal-title">🌱 Выбери семя</div><div class="card-list" id="seed-list"></div><button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="closeModal('modal-seed')">Отмена</button></div></div>
-<div class="modal-overlay" id="modal-fert"><div class="modal"><div class="modal-title">🧪 Удобрения</div><div class="card-list" id="fert-list"></div><button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="closeModal('modal-fert')">Отмена</button></div></div>
-<div class="modal-overlay" id="modal-lamp"><div class="modal"><div class="modal-title">💡 Лампы</div><div class="card-list" id="lamp-list"></div><button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="closeModal('modal-lamp')">Отмена</button></div></div>
+<div class="modal-overlay" id="modal-seed"><div class="modal"><div class="modal-title">🌱 Выбери семя</div><div class="card-list" id="seed-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-seed')">Отмена</button></div></div>
+<div class="modal-overlay" id="modal-fert"><div class="modal"><div class="modal-title">🧪 Удобрения</div><div class="card-list" id="fert-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-fert')">Отмена</button></div></div>
+<div class="modal-overlay" id="modal-lamp"><div class="modal"><div class="modal-title">💡 Лампы</div><div class="card-list" id="lamp-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-lamp')">Отмена</button></div></div>
 
 <div class="toast" id="toast"></div>
 
@@ -252,28 +242,28 @@ if (tg) {
 // ====== ДАННЫЕ ======
 // ============================================================
 const STRAINS = [
-    {id:'skunk',name:'Skunk',emoji:'🦨',seedPrice:50,baseTime:90,yield:3,sellPrice:50,energyCost:5,unlock:1,quality:1},
-    {id:'haze',name:'Purple Haze',emoji:'💜',seedPrice:130,baseTime:120,yield:5,sellPrice:85,energyCost:8,unlock:3,quality:1.2},
-    {id:'widow',name:'White Widow',emoji:'⚪',seedPrice:280,baseTime:150,yield:7,sellPrice:140,energyCost:12,unlock:5,quality:1.4},
-    {id:'alien',name:'Alien Kush',emoji:'👽',seedPrice:550,baseTime:180,yield:12,sellPrice:220,energyCost:18,unlock:8,quality:1.6},
-    {id:'og',name:'OG Kush',emoji:'🔥',seedPrice:950,baseTime:200,yield:18,sellPrice:340,energyCost:25,unlock:10,quality:1.8},
-    {id:'cheese',name:'UK Cheese',emoji:'🧀',seedPrice:400,baseTime:140,yield:10,sellPrice:180,energyCost:15,unlock:6,quality:1.3},
-    {id:'lemon',name:'Lemon Haze',emoji:'🍋',seedPrice:350,baseTime:130,yield:8,sellPrice:160,energyCost:14,unlock:4,quality:1.2},
-    {id:'blue',name:'Blue Dream',emoji:'💎',seedPrice:600,baseTime:160,yield:14,sellPrice:250,energyCost:20,unlock:7,quality:1.5},
-    {id:'cookies',name:'Girl Scout Cookies',emoji:'🍪',seedPrice:750,baseTime:170,yield:16,sellPrice:290,energyCost:22,unlock:9,quality:1.7},
-    {id:'gelato',name:'Gelato',emoji:'🍦',seedPrice:900,baseTime:190,yield:20,sellPrice:380,energyCost:28,unlock:12,quality:1.9},
-    {id:'wedding',name:'Wedding Cake',emoji:'🎂',seedPrice:1100,baseTime:200,yield:22,sellPrice:420,energyCost:30,unlock:15,quality:2.0},
-    {id:'runtz',name:'Runtz',emoji:'🍬',seedPrice:1300,baseTime:210,yield:25,sellPrice:480,energyCost:32,unlock:18,quality:2.1},
-    {id:'zkittlez',name:'Zkittlez',emoji:'🌈',seedPrice:1500,baseTime:220,yield:28,sellPrice:520,energyCost:35,unlock:20,quality:2.2},
-    {id:'kush',name:'Master Kush',emoji:'👑',seedPrice:1800,baseTime:240,yield:32,sellPrice:580,energyCost:38,unlock:25,quality:2.4},
-    {id:'glue',name:'Gorilla Glue',emoji:'🦍',seedPrice:2200,baseTime:260,yield:35,sellPrice:650,energyCost:40,unlock:30,quality:2.5}
+    {id:'skunk',name:'Skunk',emoji:'🦨',seedPrice:50,baseTime:120,yield:3,sellPrice:50,energyCost:5,unlock:1,quality:1},
+    {id:'haze',name:'Purple Haze',emoji:'💜',seedPrice:130,baseTime:160,yield:5,sellPrice:85,energyCost:8,unlock:3,quality:1.2},
+    {id:'widow',name:'White Widow',emoji:'⚪',seedPrice:280,baseTime:200,yield:7,sellPrice:140,energyCost:12,unlock:5,quality:1.4},
+    {id:'alien',name:'Alien Kush',emoji:'👽',seedPrice:550,baseTime:240,yield:12,sellPrice:220,energyCost:18,unlock:8,quality:1.6},
+    {id:'og',name:'OG Kush',emoji:'🔥',seedPrice:950,baseTime:280,yield:18,sellPrice:340,energyCost:25,unlock:10,quality:1.8},
+    {id:'cheese',name:'UK Cheese',emoji:'🧀',seedPrice:400,baseTime:180,yield:10,sellPrice:180,energyCost:15,unlock:6,quality:1.3},
+    {id:'lemon',name:'Lemon Haze',emoji:'🍋',seedPrice:350,baseTime:170,yield:8,sellPrice:160,energyCost:14,unlock:4,quality:1.2},
+    {id:'blue',name:'Blue Dream',emoji:'💎',seedPrice:600,baseTime:210,yield:14,sellPrice:250,energyCost:20,unlock:7,quality:1.5},
+    {id:'cookies',name:'Girl Scout Cookies',emoji:'🍪',seedPrice:750,baseTime:220,yield:16,sellPrice:290,energyCost:22,unlock:9,quality:1.7},
+    {id:'gelato',name:'Gelato',emoji:'🍦',seedPrice:900,baseTime:250,yield:20,sellPrice:380,energyCost:28,unlock:12,quality:1.9},
+    {id:'wedding',name:'Wedding Cake',emoji:'🎂',seedPrice:1100,baseTime:260,yield:22,sellPrice:420,energyCost:30,unlock:15,quality:2.0},
+    {id:'runtz',name:'Runtz',emoji:'🍬',seedPrice:1300,baseTime:270,yield:25,sellPrice:480,energyCost:32,unlock:18,quality:2.1},
+    {id:'zkittlez',name:'Zkittlez',emoji:'🌈',seedPrice:1500,baseTime:280,yield:28,sellPrice:520,energyCost:35,unlock:20,quality:2.2},
+    {id:'kush',name:'Master Kush',emoji:'👑',seedPrice:1800,baseTime:300,yield:32,sellPrice:580,energyCost:38,unlock:25,quality:2.4},
+    {id:'glue',name:'Gorilla Glue',emoji:'🦍',seedPrice:2200,baseTime:320,yield:35,sellPrice:650,energyCost:40,unlock:30,quality:2.5}
 ];
 
 const POT_LEVELS = [
     {id:1,name:'🪴 Базовый',price:0,desc:'Стандартный горшок'},
-    {id:2,name:'🪣 Железный',price:1000,desc:'Прочный железный горшок'},
+    {id:2,name:'🪣 Железный',price:1000,desc:'Прочный железный'},
     {id:3,name:'🏺 Глиняный',price:2500,desc:'Дышит, корням комфортно'},
-    {id:4,name:'🎒 Мешок-горшок',price:5000,desc:'Специальный тканевый мешок'},
+    {id:4,name:'🎒 Мешок-горшок',price:5000,desc:'Специальный тканевый'},
     {id:5,name:'💎 Космический',price:10000,desc:'Инопланетная технология'}
 ];
 
@@ -302,7 +292,7 @@ const STAGE_NAMES = ['','🌱 Семя','🌿 Росток','🌳 Вегетац
 const STAGE_EMOJI = ['','🌱','🌿','🌳','🌸','✨'];
 
 // ============================================================
-// ====== СОСТОЯНИЕ ИГРЫ ======
+// ====== СОСТОЯНИЕ ======
 // ============================================================
 let state = {
     money: 100,
@@ -384,7 +374,7 @@ function showToast(m, err=false, type='') {
     const t = document.getElementById('toast');
     t.textContent = m;
     t.className = 'toast show' + (err ? ' error' : '') + (type ? ' ' + type : '');
-    setTimeout(() => t.classList.remove('show'), 2500);
+    setTimeout(() => t.classList.remove('show'), 2200);
 }
 
 function haptic(t='light') {
@@ -458,7 +448,7 @@ function acceptSnoop() {
         document.body.classList.remove('snoop-high');
         document.getElementById('snoopOverlay').classList.remove('active');
         document.getElementById('profile-state').textContent = '🧠 Норма';
-        showToast('🌀 Эффект убойной травы прошёл...');
+        showToast('🌀 Эффект прошёл...');
     }, 30000);
     state.snoopActive = false;
     state.snoopCooldown = Date.now();
@@ -503,7 +493,7 @@ function getPriceChange(strainId) {
 }
 
 // ============================================================
-// ====== РОСТ РАСТЕНИЙ ======
+// ====== РОСТ РАСТЕНИЙ (ИСПРАВЛЕНО) ======
 // ============================================================
 function tickPots() {
     const now = Date.now();
@@ -513,38 +503,43 @@ function tickPots() {
     state.pots.forEach(pot => {
         if (!pot.strain) return;
         
-        let waterDrain = 0.3;
+        // Вода — медленнее убывает
+        let waterDrain = 0.15; // было 0.3
         if (state.room.auto) waterDrain *= 0.3;
         pot.water = Math.max(0, pot.water - waterDrain * dt);
         if (state.room.auto && pot.water < 60) {
             pot.water = Math.min(100, pot.water + 0.15 * dt);
         }
         
+        // Энергия для лампы
         if (pot.lamp && pot.stage > 0 && pot.stage < 5) {
             const cost = LAMP_ENERGY_COST[pot.lamp] || 0;
-            state.energy = Math.max(0, state.energy - cost * dt * 0.3);
+            state.energy = Math.max(0, state.energy - cost * dt * 0.2);
         }
         
-        let healthRegen = 0.12;
-        let diseaseChance = 0.006;
+        // Здоровье — медленнее падает
+        let healthRegen = 0.15;
+        let diseaseChance = 0.004; // было 0.006
         if (state.room.vent) { diseaseChance *= 0.3; healthRegen *= 1.4; }
         if (state.room.heater) healthRegen *= 1.15;
         
-        if (pot.water < 20) {
-            pot.health = Math.max(0, pot.health - 0.4 * dt);
-        } else if (pot.water > 40) {
+        if (pot.water < 15) {
+            pot.health = Math.max(0, pot.health - 0.3 * dt);
+        } else if (pot.water > 35) {
             pot.health = Math.min(100, pot.health + healthRegen * dt);
         }
         
-        if (!pot.disease && pot.health < 35 && Math.random() < diseaseChance) {
+        // Болезни — реже
+        if (!pot.disease && pot.health < 30 && Math.random() < diseaseChance) {
             pot.disease = true;
             showToast('🦠 Вредители!', true);
             haptic('error');
         }
         if (pot.disease) {
-            pot.health = Math.max(0, pot.health - 0.3 * dt);
+            pot.health = Math.max(0, pot.health - 0.2 * dt);
         }
         
+        // Смерть — только при health <= 0
         if (pot.health <= 0) {
             showToast('💀 Растение погибло!', true);
             if (pot.strain) {
@@ -625,15 +620,15 @@ function getQuality(pot) {
 }
 
 function qualityName(q) {
-    if (q >= 2.2) return {name:'💎 Легендарное',emoji:'💎'};
-    if (q >= 1.7) return {name:'🌟 Отличное',emoji:'🌟'};
-    if (q >= 1.2) return {name:'⭐ Хорошее',emoji:'⭐'};
-    if (q >= 0.8) return {name:'🌿 Обычное',emoji:'🌿'};
-    return {name:'🥀 Слабое',emoji:'🥀'};
+    if (q >= 2.2) return '💎 Легендарное';
+    if (q >= 1.7) return '🌟 Отличное';
+    if (q >= 1.2) return '⭐ Хорошее';
+    if (q >= 0.8) return '🌿 Обычное';
+    return '🥀 Слабое';
 }
 
 // ============================================================
-// ====== СБОР УРОЖАЯ ======
+// ====== СБОР УРОЖАЯ (ИСПРАВЛЕНО) ======
 // ============================================================
 function harvest(id) {
     const pot = state.pots.find(p => p.id === id);
@@ -652,7 +647,7 @@ function harvest(id) {
     if (!s) { showToast('Ошибка: сорт не найден', true); return; }
     
     const q = getQuality(pot);
-    const qInfo = qualityName(q);
+    const qName = qualityName(q);
     let amount = Math.floor(s.yield * (pot.yieldMult || 1) * (pot.health / 100) * (q >= 1.5 ? 1.2 : 1));
     if (amount < 1) amount = 1;
     
@@ -662,7 +657,7 @@ function harvest(id) {
     state.totalHarvests = (state.totalHarvests || 0) + 1;
     state.inventory[s.id] = (state.inventory[s.id] || 0) + amount;
     
-    showToast(`🌿 ${qInfo.emoji} ${qInfo.name}! +${amount} ${s.name} (${totalPrice}$)`);
+    showToast(`🌿 ${qName}! +${amount} ${s.name} (${totalPrice}$)`);
     haptic('success');
     addXp(amount * 2 + Math.floor(q * 3));
     
@@ -714,7 +709,7 @@ function openSeedModal(id) {
             </div>
             <div style="text-align:right">
                 <div style="color:${unlocked ? 'var(--accent)' : 'var(--hint)'};font-weight:700;">${s.seedPrice}$</div>
-                <div style="font-size:9px;color:var(--hint)">⚡${s.energyCost}</div>
+                <div style="font-size:8px;color:var(--hint)">⚡${s.energyCost}</div>
             </div>
         `;
         if (unlocked && can) {
@@ -1040,17 +1035,17 @@ async function loadLeaderboard(period) {
         if (myPosition > 0) {
             myRank.innerHTML = `
                 <div class="my-rank">
-                    <div style="font-size:11px;color:var(--hint);">👑 Ваше место</div>
-                    <div style="font-size:22px;font-weight:700;color:var(--gold);">#${myPosition}</div>
-                    <div style="font-size:10px;color:var(--hint);">из ${data.players.length} игроков</div>
+                    <div style="font-size:10px;color:var(--hint);">👑 Ваше место</div>
+                    <div style="font-size:20px;font-weight:700;color:var(--gold);">#${myPosition}</div>
+                    <div style="font-size:9px;color:var(--hint);">из ${data.players.length}</div>
                 </div>
             `;
             myRank.style.display = 'block';
         } else {
             myRank.innerHTML = `
                 <div class="my-rank">
-                    <div style="font-size:11px;color:var(--hint);">👤 Вы пока не в рейтинге</div>
-                    <div style="font-size:10px;color:var(--hint);">Зарабатывайте больше денег!</div>
+                    <div style="font-size:10px;color:var(--hint);">👤 Вы пока не в рейтинге</div>
+                    <div style="font-size:9px;color:var(--hint);">Зарабатывайте больше!</div>
                 </div>
             `;
             myRank.style.display = 'block';
@@ -1070,7 +1065,7 @@ function getRefLink() {
 function shareReferral() {
     const link = getRefLink();
     if (tg?.openTelegramLink) {
-        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('🌿 Присоединяйся к Weed Grow Simulator!')}`);
+        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('🌿 Присоединяйся!')}`);
     } else {
         navigator.clipboard?.writeText(link).then(() => showToast('📋 Ссылка скопирована'));
     }
@@ -1149,9 +1144,6 @@ function renderFarm() {
     state.pots.forEach(pot => {
         const div = document.createElement('div');
         div.className = 'pot';
-        const soil = document.createElement('div');
-        soil.className = 'soil';
-        div.appendChild(soil);
         
         if (!pot.strain) {
             div.innerHTML += `
@@ -1171,12 +1163,9 @@ function renderFarm() {
             if (pot.disease) div.classList.add('sick');
             
             let tags = '';
-            if (pot.disease) tags += '<span class="boost-tag sick">🦠 Болезнь</span>';
-            if (pot.lamp) {
-                const l = getLamp(pot.lamp);
-                if (l) tags += `<span class="boost-tag">💡${l.emoji}</span>`;
-            }
-            if (pot.fert) tags += '<span class="boost-tag fert">🧪 Удобрение</span>';
+            if (pot.disease) tags += ' 🦠';
+            if (pot.lamp) tags += ' 💡';
+            if (pot.fert) tags += ' 🧪';
             
             let actions = '';
             if (ready) {
@@ -1184,9 +1173,9 @@ function renderFarm() {
             } else {
                 actions = `
                     <div class="pot-actions">
-                        <button class="btn btn-blue btn-small" onclick="waterPot(${pot.id})">💧 Полить</button>
-                        <button class="btn btn-warning btn-small" onclick="openFertModal(${pot.id})">🧪 Удобрить</button>
-                        <button class="btn btn-purple btn-small" onclick="openLampModal(${pot.id})">💡 Лампа</button>
+                        <button class="btn btn-blue btn-small" onclick="waterPot(${pot.id})">💧</button>
+                        <button class="btn btn-warning btn-small" onclick="openFertModal(${pot.id})">🧪</button>
+                        <button class="btn btn-purple btn-small" onclick="openLampModal(${pot.id})">💡</button>
                     </div>
                 `;
             }
@@ -1194,7 +1183,7 @@ function renderFarm() {
             div.innerHTML += `
                 <div class="pot-emoji">${STAGE_EMOJI[pot.stage] || '🌱'}</div>
                 <div class="pot-name">${s.name} ${tags}</div>
-                <div class="pot-status">${ready ? '✅ Готово к сбору!' : STAGE_NAMES[pot.stage] + ' · ' + formatTime(left)}</div>
+                <div class="pot-status">${ready ? '✅ Готово!' : STAGE_NAMES[pot.stage] + ' · ' + formatTime(left)}</div>
                 <div class="plant-container">${getPlantSVG(pot.strain, pot.stage, pot.health, pot.disease, ready)}</div>
                 <div class="bars">
                     <div class="bar-row"><span>💧</span><div class="bar"><div class="bar-fill water" style="width:${pot.water}%"></div></div></div>
@@ -1305,7 +1294,7 @@ function renderInventory() {
                 <div class="card-title">${s.name} <span class="inv-count">×${amt}</span></div>
                 <div class="card-desc">💰${price}$ · ${amt * price}$</div>
             </div>
-            <button class="btn btn-small" onclick="sellProduct('${id}')">💰 Продать</button>
+            <button class="btn btn-small" onclick="sellProduct('${id}')">💰</button>
         `;
         list.appendChild(c);
     });
@@ -1314,27 +1303,11 @@ function renderInventory() {
 function renderRoom() {
     const info = document.getElementById('room-info');
     info.innerHTML = `
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-            <div style="background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;text-align:center;">
-                <div style="font-size:22px;">🪴</div>
-                <div style="font-size:12px;font-weight:600;">${state.pots.length}</div>
-                <div style="color:var(--hint);font-size:9px;">Горшков</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;text-align:center;">
-                <div style="font-size:22px;">${state.room.vent ? '✅' : '❌'}</div>
-                <div style="font-size:12px;font-weight:600;">${state.room.vent ? 'Вкл' : 'Выкл'}</div>
-                <div style="color:var(--hint);font-size:9px;">Вентиляция</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;text-align:center;">
-                <div style="font-size:22px;">${state.room.auto ? '✅' : '❌'}</div>
-                <div style="font-size:12px;font-weight:600;">${state.room.auto ? 'Вкл' : 'Выкл'}</div>
-                <div style="color:var(--hint);font-size:9px;">Автополив</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;text-align:center;grid-column:span 3;">
-                <div style="font-size:22px;">${state.room.heater ? '✅' : '❌'}</div>
-                <div style="font-size:12px;font-weight:600;">${state.room.heater ? 'Вкл' : 'Выкл'}</div>
-                <div style="color:var(--hint);font-size:9px;">Обогреватель</div>
-            </div>
+        <div class="room-grid">
+            <div class="room-item"><span class="big">🪴</span><div>${state.pots.length}</div><div class="label">Горшков</div></div>
+            <div class="room-item"><span class="big">${state.room.vent ? '✅' : '❌'}</span><div>${state.room.vent ? 'Вкл' : 'Выкл'}</div><div class="label">Вентиляция</div></div>
+            <div class="room-item"><span class="big">${state.room.auto ? '✅' : '❌'}</span><div>${state.room.auto ? 'Вкл' : 'Выкл'}</div><div class="label">Автополив</div></div>
+            <div class="room-item" style="grid-column:span 3;"><span class="big">${state.room.heater ? '✅' : '❌'}</span><div>${state.room.heater ? 'Вкл' : 'Выкл'}</div><div class="label">Обогреватель</div></div>
         </div>
     `;
     const list = document.getElementById('room-list');
@@ -1351,7 +1324,7 @@ function renderRoom() {
                 <div class="card-title">${pl.name} ${unlocked ? '✅' : '🔒'}</div>
                 <div class="card-desc">${pl.desc} · ${pl.price}$</div>
             </div>
-            <span style="font-size:10px;color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${unlocked ? 'Доступен' : 'Ур. ' + pl.id * 2}</span>
+            <span style="font-size:9px;color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${unlocked ? 'Доступен' : 'Ур. ' + pl.id * 2}</span>
         `;
         list.appendChild(c);
     });
@@ -1370,7 +1343,7 @@ function renderRoom() {
                 <div class="card-title">${u.name}</div>
                 <div class="card-desc">${u.desc}</div>
             </div>
-            ${bought ? '<span style="color:var(--hint);font-size:11px;">✅ Куплено</span>' : `<button class="btn btn-small" onclick="buyRoomUpgrade('${u.id}')">${u.price}$</button>`}
+            ${bought ? '<span style="color:var(--hint);font-size:10px;">✅ Куплено</span>' : `<button class="btn btn-small" onclick="buyRoomUpgrade('${u.id}')">${u.price}$</button>`}
         `;
         list.appendChild(c);
     });
@@ -1387,8 +1360,6 @@ function renderProfile() {
     document.getElementById('profile-energy').textContent = Math.floor(state.energy) + '/' + state.maxEnergy;
     document.getElementById('profile-harvests').textContent = state.totalHarvests || 0;
     document.getElementById('profile-pots').textContent = state.pots.length;
-    const timeInGame = Math.floor((Date.now() - state.lastUpdate) / 60000);
-    document.getElementById('profile-time').textContent = timeInGame + 'м';
     document.getElementById('profile-state').textContent = document.body.classList.contains('snoop-high') ? '🔥 Убойная трава!' : '🧠 Норма';
 }
 
@@ -1449,7 +1420,7 @@ document.querySelectorAll('.tab').forEach(tab => {
 // ============================================================
 setInterval(() => {
     if (state.energy < state.maxEnergy) {
-        state.energy = Math.min(state.maxEnergy, state.energy + 0.2);
+        state.energy = Math.min(state.maxEnergy, state.energy + 0.3);
     }
     tickPots();
     updateMarketPrices();
@@ -1458,7 +1429,7 @@ setInterval(() => {
     renderFarm();
     renderMarket();
     save();
-}, 2000);
+}, 1500);
 
 // ============================================================
 // ====== ЗАПУСК ======
