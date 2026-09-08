@@ -360,10 +360,10 @@ function addXp(a) {
 }
 
 // ============================================================
-// ====== РЕФЕРАЛЬНАЯ ССЫЛКА ======
+// ====== РЕФЕРАЛЬНАЯ ССЫЛКА (ОБНОВЛЕНА!) ======
 // ============================================================
 function getRefLink() {
-    return `https://t.me/${BOT_USERNAME}?startapp=ref_${userId}`;
+    return `https://t.me/${BOT_USERNAME}/growsimulator?startapp=ref_${userId}`;
 }
 
 function shareReferral() {
@@ -390,7 +390,7 @@ function copyReferral() {
 }
 
 // ============================================================
-// ====== ПРИНУДИТЕЛЬНАЯ РЕГИСТРАЦИЯ (ИСПРАВЛЕНА) ======
+// ====== ПРИНУДИТЕЛЬНАЯ РЕГИСТРАЦИЯ ======
 // ============================================================
 async function forceRegister() {
     showToast('⏳ Регистрация...');
@@ -409,10 +409,7 @@ async function forceRegister() {
         if (data.success) {
             showToast('✅ Вы зарегистрированы на сервере!');
             document.getElementById('register-block').style.display = 'none';
-            
-            // ===== ОБНОВЛЯЕМ СПИСОК ДРУЗЕЙ =====
             await loadReferralsFromServer();
-            
             save();
             render();
         } else {
