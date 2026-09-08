@@ -17,7 +17,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .stat span{color:var(--accent)}
 .level-badge{background:var(--purple);color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;white-space:nowrap}
 .tabs{display:flex;background:rgba(26,46,26,0.8);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.05);overflow-x:auto;padding:4px 0;justify-content:center}
-.tab{flex:0 0 auto;padding:6px 8px;text-align:center;font-size:9px;font-weight:600;cursor:pointer;opacity:0.5;transition:all 0.3s;border-bottom:2px solid transparent;min-width:44px;white-space:nowrap}
+.tab{flex:0 0 auto;padding:6px 8px;text-align:center;font-size:9px;font-weight:600;cursor:pointer;opacity:0.5;transition:all 0.3s;border-bottom:2px solid transparent;min-width:38px;white-space:nowrap}
 .tab.active{opacity:1;border-bottom-color:var(--accent);color:var(--accent)}
 .content{padding:10px}.section{display:none}.section.active{display:block}
 .farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
@@ -123,7 +123,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .quest-card .q-reward{font-size:10px;color:var(--gold)}
 .quest-card .q-bar{height:3px;background:rgba(255,255,255,0.08);border-radius:4px;margin-top:4px;overflow:hidden}
 .quest-card .q-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width 0.5s}
-/* ====== СВЕЧЕНИЕ ЛАМП ====== */
 .pot-glow{position:absolute;inset:-20px;border-radius:50%;pointer-events:none;opacity:0;transition:opacity 0.8s ease;z-index:0}
 .pot-glow.active{opacity:0.25}
 .pot-glow.pulsing{animation:pulseGlow 2s ease-in-out infinite}
@@ -134,7 +133,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .glow-quantum{background:radial-gradient(circle,#e040fb 0%,transparent 70%)}
 .light-beam{position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:60%;height:40px;background:linear-gradient(to bottom,rgba(255,255,200,0.2),transparent);clip-path:polygon(20% 0%,80% 0%,100% 100%,0% 100%);pointer-events:none;opacity:0;transition:opacity 0.8s ease;z-index:1}
 .light-beam.active{opacity:0.6}
-@media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:9px;gap:4px}.stat{padding:2px 6px}.plant-container{height:80px}.plant-container svg{width:65px;height:80px}.tab{font-size:7px;padding:4px 4px;min-width:32px}}
+.rank-card{background:rgba(26,46,26,0.8);border-radius:12px;padding:8px 12px;margin-bottom:4px;display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,0.05)}
+.rank-card.top1{border-color:var(--gold);background:rgba(255,215,0,0.1)}
+.rank-card.top2{border-color:#c0c0c0;background:rgba(192,192,192,0.05)}
+.rank-card.top3{border-color:#cd7f32;background:rgba(205,127,50,0.05)}
+.rank-card .rank-pos{font-weight:700;font-size:14px;min-width:24px;color:var(--hint)}
+.rank-card .rank-name{flex:1;font-weight:600;font-size:12px}
+.rank-card .rank-money{font-size:12px;color:var(--gold)}
+.rank-card .rank-level{font-size:10px;color:var(--hint);margin-left:4px}
+.rank-card .rank-badge{font-size:14px}
+.my-rank{background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,215,0,0.05));border:1px solid var(--gold);border-radius:12px;padding:10px;margin-top:10px;text-align:center}
+.my-rank .rank-pos{font-size:20px;font-weight:700;color:var(--gold)}
+@media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:9px;gap:4px}.stat{padding:2px 6px}.plant-container{height:80px}.plant-container svg{width:65px;height:80px}.tab{font-size:7px;padding:4px 4px;min-width:28px}}
 </style>
 </head>
 <body>
@@ -157,6 +167,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="tab" data-tab="achievements">🏆</div>
   <div class="tab" data-tab="process">⚗️</div>
   <div class="tab" data-tab="friends">👥</div>
+  <div class="tab" data-tab="leaderboard">📊</div>
 </div>
 <div class="content">
   <div class="section active" id="section-farm">
@@ -223,6 +234,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div id="friends-list"></div>
     </div>
   </div>
+  <div class="section" id="section-leaderboard">
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <button class="btn btn-small" id="lb-monthly" onclick="loadLeaderboard('monthly')" style="flex:1;">📅 За месяц</button>
+      <button class="btn btn-small" id="lb-yearly" onclick="loadLeaderboard('yearly')" style="flex:1;">📅 За год</button>
+    </div>
+    <div id="leaderboard-list">
+      <div class="empty">📊 Загрузка рейтинга...</div>
+    </div>
+    <div id="my-rank" style="display:none;"></div>
+  </div>
 </div>
 <div class="modal-overlay" id="modal-seed"><div class="modal"><div class="modal-title">Выбери семя</div><div class="card-list" id="seed-list"></div><button class="btn btn-secondary btn-full" style="margin-top:10px" onclick="closeModal('modal-seed')">Отмена</button></div></div>
 <div class="modal-overlay" id="modal-fert"><div class="modal"><div class="modal-title">Удобрения / Лечение</div><div class="card-list" id="fert-list"></div><button class="btn btn-secondary btn-full" style="margin-top:10px" onclick="closeModal('modal-fert')">Отмена</button></div></div>
@@ -232,32 +253,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 // ====== НАСТРОЙКИ ======
 // ============================================================
 const BOT_USERNAME = 'Rastafaray420_bot';
+const SERVER_URL = window.location.origin;
 
 // ============================================================
 // ====== ЕЖЕДНЕВНЫЕ ЗАДАНИЯ (21 задание на неделю) ======
 // ============================================================
 const WEEKLY_QUESTS = [
-  { day: 1, id: 'w1_1', name: '🌱 Первые шаги', desc: 'Собрать 2 урожая', target: 2, reward: 50, icon: '🌱' },
-  { day: 1, id: 'w1_2', name: '💧 Поливальщик', desc: 'Полить растения 5 раз', target: 5, reward: 30, icon: '💧' },
-  { day: 1, id: 'w1_3', name: '💰 Первый доход', desc: 'Заработать 100$', target: 100, reward: 40, icon: '💰' },
-  { day: 2, id: 'w2_1', name: '🌿 Опытный садовод', desc: 'Собрать 4 урожая', target: 4, reward: 70, icon: '🌿' },
-  { day: 2, id: 'w2_2', name: '💧 Водолей', desc: 'Полить растения 8 раз', target: 8, reward: 40, icon: '💧' },
-  { day: 2, id: 'w2_3', name: '💰 Бизнесмен', desc: 'Заработать 200$', target: 200, reward: 60, icon: '💰' },
-  { day: 3, id: 'w3_1', name: '🌸 Цветущий сад', desc: 'Собрать 6 урожаев', target: 6, reward: 90, icon: '🌸' },
-  { day: 3, id: 'w3_2', name: '💧 Фонтан', desc: 'Полить растения 12 раз', target: 12, reward: 50, icon: '💧' },
-  { day: 3, id: 'w3_3', name: '💰 Инвестор', desc: 'Заработать 400$', target: 400, reward: 80, icon: '💰' },
-  { day: 4, id: 'w4_1', name: '🌟 Мастер урожая', desc: 'Собрать 8 урожаев', target: 8, reward: 110, icon: '🌟' },
-  { day: 4, id: 'w4_2', name: '💧 Океан', desc: 'Полить растения 16 раз', target: 16, reward: 60, icon: '💧' },
-  { day: 4, id: 'w4_3', name: '💰 Магнат', desc: 'Заработать 600$', target: 600, reward: 100, icon: '💰' },
-  { day: 5, id: 'w5_1', name: '👑 Король фермы', desc: 'Собрать 10 урожаев', target: 10, reward: 130, icon: '👑' },
-  { day: 5, id: 'w5_2', name: '💧 Цунами', desc: 'Полить растения 20 раз', target: 20, reward: 70, icon: '💧' },
-  { day: 5, id: 'w5_3', name: '💰 Миллионер', desc: 'Заработать 1000$', target: 1000, reward: 150, icon: '💰' },
-  { day: 6, id: 'w6_1', name: '🌈 Легенда', desc: 'Собрать 14 урожаев', target: 14, reward: 160, icon: '🌈' },
-  { day: 6, id: 'w6_2', name: '💧 Потоп', desc: 'Полить растения 25 раз', target: 25, reward: 80, icon: '💧' },
-  { day: 6, id: 'w6_3', name: '💰 Король денег', desc: 'Заработать 1500$', target: 1500, reward: 180, icon: '💰' },
-  { day: 7, id: 'w7_1', name: '⭐ Божественный сад', desc: 'Собрать 20 урожаев', target: 20, reward: 200, icon: '⭐' },
-  { day: 7, id: 'w7_2', name: '💧 Всемирный потоп', desc: 'Полить растения 35 раз', target: 35, reward: 100, icon: '💧' },
-  { day: 7, id: 'w7_3', name: '💰 Бог денег', desc: 'Заработать 2500$', target: 2500, reward: 250, icon: '💰' }
+  { day: 1, id: 'w1_1', name: '🌱 Первые шаги', desc: 'Собрать 2 урожая', target: 2, reward: 50 },
+  { day: 1, id: 'w1_2', name: '💧 Поливальщик', desc: 'Полить растения 5 раз', target: 5, reward: 30 },
+  { day: 1, id: 'w1_3', name: '💰 Первый доход', desc: 'Заработать 100$', target: 100, reward: 40 },
+  { day: 2, id: 'w2_1', name: '🌿 Опытный садовод', desc: 'Собрать 4 урожая', target: 4, reward: 70 },
+  { day: 2, id: 'w2_2', name: '💧 Водолей', desc: 'Полить растения 8 раз', target: 8, reward: 40 },
+  { day: 2, id: 'w2_3', name: '💰 Бизнесмен', desc: 'Заработать 200$', target: 200, reward: 60 },
+  { day: 3, id: 'w3_1', name: '🌸 Цветущий сад', desc: 'Собрать 6 урожаев', target: 6, reward: 90 },
+  { day: 3, id: 'w3_2', name: '💧 Фонтан', desc: 'Полить растения 12 раз', target: 12, reward: 50 },
+  { day: 3, id: 'w3_3', name: '💰 Инвестор', desc: 'Заработать 400$', target: 400, reward: 80 },
+  { day: 4, id: 'w4_1', name: '🌟 Мастер урожая', desc: 'Собрать 8 урожаев', target: 8, reward: 110 },
+  { day: 4, id: 'w4_2', name: '💧 Океан', desc: 'Полить растения 16 раз', target: 16, reward: 60 },
+  { day: 4, id: 'w4_3', name: '💰 Магнат', desc: 'Заработать 600$', target: 600, reward: 100 },
+  { day: 5, id: 'w5_1', name: '👑 Король фермы', desc: 'Собрать 10 урожаев', target: 10, reward: 130 },
+  { day: 5, id: 'w5_2', name: '💧 Цунами', desc: 'Полить растения 20 раз', target: 20, reward: 70 },
+  { day: 5, id: 'w5_3', name: '💰 Миллионер', desc: 'Заработать 1000$', target: 1000, reward: 150 },
+  { day: 6, id: 'w6_1', name: '🌈 Легенда', desc: 'Собрать 14 урожаев', target: 14, reward: 160 },
+  { day: 6, id: 'w6_2', name: '💧 Потоп', desc: 'Полить растения 25 раз', target: 25, reward: 80 },
+  { day: 6, id: 'w6_3', name: '💰 Король денег', desc: 'Заработать 1500$', target: 1500, reward: 180 },
+  { day: 7, id: 'w7_1', name: '⭐ Божественный сад', desc: 'Собрать 20 урожаев', target: 20, reward: 200 },
+  { day: 7, id: 'w7_2', name: '💧 Всемирный потоп', desc: 'Полить растения 35 раз', target: 35, reward: 100 },
+  { day: 7, id: 'w7_3', name: '💰 Бог денег', desc: 'Заработать 2500$', target: 2500, reward: 250 }
 ];
 
 // ============================================================
@@ -320,8 +342,6 @@ if (tg) {
         userId = String(tg.initDataUnsafe.user.id);
     }
 }
-
-const SERVER_URL = window.location.origin;
 
 // ============================================================
 // ====== ДАННЫЕ ИГРЫ ======
@@ -423,7 +443,8 @@ let state = {
     totalEvents: 0,
     questsProgress: {},
     highCount: 0,
-    consumedCount: 0
+    consumedCount: 0,
+    lastStatsUpdate: 0
 };
 let selectedPotId = null;
 
@@ -481,6 +502,7 @@ function load() {
     if (!state.questsProgress) state.questsProgress = {};
     if (!state.highCount) state.highCount = 0;
     if (!state.consumedCount) state.consumedCount = 0;
+    if (!state.lastStatsUpdate) state.lastStatsUpdate = 0;
     resetDailyQuests();
 }
 
@@ -522,9 +544,34 @@ function addXp(a) {
         showToast('🎉 Уровень ' + state.level + '!');
         haptic('success');
         checkAchievements();
+        updateServerStats();
     }
     save();
     render();
+}
+
+// ============================================================
+// ====== ОБНОВЛЕНИЕ СТАТИСТИКИ НА СЕРВЕРЕ ======
+// ============================================================
+async function updateServerStats() {
+    try {
+        const response = await fetch(SERVER_URL + '/api/update-stats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: userId,
+                userName: tg?.initDataUnsafe?.user?.first_name || 'Игрок',
+                stats: {
+                    money: state.money,
+                    level: state.level,
+                    harvests: state.totalHarvests || 0,
+                    friends: state.referrals || 0
+                }
+            })
+        });
+        state.lastStatsUpdate = Date.now();
+        save();
+    } catch(e) {}
 }
 
 // ============================================================
@@ -588,6 +635,7 @@ function updateQuestProgress(type, amount) {
     if (anyCompleted) {
         save();
         renderQuests();
+        updateServerStats();
     }
 }
 
@@ -608,7 +656,7 @@ function renderQuests() {
         html += `
             <div class="quest-card ${completed ? 'completed' : ''}">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <span class="q-title">${q.icon} ${q.name}</span>
+                    <span class="q-title">${q.icon || '📋'} ${q.name}</span>
                     <span class="q-reward">+${q.reward}$</span>
                 </div>
                 <div class="q-desc">${q.desc}</div>
@@ -775,6 +823,9 @@ async function loadReferralsFromServer() {
             state.referrals = data.stats.totalReferrals || 0;
             state.referralEarned = data.stats.totalEarned || 0;
             state.referralsList = data.stats.friends || [];
+            if (data.stats.referredBy) {
+                state.referredBy = data.stats.referredBy;
+            }
             return true;
         }
         return false;
@@ -800,31 +851,58 @@ async function registerUser(referredBy) {
     }
 }
 
+// ============================================================
+// ====== ИСПРАВЛЕННАЯ РЕФЕРАЛЬНАЯ СИСТЕМА (СОХРАНЯЕТ НА СЕРВЕРЕ) ======
+// ============================================================
 async function handleReferral() {
+    console.log('🔍 Проверка рефералки...');
+    console.log('📌 userId:', userId);
+    
+    // Проверяем параметр startapp
     if (tg?.initDataUnsafe?.start_param) {
         const param = tg.initDataUnsafe.start_param;
+        console.log('📥 Параметр start_param:', param);
+        
         if (param.startsWith('ref_')) {
             const refId = param.replace('ref_', '');
+            console.log('👤 Реферальный ID:', refId);
+            console.log('👤 Мой ID:', userId);
+            
             if (refId !== userId && !state.referredBy) {
+                console.log('✅ Новый реферал! Начисляем бонус...');
                 state.referredBy = refId;
+                
                 const result = await registerUser(refId);
                 if (result?.success) {
                     state.money += 100;
                     state.energy = Math.min(state.maxEnergy, state.energy + 30);
                     showToast('🎁 Бонус новичка! +100$ +30⚡');
                     haptic('success');
+                    // Сохраняем, что пользователь пришёл по рефералке
+                    state.referredBy = refId;
+                    console.log('✅ Бонус новичка начислен!');
+                } else {
+                    console.log('❌ Ошибка регистрации:', result);
                 }
                 save();
                 render();
                 return;
+            } else {
+                console.log('⚠️ Реферал уже был активирован или это вы сами');
             }
         }
     }
-    const success = await loadReferralsFromServer();
-    if (success) {
+    
+    // Загружаем статистику с сервера (включая рефералов!)
+    console.log('📥 Загружаем статистику с сервера...');
+    const stats = await loadReferralsFromServer();
+    if (stats) {
+        console.log('📊 Загружено рефералов:', state.referralsList.length);
         document.getElementById('register-block').style.display = 'none';
+        save();
         render();
     } else {
+        console.log('❌ Пользователь не найден на сервере');
         document.getElementById('register-block').style.display = 'block';
     }
 }
@@ -1414,7 +1492,6 @@ function renderFarm() {
         div.className = 'pot ' + pt.class;
         if (state.level < pt.unlockLevel) div.classList.add('locked');
         
-        // ====== СВЕЧЕНИЕ ЛАМПЫ ======
         if (pot.lamp && pot.strain) {
             const lamp = getLamp(pot.lamp);
             if (lamp) {
@@ -1475,7 +1552,6 @@ function renderFarm() {
             
             let tags = '';
             if (pot.disease) tags += '<span class="boost-tag sick" style="animation:blink 0.8s infinite;">🦠ВРЕДИТЕЛИ!</span>';
-            // Индикатор лампы на горшке
             if (pot.lamp) {
                 const l = getLamp(pot.lamp);
                 if (l) {
@@ -1693,7 +1769,7 @@ function renderAchievements() {
         const div = document.createElement('div');
         div.className = 'achievement-card ' + (unlocked ? 'unlocked' : 'locked');
         div.innerHTML = `
-            <div class="icon">${a.icon}</div>
+            <div class="icon">${a.icon || '🏅'}</div>
             <div class="info">
                 <div class="name">${a.name}</div>
                 <div class="desc">${a.desc}</div>
@@ -1824,6 +1900,82 @@ function render() {
 }
 
 // ============================================================
+// ====== РЕЙТИНГ ======
+// ============================================================
+async function loadLeaderboard(period) {
+    const list = document.getElementById('leaderboard-list');
+    const myRank = document.getElementById('my-rank');
+    list.innerHTML = '<div class="empty">📊 Загрузка...</div>';
+    myRank.style.display = 'none';
+    
+    document.querySelectorAll('#lb-monthly, #lb-yearly').forEach(b => b.style.opacity = '0.5');
+    document.getElementById('lb-' + period).style.opacity = '1';
+    
+    try {
+        const response = await fetch(SERVER_URL + '/api/leaderboard/' + period);
+        const data = await response.json();
+        
+        if (!data.players || data.players.length === 0) {
+            list.innerHTML = '<div class="empty">📊 Пока нет игроков в рейтинге</div>';
+            return;
+        }
+        
+        let html = '';
+        const top = data.players.slice(0, 50);
+        let myPosition = -1;
+        
+        top.forEach((player, index) => {
+            const pos = index + 1;
+            let rankClass = 'rank-card';
+            if (pos === 1) rankClass += ' top1';
+            else if (pos === 2) rankClass += ' top2';
+            else if (pos === 3) rankClass += ' top3';
+            
+            let badge = '';
+            if (pos === 1) badge = '🥇';
+            else if (pos === 2) badge = '🥈';
+            else if (pos === 3) badge = '🥉';
+            
+            if (player.id === userId) myPosition = pos;
+            
+            html += `
+                <div class="${rankClass}">
+                    <span class="rank-pos">${pos}</span>
+                    <span class="rank-badge">${badge}</span>
+                    <span class="rank-name">${player.name || 'Игрок'}</span>
+                    <span class="rank-level">Lv.${player.level}</span>
+                    <span class="rank-money">💰${player.money}</span>
+                </div>
+            `;
+        });
+        
+        list.innerHTML = html;
+        
+        if (myPosition > 0) {
+            myRank.innerHTML = `
+                <div class="my-rank">
+                    <div style="font-size:12px;color:var(--hint);">👑 Ваше место</div>
+                    <div class="rank-pos">#${myPosition}</div>
+                    <div style="font-size:11px;color:var(--hint);">из ${data.players.length} игроков</div>
+                </div>
+            `;
+            myRank.style.display = 'block';
+        } else {
+            myRank.innerHTML = `
+                <div class="my-rank">
+                    <div style="font-size:12px;color:var(--hint);">👤 Вы пока не в рейтинге</div>
+                    <div style="font-size:11px;color:var(--hint);">Зарабатывайте больше денег, чтобы попасть в топ!</div>
+                </div>
+            `;
+            myRank.style.display = 'block';
+        }
+    } catch (e) {
+        list.innerHTML = '<div class="empty">❌ Ошибка загрузки рейтинга</div>';
+        console.error(e);
+    }
+}
+
+// ============================================================
 // ====== ЭВЕНТЫ ======
 // ============================================================
 let activeEvent = null;
@@ -1885,6 +2037,7 @@ function checkAchievements() {
     if (newAchievements.length > 0) {
         save();
         renderAchievements();
+        updateServerStats();
     }
 }
 
@@ -1920,6 +2073,9 @@ setInterval(() => {
     if (!state.currentCustomer && Math.random() < 0.05) {
         spawnCustomer();
     }
+    if (Date.now() - state.lastStatsUpdate > 300000) {
+        updateServerStats();
+    }
     renderHeader();
     renderFarm();
     save();
@@ -1930,7 +2086,12 @@ setInterval(() => {
 // ============================================================
 load();
 handleReferral();
+updateServerStats();
 render();
+
+setTimeout(() => {
+    loadLeaderboard('monthly');
+}, 2000);
 
 // ============================================================
 // ====== ЭКСПОРТ ======
@@ -1960,6 +2121,7 @@ window.openLampModal = openLampModal;
 window.forceRegister = forceRegister;
 window.upgradePot = upgradePot;
 window.consumeProduct = consumeProduct;
+window.loadLeaderboard = loadLeaderboard;
 </script>
 </body>
 </html>
