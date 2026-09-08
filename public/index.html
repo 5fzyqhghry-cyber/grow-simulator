@@ -14,105 +14,108 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 @keyframes snoopFlash{0%{opacity:1}50%{opacity:0.3}100%{opacity:1}}
 .snoop-overlay{position:fixed;inset:0;background:rgba(139,69,19,0.15);pointer-events:none;z-index:999;display:none}
 .snoop-overlay.active{display:block;animation:snoopFlash 0.15s ease-in-out infinite alternate}
-.snoop-popup{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) scale(0.8);background:linear-gradient(145deg,#1a0d0a,#2d1a10);border:2px solid #d7a86e;border-radius:20px;padding:16px 20px;z-index:1000;display:none;max-width:340px;width:90%;text-align:center;box-shadow:0 10px 50px rgba(0,0,0,0.9);opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+.snoop-popup{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) scale(0.8);background:linear-gradient(145deg,#1a0d0a,#2d1a10);border:2px solid #d7a86e;border-radius:24px;padding:20px 24px;z-index:1000;display:none;max-width:360px;width:90%;text-align:center;box-shadow:0 10px 50px rgba(0,0,0,0.9);opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1)}
 .snoop-popup.show{display:block;opacity:1;transform:translateX(-50%) scale(1)}
-.snoop-popup .snoop-avatar{font-size:64px;display:block;margin-bottom:4px;animation:snoopFloat 2s ease-in-out infinite}
+.snoop-popup .snoop-avatar{font-size:72px;display:block;margin-bottom:4px;animation:snoopFloat 2s ease-in-out infinite}
 @keyframes snoopFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.snoop-popup .snoop-text{font-size:16px;font-weight:700;color:#d7a86e;margin-bottom:4px;text-shadow:0 0 20px rgba(215,168,110,0.2)}
-.snoop-popup .snoop-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:8px}
-.snoop-popup .snoop-btn{background:linear-gradient(135deg,#d7a86e,#a67c52);border:none;border-radius:12px;padding:10px 28px;font-size:15px;font-weight:700;color:#1a100d;cursor:pointer;box-shadow:0 4px 20px rgba(215,168,110,0.25);transition:transform 0.2s;margin:4px 6px}
+.snoop-popup .snoop-text{font-size:18px;font-weight:700;color:#d7a86e;margin-bottom:4px}
+.snoop-popup .snoop-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:12px}
+.snoop-popup .snoop-btn{background:linear-gradient(135deg,#d7a86e,#a67c52);border:none;border-radius:14px;padding:12px 32px;font-size:16px;font-weight:700;color:#1a100d;cursor:pointer;box-shadow:0 4px 20px rgba(215,168,110,0.25);transition:transform 0.2s;margin:4px 8px;min-width:100px}
 .snoop-popup .snoop-btn:active{transform:scale(0.94)}
-.snoop-popup .snoop-btn-secondary{background:rgba(255,255,255,0.08);color:#fff;font-size:12px;padding:6px 16px;box-shadow:none}
-.header{position:sticky;top:0;z-index:100;background:rgba(10,20,10,0.95);backdrop-filter:blur(12px);padding:6px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(76,175,80,0.1)}
-.stats{display:flex;gap:4px;font-size:9px;font-weight:600;flex-wrap:wrap}
-.stat{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,0.04);padding:2px 6px;border-radius:12px}
-.stat span{color:var(--accent)}
-.level-badge{background:var(--purple);color:#fff;font-size:8px;padding:2px 8px;border-radius:8px;font-weight:700;white-space:nowrap}
-.tabs{display:flex;background:rgba(10,20,10,0.9);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.04);overflow-x:auto;padding:3px 0;justify-content:center}
-.tab{flex:0 0 auto;padding:4px 6px;text-align:center;font-size:7px;font-weight:600;cursor:pointer;opacity:0.5;transition:all 0.3s;border-bottom:2px solid transparent;min-width:28px;white-space:nowrap}
+.snoop-popup .snoop-btn-secondary{background:rgba(255,255,255,0.1);color:#fff;font-size:13px;padding:8px 20px;box-shadow:none}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,20,10,0.95);backdrop-filter:blur(12px);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(76,175,80,0.1)}
+.stats{display:flex;gap:8px;font-size:12px;font-weight:600;flex-wrap:wrap}
+.stat{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.05);padding:4px 12px;border-radius:16px}
+.stat span{color:var(--accent);font-size:14px}
+.level-badge{background:var(--purple);color:#fff;font-size:11px;padding:4px 12px;border-radius:12px;font-weight:700;white-space:nowrap}
+.tabs{display:flex;background:rgba(10,20,10,0.9);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.04);overflow-x:auto;padding:6px 0;justify-content:center}
+.tab{flex:0 0 auto;padding:8px 14px;text-align:center;font-size:11px;font-weight:600;cursor:pointer;opacity:0.5;transition:all 0.3s;border-bottom:3px solid transparent;min-width:44px;white-space:nowrap}
 .tab.active{opacity:1;border-bottom-color:var(--accent);color:var(--accent)}
-.content{padding:6px}.section{display:none}.section.active{display:block}
-.farm-scene{background:linear-gradient(180deg,#1a3a1a,#0d1a0d 60%,#1a2a1a);border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid rgba(76,175,80,0.08);position:relative;overflow:hidden;min-height:200px}
-.farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.pot{background:linear-gradient(145deg,#1a2a1a,#0d1a0d);border-radius:12px;padding:8px 4px 6px;text-align:center;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.04);min-height:160px;display:flex;flex-direction:column;align-items:center}
-.pot .soil{position:absolute;bottom:0;left:0;right:0;height:25%;background:linear-gradient(to top,#3e2723,#5d4037);border-radius:0 0 12px 12px;opacity:0.3}
-.pot .pot-emoji{font-size:20px;line-height:1;margin-bottom:2px;position:relative;z-index:2}
-.pot .pot-name{font-size:9px;font-weight:600;z-index:1;position:relative}
-.pot .pot-status{font-size:8px;color:var(--hint);margin:1px 0 3px;z-index:1;position:relative}
-.pot.ready{border-color:var(--accent);box-shadow:0 0 20px rgba(76,175,80,0.1)}
+.content{padding:10px}.section{display:none}.section.active{display:block}
+.farm-scene{background:linear-gradient(180deg,#1a3a1a,#0d1a0d 60%,#1a2a1a);border-radius:16px;padding:12px;margin-bottom:10px;border:1px solid rgba(76,175,80,0.08);position:relative;overflow:hidden;min-height:200px}
+.farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.pot{background:linear-gradient(145deg,#1a2a1a,#0d1a0d);border-radius:16px;padding:12px 8px 10px;text-align:center;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.06);min-height:200px;display:flex;flex-direction:column;align-items:center}
+.pot .soil{position:absolute;bottom:0;left:0;right:0;height:25%;background:linear-gradient(to top,#3e2723,#5d4037);border-radius:0 0 16px 16px;opacity:0.3}
+.pot .pot-emoji{font-size:32px;line-height:1;margin-bottom:4px;position:relative;z-index:2}
+.pot .pot-name{font-size:13px;font-weight:700;z-index:1;position:relative}
+.pot .pot-status{font-size:11px;color:var(--hint);margin:2px 0 4px;z-index:1;position:relative}
+.pot.ready{border-color:var(--accent);box-shadow:0 0 30px rgba(76,175,80,0.15)}
 .pot.needs-water{border-color:var(--blue)}
 .pot.sick{border-color:var(--danger);animation:shake 0.4s ease-in-out infinite alternate}
-@keyframes shake{0%{transform:translateX(-1px)}100%{transform:translateX(1px)}}
-.plant-container{position:relative;z-index:1;width:100%;height:70px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px}
-.plant-container svg{width:60px;height:70px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));transition:transform 0.5s}
+@keyframes shake{0%{transform:translateX(-2px)}100%{transform:translateX(2px)}}
+.plant-container{position:relative;z-index:1;width:100%;height:90px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:4px}
+.plant-container svg{width:80px;height:85px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3));transition:transform 0.5s}
 .plant-container svg.ready{animation:sway 2s ease-in-out infinite,glowPlant 1.5s ease-in-out infinite}
 @keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
-@keyframes glowPlant{0%,100%{filter:drop-shadow(0 2px 8px rgba(255,215,0,0.1))}50%{filter:drop-shadow(0 2px 20px rgba(255,215,0,0.3))}}
-.bars{width:100%;display:flex;flex-direction:column;gap:1px;margin:2px 0;z-index:1;position:relative}
-.bar-row{display:flex;align-items:center;gap:2px;font-size:6px}
-.bar-row span{width:8px;font-size:7px}
-.bar{flex:1;height:2px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
-.bar-fill{height:100%;border-radius:2px;transition:width 0.5s}
+@keyframes glowPlant{0%,100%{filter:drop-shadow(0 4px 12px rgba(255,215,0,0.1))}50%{filter:drop-shadow(0 4px 30px rgba(255,215,0,0.3))}}
+.bars{width:100%;display:flex;flex-direction:column;gap:3px;margin:4px 0;z-index:1;position:relative}
+.bar-row{display:flex;align-items:center;gap:6px;font-size:10px}
+.bar-row span{width:16px;font-size:11px}
+.bar{flex:1;height:5px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width 0.5s}
 .bar-fill.water{background:linear-gradient(90deg,#1565c0,#42a5f5)}
 .bar-fill.health{background:linear-gradient(90deg,#2e7d32,#66bb6a)}
 .bar-fill.growth{background:linear-gradient(90deg,#f57f17,#ffb300)}
-.pot-actions{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;z-index:1;position:relative;width:100%}
-.btn{background:var(--button);color:var(--button-text);border:none;border-radius:6px;padding:3px 6px;font-size:8px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 1px 4px rgba(46,125,50,0.15)}
+.pot-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;z-index:1;position:relative;width:100%}
+.btn{background:var(--button);color:var(--button-text);border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px rgba(46,125,50,0.2);min-height:40px;display:flex;align-items:center;gap:6px;justify-content:center}
 .btn:active{transform:scale(0.95)}
-.btn-secondary{background:rgba(255,255,255,0.05);color:var(--text);box-shadow:none}
-.btn-blue{background:var(--blue)}
-.btn-warning{background:var(--warning);color:#111}
-.btn-purple{background:var(--purple)}
-.btn-gold{background:var(--gold);color:#111}
-.btn-small{padding:2px 4px;font-size:7px}
+.btn-secondary{background:rgba(255,255,255,0.08);color:var(--text);box-shadow:none}
+.btn-blue{background:var(--blue);box-shadow:0 2px 8px rgba(30,136,229,0.2)}
+.btn-warning{background:var(--warning);color:#111;box-shadow:0 2px 8px rgba(255,179,0,0.2)}
+.btn-purple{background:var(--purple);box-shadow:0 2px 8px rgba(123,31,162,0.2)}
+.btn-gold{background:var(--gold);color:#111;box-shadow:0 2px 8px rgba(255,215,0,0.2)}
+.btn-smoke{background:linear-gradient(135deg,#795548,#4e342e);color:#fff}
+.btn-taste{background:linear-gradient(135deg,#ff6f00,#ff8f00);color:#fff}
+.btn-small{padding:6px 10px;font-size:10px;min-height:32px}
 .btn-full{width:100%}
-.boost-tag{display:inline-block;background:rgba(33,150,243,0.12);color:#64b5f6;font-size:5px;padding:1px 3px;border-radius:3px;margin-left:1px}
-.boost-tag.fert{background:rgba(255,179,0,0.12);color:#ffb300}
-.boost-tag.sick{background:rgba(229,57,53,0.15);color:#ef5350;animation:blink 0.8s infinite}
+.boost-tag{display:inline-block;background:rgba(33,150,243,0.15);color:#64b5f6;font-size:8px;padding:2px 6px;border-radius:4px;margin-left:2px}
+.boost-tag.fert{background:rgba(255,179,0,0.15);color:#ffb300}
+.boost-tag.sick{background:rgba(229,57,53,0.2);color:#ef5350;animation:blink 0.8s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
-.card{background:rgba(16,30,16,0.8);backdrop-filter:blur(4px);border-radius:8px;padding:6px;display:flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,0.04)}
-.card-emoji{font-size:18px;width:24px;text-align:center}
+.card{background:rgba(16,30,16,0.85);backdrop-filter:blur(4px);border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,0.04)}
+.card-emoji{font-size:28px;width:40px;text-align:center}
 .card-info{flex:1;min-width:0}
-.card-title{font-weight:600;font-size:10px}
-.card-desc{font-size:8px;color:var(--hint)}
+.card-title{font-weight:600;font-size:13px}
+.card-desc{font-size:11px;color:var(--hint)}
 .card-locked{opacity:0.4;filter:grayscale(0.6)}
-.inv-count{background:var(--accent);color:#fff;font-size:6px;font-weight:700;padding:1px 4px;border-radius:4px;margin-left:2px}
-.section-title{font-size:8px;font-weight:600;color:var(--hint);margin:6px 0 3px;text-transform:uppercase;letter-spacing:0.3px}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:flex-end;justify-content:center;z-index:200;padding:8px}
+.inv-count{background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;margin-left:4px}
+.section-title{font-size:11px;font-weight:600;color:var(--hint);margin:10px 0 6px;text-transform:uppercase;letter-spacing:0.5px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:none;align-items:flex-end;justify-content:center;z-index:200;padding:12px}
 .modal-overlay.show{display:flex}
-.modal{background:var(--secondary);border-radius:14px 14px 0 0;width:100%;max-width:480px;max-height:75vh;overflow-y:auto;padding:12px;border-top:1px solid rgba(76,175,80,0.08)}
-.modal-title{font-size:13px;font-weight:700;margin-bottom:8px;text-align:center}
-.toast{position:fixed;top:50px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--accent);color:#fff;padding:5px 12px;border-radius:30px;font-size:10px;font-weight:600;opacity:0;transition:all 0.3s;z-index:300;pointer-events:none;max-width:90%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+.modal{background:var(--secondary);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;padding:18px;border-top:1px solid rgba(76,175,80,0.08)}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:12px;text-align:center}
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--accent);color:#fff;padding:10px 20px;border-radius:30px;font-size:14px;font-weight:600;opacity:0;transition:all 0.3s;z-index:300;pointer-events:none;max-width:90%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.error{background:var(--danger)}
-.empty{text-align:center;padding:16px 10px;color:var(--hint)}
-.empty-emoji{font-size:28px;margin-bottom:2px}
-.room-info{background:rgba(16,30,16,0.8);border-radius:8px;padding:8px;margin-bottom:6px;font-size:10px;border:1px solid rgba(255,255,255,0.04)}
-.ref-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:10px;padding:10px;text-align:center}
-.profile-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,0.04)}
-.profile-stat{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10px}
+.toast.event{background:linear-gradient(135deg,#ff6f00,#ff8f00)}
+.empty{text-align:center;padding:20px 12px;color:var(--hint)}
+.empty-emoji{font-size:36px;margin-bottom:4px}
+.room-info{background:rgba(16,30,16,0.85);border-radius:12px;padding:12px;margin-bottom:8px;font-size:12px;border:1px solid rgba(255,255,255,0.04)}
+.ref-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:14px;padding:14px;text-align:center}
+.profile-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:14px;padding:16px;text-align:center;border:1px solid rgba(255,255,255,0.05)}
+.profile-stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px}
 .profile-stat:last-child{border-bottom:none}
 .profile-stat .label{color:var(--hint)}
 .profile-stat .value{color:var(--text);font-weight:600}
-.market-panel{background:rgba(10,20,10,0.8);border-radius:10px;padding:8px;margin-bottom:8px;border:1px solid rgba(255,215,0,0.06)}
-.market-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.market-item{background:rgba(255,255,255,0.02);border-radius:6px;padding:4px 6px;display:flex;justify-content:space-between;align-items:center;font-size:9px}
-.market-item .price{color:var(--gold);font-weight:700}
-.market-item .change{font-size:7px}
+.market-panel{background:rgba(10,20,10,0.8);border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid rgba(255,215,0,0.06)}
+.market-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.market-item{background:rgba(255,255,255,0.03);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.market-item .price{color:var(--gold);font-weight:700;font-size:13px}
+.market-item .change{font-size:10px}
 .market-item .change.up{color:#4caf50}
 .market-item .change.down{color:#e53935}
-.market-timer{text-align:center;font-size:8px;color:var(--hint);margin-top:4px}
-.rank-card{background:rgba(16,30,16,0.8);border-radius:8px;padding:4px 8px;margin-bottom:3px;display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,0.04);font-size:9px}
-.rank-card.top1{border-color:var(--gold);background:rgba(255,215,0,0.05)}
-.rank-card.top2{border-color:#c0c0c0;background:rgba(192,192,192,0.04)}
-.rank-card.top3{border-color:#cd7f32;background:rgba(205,127,50,0.04)}
-.rank-card .rank-pos{font-weight:700;font-size:11px;min-width:20px;color:var(--hint)}
-.rank-card .rank-name{flex:1;font-weight:600;font-size:10px}
-.rank-card .rank-money{font-size:10px;color:var(--gold)}
-.rank-card .rank-level{font-size:8px;color:var(--hint);margin-left:4px}
-.rank-card .rank-badge{font-size:12px}
-.my-rank{background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(255,215,0,0.02));border:1px solid var(--gold);border-radius:8px;padding:8px;margin-top:6px;text-align:center;font-size:11px}
-@media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:7px;gap:2px}.stat{padding:1px 4px}.plant-container{height:60px}.plant-container svg{width:50px;height:60px}.tab{font-size:6px;padding:2px 3px;min-width:20px}.market-grid{grid-template-columns:1fr}}
+.market-timer{text-align:center;font-size:10px;color:var(--hint);margin-top:6px}
+.rank-card{background:rgba(16,30,16,0.85);border-radius:10px;padding:8px 12px;margin-bottom:4px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.04);font-size:11px}
+.rank-card.top1{border-color:var(--gold);background:rgba(255,215,0,0.08)}
+.rank-card.top2{border-color:#c0c0c0;background:rgba(192,192,192,0.05)}
+.rank-card.top3{border-color:#cd7f32;background:rgba(205,127,50,0.05)}
+.rank-card .rank-pos{font-weight:700;font-size:14px;min-width:28px;color:var(--hint)}
+.rank-card .rank-name{flex:1;font-weight:600;font-size:12px}
+.rank-card .rank-money{font-size:12px;color:var(--gold)}
+.rank-card .rank-level{font-size:10px;color:var(--hint);margin-left:4px}
+.rank-card .rank-badge{font-size:16px}
+.my-rank{background:linear-gradient(135deg,rgba(255,215,0,0.12),rgba(255,215,0,0.03));border:1px solid var(--gold);border-radius:10px;padding:10px;margin-top:8px;text-align:center;font-size:13px}
+@media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:10px;gap:4px}.stat{padding:3px 8px}.plant-container{height:75px}.plant-container svg{width:65px;height:70px}.tab{font-size:9px;padding:6px 8px;min-width:32px}.btn{font-size:10px;padding:6px 10px;min-height:34px}.pot .pot-emoji{font-size:26px}.snoop-popup{padding:16px}.snoop-popup .snoop-avatar{font-size:56px}}
 </style>
 </head>
 <body>
@@ -140,14 +143,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 
 <div class="tabs">
-  <div class="tab active" data-tab="farm">🌱</div>
-  <div class="tab" data-tab="market">📊</div>
-  <div class="tab" data-tab="shop">🛒</div>
-  <div class="tab" data-tab="inventory">📦</div>
-  <div class="tab" data-tab="room">🏠</div>
-  <div class="tab" data-tab="profile">👤</div>
-  <div class="tab" data-tab="leaderboard">🏆</div>
-  <div class="tab" data-tab="friends">👥</div>
+  <div class="tab active" data-tab="farm">🌱 Ферма</div>
+  <div class="tab" data-tab="market">📊 Рынок</div>
+  <div class="tab" data-tab="shop">🛒 Магазин</div>
+  <div class="tab" data-tab="inventory">📦 Склад</div>
+  <div class="tab" data-tab="room">🏠 Комната</div>
+  <div class="tab" data-tab="profile">👤 Профиль</div>
+  <div class="tab" data-tab="leaderboard">🏆 Рейтинг</div>
+  <div class="tab" data-tab="friends">👥 Друзья</div>
 </div>
 
 <div class="content">
@@ -155,7 +158,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="farm-scene">
       <div class="farm-grid" id="farm-grid"></div>
     </div>
-    <div style="margin-top:6px;text-align:center">
+    <div style="margin-top:10px;text-align:center">
       <button class="btn btn-secondary btn-full" id="btn-buy-pot" onclick="buyPot()">➕ Купить горшок</button>
     </div>
   </div>
@@ -173,7 +176,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
   <div class="section" id="section-inventory">
     <div class="card-list" id="inventory-list"></div>
-    <div style="margin-top:6px"><button class="btn btn-full" onclick="sellAll()" id="btn-sell-all">💰 Продать всё</button></div>
+    <div style="margin-top:10px"><button class="btn btn-full" onclick="sellAll()" id="btn-sell-all">💰 Продать всё</button></div>
   </div>
 
   <div class="section" id="section-room">
@@ -183,9 +186,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
   <div class="section" id="section-profile">
     <div class="profile-card">
-      <div style="font-size:36px;margin-bottom:2px;">👤</div>
-      <div style="font-size:15px;font-weight:700;margin-bottom:2px;" id="profile-name">Игрок</div>
-      <div style="font-size:9px;color:var(--hint);margin-bottom:6px;" id="profile-id">ID: загрузка...</div>
+      <div style="font-size:48px;margin-bottom:4px;">👤</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:2px;" id="profile-name">Игрок</div>
+      <div style="font-size:11px;color:var(--hint);margin-bottom:8px;" id="profile-id">ID: загрузка...</div>
       <div class="profile-stat"><span class="label">📅 Дата регистрации</span><span class="value" id="profile-regdate">--</span></div>
       <div class="profile-stat"><span class="label">🏆 Уровень</span><span class="value" id="profile-level">1</span></div>
       <div class="profile-stat"><span class="label">💰 Денег</span><span class="value" id="profile-money">0$</span></div>
@@ -198,7 +201,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   </div>
 
   <div class="section" id="section-leaderboard">
-    <div style="display:flex;gap:4px;margin-bottom:6px;">
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
       <button class="btn btn-small" id="lb-monthly" onclick="loadLeaderboard('monthly')" style="flex:1;">📅 Месяц</button>
       <button class="btn btn-small" id="lb-yearly" onclick="loadLeaderboard('yearly')" style="flex:1;">📅 Год</button>
     </div>
@@ -208,23 +211,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
   <div class="section" id="section-friends">
     <div class="ref-card">
-      <div style="font-weight:700;margin-bottom:3px;">👥 Пригласи друзей</div>
-      <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:4px;">За каждого: <b>+150$</b> и <b>+20⚡</b></div>
-      <div style="display:flex;justify-content:center;gap:10px;margin-bottom:4px;font-size:10px;">
+      <div style="font-weight:700;margin-bottom:4px;">👥 Пригласи друзей</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:6px;">За каждого: <b>+150$</b> и <b>+20⚡</b></div>
+      <div style="display:flex;justify-content:center;gap:12px;margin-bottom:6px;font-size:12px;">
         <div>Приглашено: <b id="ref-count">0</b></div>
         <div>Заработано: <b id="ref-earned">0</b>$</div>
       </div>
       <button class="btn btn-full" onclick="shareReferral()">📤 Поделиться</button>
-      <button class="btn btn-secondary btn-full" style="margin-top:3px;" onclick="copyReferral()">📋 Скопировать</button>
-      <div id="friends-list" style="margin-top:6px;"></div>
+      <button class="btn btn-secondary btn-full" style="margin-top:4px;" onclick="copyReferral()">📋 Скопировать</button>
+      <div id="friends-list" style="margin-top:8px;"></div>
     </div>
   </div>
 </div>
 
 <!-- МОДАЛКИ -->
-<div class="modal-overlay" id="modal-seed"><div class="modal"><div class="modal-title">🌱 Выбери семя</div><div class="card-list" id="seed-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-seed')">Отмена</button></div></div>
-<div class="modal-overlay" id="modal-fert"><div class="modal"><div class="modal-title">🧪 Удобрения</div><div class="card-list" id="fert-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-fert')">Отмена</button></div></div>
-<div class="modal-overlay" id="modal-lamp"><div class="modal"><div class="modal-title">💡 Лампы</div><div class="card-list" id="lamp-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-lamp')">Отмена</button></div></div>
+<div class="modal-overlay" id="modal-seed"><div class="modal"><div class="modal-title">🌱 Выбери семя</div><div class="card-list" id="seed-list"></div><button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="closeModal('modal-seed')">Отмена</button></div></div>
+<div class="modal-overlay" id="modal-fert"><div class="modal"><div class="modal-title">🧪 Удобрения</div><div class="card-list" id="fert-list"></div><button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="closeModal('modal-fert')">Отмена</button></div></div>
+<div class="modal-overlay" id="modal-lamp"><div class="modal"><div class="modal-title">💡 Лампы</div><div class="card-list" id="lamp-list"></div><button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="closeModal('modal-lamp')">Отмена</button></div></div>
 
 <div class="toast" id="toast"></div>
 
@@ -275,27 +278,27 @@ const POT_LEVELS = [
 ];
 
 const LAMPS = [
-    {id:'lamp1',name:'CFL',emoji:'💡',price:150,power:1.15,desc:'+15%'},
-    {id:'lamp2',name:'LED',emoji:'✨',price:400,power:1.35,desc:'+35%'},
-    {id:'lamp3',name:'HPS',emoji:'🔆',price:900,power:1.6,desc:'+60%'},
-    {id:'lamp4',name:'Квантовая',emoji:'💎',price:2000,power:2.0,desc:'+100%'}
+    {id:'lamp1',name:'💡 CFL',price:150,power:1.15,desc:'+15% скорость'},
+    {id:'lamp2',name:'✨ LED',price:400,power:1.35,desc:'+35% скорость'},
+    {id:'lamp3',name:'🔆 HPS',price:900,power:1.6,desc:'+60% скорость'},
+    {id:'lamp4',name:'💎 Квантовая',price:2000,power:2.0,desc:'+100% скорость'}
 ];
 const LAMP_ENERGY_COST = {lamp1:0.2,lamp2:0.4,lamp3:0.8,lamp4:1.2};
 
 const FERTS = [
-    {id:'water_boost',name:'Супер-вода',emoji:'💧',price:40,effect:'speed',value:0.2,desc:'+20% скорость'},
-    {id:'yield_boost',name:'Удобрение+',emoji:'🧪',price:90,effect:'yield',value:0.4,desc:'+40% урожай'},
-    {id:'heal',name:'Лекарство',emoji:'💊',price:60,effect:'heal',value:1,desc:'Лечит болезнь'},
-    {id:'mega',name:'Мега-буст',emoji:'🚀',price:350,effect:'both',value:0.35,desc:'+35% всё'}
+    {id:'water_boost',name:'💧 Супер-вода',price:40,effect:'speed',value:0.2,desc:'+20% скорость'},
+    {id:'yield_boost',name:'🧪 Удобрение+',price:90,effect:'yield',value:0.4,desc:'+40% урожай'},
+    {id:'heal',name:'💊 Лекарство',price:60,effect:'heal',value:1,desc:'Лечит болезнь'},
+    {id:'mega',name:'🚀 Мега-буст',price:350,effect:'both',value:0.35,desc:'+35% всё'}
 ];
 
 const ROOM_UPGRADES = [
-    {id:'vent',name:'Вентиляция',emoji:'🌀',price:500,type:'vent',desc:'Болезни реже на 60%'},
-    {id:'auto',name:'Автополив',emoji:'💦',price:1200,type:'auto',desc:'Автоматический полив'},
-    {id:'heater',name:'Обогреватель',emoji:'🔥',price:800,type:'heater',desc:'Скорость роста +15%'}
+    {id:'vent',name:'🌀 Вентиляция',price:500,type:'vent',desc:'Болезни реже на 60%'},
+    {id:'auto',name:'💦 Автополив',price:1200,type:'auto',desc:'Автоматический полив'},
+    {id:'heater',name:'🔥 Обогреватель',price:800,type:'heater',desc:'Скорость роста +15%'}
 ];
 
-const STAGE_NAMES = ['','Семя','Росток','Вегетация','Цветение','Готово'];
+const STAGE_NAMES = ['','🌱 Семя','🌿 Росток','🌳 Вегетация','🌸 Цветение','✨ Готово'];
 const STAGE_EMOJI = ['','🌱','🌿','🌳','🌸','✨'];
 
 // ============================================================
@@ -381,7 +384,7 @@ function showToast(m, err=false, type='') {
     const t = document.getElementById('toast');
     t.textContent = m;
     t.className = 'toast show' + (err ? ' error' : '') + (type ? ' ' + type : '');
-    setTimeout(() => t.classList.remove('show'), 2000);
+    setTimeout(() => t.classList.remove('show'), 2500);
 }
 
 function haptic(t='light') {
@@ -434,7 +437,6 @@ function trySpawnSnoop() {
     if (state.snoopActive) return;
     if (Date.now() - state.snoopCooldown < 240000) return;
     if (Math.random() > 0.08) return;
-    
     document.getElementById('snoopPopup').classList.add('show');
     document.getElementById('snoopOverlay').classList.add('active');
     state.snoopActive = true;
@@ -444,16 +446,13 @@ function trySpawnSnoop() {
 function acceptSnoop() {
     document.getElementById('snoopPopup').classList.remove('show');
     document.getElementById('snoopOverlay').classList.remove('active');
-    
     state.money += 50;
     state.energy = Math.min(state.maxEnergy, state.energy + 20);
     showToast('🔥 Сильный накур! +50$ +20⚡', false, 'event');
     haptic('success');
-    
     document.body.classList.add('snoop-high');
     document.getElementById('snoopOverlay').classList.add('active');
     document.getElementById('profile-state').textContent = '🔥 Убойная трава!';
-    
     clearTimeout(snoopTimer);
     snoopTimer = setTimeout(() => {
         document.body.classList.remove('snoop-high');
@@ -461,7 +460,6 @@ function acceptSnoop() {
         document.getElementById('profile-state').textContent = '🧠 Норма';
         showToast('🌀 Эффект убойной травы прошёл...');
     }, 30000);
-    
     state.snoopActive = false;
     state.snoopCooldown = Date.now();
     save();
@@ -584,13 +582,16 @@ function getEffectiveTime(pot) {
     }
     if (state.room.heater) mult *= 1.15;
     if (state.room.vent) mult *= 1.05;
+    if (mult < 0.1) mult = 0.1;
     return s.baseTime / mult;
 }
 
 function getProgress(pot) {
     if (!pot.strain || !pot.plantedAt) return 0;
     const t = getEffectiveTime(pot);
-    return Math.min(1, (Date.now() - pot.plantedAt) / 1000 / t);
+    if (t <= 0) return 1;
+    const progress = (Date.now() - pot.plantedAt) / 1000 / t;
+    return Math.min(1, progress);
 }
 
 function updatePotStage(pot) {
@@ -624,11 +625,11 @@ function getQuality(pot) {
 }
 
 function qualityName(q) {
-    if (q >= 2.2) return {name:'Легендарное',emoji:'💎',color:'#7c4dff'};
-    if (q >= 1.7) return {name:'Отличное',emoji:'🌟',color:'#ffd700'};
-    if (q >= 1.2) return {name:'Хорошее',emoji:'⭐',color:'#4caf50'};
-    if (q >= 0.8) return {name:'Обычное',emoji:'🌿',color:'#81c784'};
-    return {name:'Слабое',emoji:'🥀',color:'#ef9a9a'};
+    if (q >= 2.2) return {name:'💎 Легендарное',emoji:'💎'};
+    if (q >= 1.7) return {name:'🌟 Отличное',emoji:'🌟'};
+    if (q >= 1.2) return {name:'⭐ Хорошее',emoji:'⭐'};
+    if (q >= 0.8) return {name:'🌿 Обычное',emoji:'🌿'};
+    return {name:'🥀 Слабое',emoji:'🥀'};
 }
 
 // ============================================================
@@ -640,7 +641,11 @@ function harvest(id) {
     if (!pot.strain) { showToast('Нет растения', true); return; }
     
     const prog = getProgress(pot);
-    if (prog < 1) { showToast('Растение ещё не выросло!', true); return; }
+    if (prog < 0.99) {
+        const left = getEffectiveTime(pot) - (Date.now() - pot.plantedAt) / 1000;
+        showToast('Растение ещё не выросло! Осталось: ' + formatTime(Math.max(0, left)), true);
+        return;
+    }
     if (pot.health < 20) { showToast('Растение слишком слабое!', true); return; }
     
     const s = getStrain(pot.strain);
@@ -655,7 +660,6 @@ function harvest(id) {
     const totalPrice = amount * marketPrice;
     state.money += totalPrice;
     state.totalHarvests = (state.totalHarvests || 0) + 1;
-    
     state.inventory[s.id] = (state.inventory[s.id] || 0) + amount;
     
     showToast(`🌿 ${qInfo.emoji} ${qInfo.name}! +${amount} ${s.name} (${totalPrice}$)`);
@@ -709,8 +713,8 @@ function openSeedModal(id) {
                 <div class="card-desc">⏱ ${Math.floor(s.baseTime/60)}м · ${s.yield} шт · 💰${s.sellPrice}$</div>
             </div>
             <div style="text-align:right">
-                <div style="color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${s.seedPrice}$</div>
-                <div style="font-size:7px;color:var(--hint)">⚡${s.energyCost}</div>
+                <div style="color:${unlocked ? 'var(--accent)' : 'var(--hint)'};font-weight:700;">${s.seedPrice}$</div>
+                <div style="font-size:9px;color:var(--hint)">⚡${s.energyCost}</div>
             </div>
         `;
         if (unlocked && can) {
@@ -847,7 +851,7 @@ function openFertModal(id) {
                 <div class="card-title">${f.name} <span class="inv-count">×${cnt}</span></div>
                 <div class="card-desc">${f.desc}</div>
             </div>
-            <button class="btn btn-small btn-warning" onclick="applyFert('${f.id}')">Применить</button>
+            <button class="btn btn-small btn-warning" onclick="applyFert('${f.id}')">🧪 Применить</button>
         `;
         list.appendChild(c);
     });
@@ -873,7 +877,7 @@ function applyFert(fid) {
             pot.yieldMult = (pot.yieldMult || 1) * (1 + f.value);
         }
         pot.fert = fid;
-        showToast(f.emoji + ' ' + f.name);
+        showToast(f.emoji + ' ' + f.name + ' применено');
     }
     closeModal('modal-fert');
     haptic('success');
@@ -899,7 +903,7 @@ function openLampModal(id) {
                 <div class="card-title">${l.name} <span class="inv-count">×${cnt}</span></div>
                 <div class="card-desc">${l.desc} · ⚡${LAMP_ENERGY_COST[l.id].toFixed(1)}/с</div>
             </div>
-            <button class="btn btn-small btn-purple" onclick="applyLamp(${selectedPotId},'${l.id}')">Установить</button>
+            <button class="btn btn-small btn-purple" onclick="applyLamp(${selectedPotId},'${l.id}')">💡 Установить</button>
         `;
         list.appendChild(c);
     });
@@ -1036,17 +1040,17 @@ async function loadLeaderboard(period) {
         if (myPosition > 0) {
             myRank.innerHTML = `
                 <div class="my-rank">
-                    <div style="font-size:10px;color:var(--hint);">👑 Ваше место</div>
-                    <div style="font-size:18px;font-weight:700;color:var(--gold);">#${myPosition}</div>
-                    <div style="font-size:9px;color:var(--hint);">из ${data.players.length}</div>
+                    <div style="font-size:11px;color:var(--hint);">👑 Ваше место</div>
+                    <div style="font-size:22px;font-weight:700;color:var(--gold);">#${myPosition}</div>
+                    <div style="font-size:10px;color:var(--hint);">из ${data.players.length} игроков</div>
                 </div>
             `;
             myRank.style.display = 'block';
         } else {
             myRank.innerHTML = `
                 <div class="my-rank">
-                    <div style="font-size:10px;color:var(--hint);">👤 Вы пока не в рейтинге</div>
-                    <div style="font-size:9px;color:var(--hint);">Зарабатывайте больше денег!</div>
+                    <div style="font-size:11px;color:var(--hint);">👤 Вы пока не в рейтинге</div>
+                    <div style="font-size:10px;color:var(--hint);">Зарабатывайте больше денег!</div>
                 </div>
             `;
             myRank.style.display = 'block';
@@ -1167,22 +1171,22 @@ function renderFarm() {
             if (pot.disease) div.classList.add('sick');
             
             let tags = '';
-            if (pot.disease) tags += '<span class="boost-tag sick">🦠</span>';
+            if (pot.disease) tags += '<span class="boost-tag sick">🦠 Болезнь</span>';
             if (pot.lamp) {
                 const l = getLamp(pot.lamp);
                 if (l) tags += `<span class="boost-tag">💡${l.emoji}</span>`;
             }
-            if (pot.fert) tags += '<span class="boost-tag fert">🧪</span>';
+            if (pot.fert) tags += '<span class="boost-tag fert">🧪 Удобрение</span>';
             
             let actions = '';
             if (ready) {
-                actions = `<button class="btn btn-full" onclick="harvest(${pot.id})">🌿 Собрать</button>`;
+                actions = `<button class="btn btn-full" onclick="harvest(${pot.id})">🌿 Собрать урожай</button>`;
             } else {
                 actions = `
                     <div class="pot-actions">
-                        <button class="btn btn-blue btn-small" onclick="waterPot(${pot.id})">💧</button>
-                        <button class="btn btn-warning btn-small" onclick="openFertModal(${pot.id})">🧪</button>
-                        <button class="btn btn-purple btn-small" onclick="openLampModal(${pot.id})">💡</button>
+                        <button class="btn btn-blue btn-small" onclick="waterPot(${pot.id})">💧 Полить</button>
+                        <button class="btn btn-warning btn-small" onclick="openFertModal(${pot.id})">🧪 Удобрить</button>
+                        <button class="btn btn-purple btn-small" onclick="openLampModal(${pot.id})">💡 Лампа</button>
                     </div>
                 `;
             }
@@ -1190,7 +1194,7 @@ function renderFarm() {
             div.innerHTML += `
                 <div class="pot-emoji">${STAGE_EMOJI[pot.stage] || '🌱'}</div>
                 <div class="pot-name">${s.name} ${tags}</div>
-                <div class="pot-status">${ready ? '✅ Готово!' : STAGE_NAMES[pot.stage] + ' · ' + formatTime(left)}</div>
+                <div class="pot-status">${ready ? '✅ Готово к сбору!' : STAGE_NAMES[pot.stage] + ' · ' + formatTime(left)}</div>
                 <div class="plant-container">${getPlantSVG(pot.strain, pot.stage, pot.health, pot.disease, ready)}</div>
                 <div class="bars">
                     <div class="bar-row"><span>💧</span><div class="bar"><div class="bar-fill water" style="width:${pot.water}%"></div></div></div>
@@ -1301,7 +1305,7 @@ function renderInventory() {
                 <div class="card-title">${s.name} <span class="inv-count">×${amt}</span></div>
                 <div class="card-desc">💰${price}$ · ${amt * price}$</div>
             </div>
-            <button class="btn btn-small" onclick="sellProduct('${id}')">💰</button>
+            <button class="btn btn-small" onclick="sellProduct('${id}')">💰 Продать</button>
         `;
         list.appendChild(c);
     });
@@ -1310,28 +1314,32 @@ function renderInventory() {
 function renderRoom() {
     const info = document.getElementById('room-info');
     info.innerHTML = `
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;">
-            <div style="background:rgba(255,255,255,0.03);padding:4px;border-radius:6px;text-align:center;font-size:8px;">
-                <div>🪴 ${state.pots.length}</div>
-                <div style="color:var(--hint);font-size:7px;">Горшков</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+            <div style="background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;text-align:center;">
+                <div style="font-size:22px;">🪴</div>
+                <div style="font-size:12px;font-weight:600;">${state.pots.length}</div>
+                <div style="color:var(--hint);font-size:9px;">Горшков</div>
             </div>
-            <div style="background:rgba(255,255,255,0.03);padding:4px;border-radius:6px;text-align:center;font-size:8px;">
-                <div>${state.room.vent ? '✅' : '❌'}</div>
-                <div style="color:var(--hint);font-size:7px;">Вентиляция</div>
+            <div style="background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;text-align:center;">
+                <div style="font-size:22px;">${state.room.vent ? '✅' : '❌'}</div>
+                <div style="font-size:12px;font-weight:600;">${state.room.vent ? 'Вкл' : 'Выкл'}</div>
+                <div style="color:var(--hint);font-size:9px;">Вентиляция</div>
             </div>
-            <div style="background:rgba(255,255,255,0.03);padding:4px;border-radius:6px;text-align:center;font-size:8px;">
-                <div>${state.room.auto ? '✅' : '❌'}</div>
-                <div style="color:var(--hint);font-size:7px;">Автополив</div>
+            <div style="background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;text-align:center;">
+                <div style="font-size:22px;">${state.room.auto ? '✅' : '❌'}</div>
+                <div style="font-size:12px;font-weight:600;">${state.room.auto ? 'Вкл' : 'Выкл'}</div>
+                <div style="color:var(--hint);font-size:9px;">Автополив</div>
             </div>
-            <div style="background:rgba(255,255,255,0.03);padding:4px;border-radius:6px;text-align:center;font-size:8px;grid-column:span 3;">
-                <div>${state.room.heater ? '✅' : '❌'}</div>
-                <div style="color:var(--hint);font-size:7px;">Обогреватель</div>
+            <div style="background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;text-align:center;grid-column:span 3;">
+                <div style="font-size:22px;">${state.room.heater ? '✅' : '❌'}</div>
+                <div style="font-size:12px;font-weight:600;">${state.room.heater ? 'Вкл' : 'Выкл'}</div>
+                <div style="color:var(--hint);font-size:9px;">Обогреватель</div>
             </div>
         </div>
     `;
     const list = document.getElementById('room-list');
     list.innerHTML = '';
-    list.innerHTML += '<div class="section-title">🪴 Горшки</div>';
+    list.innerHTML += '<div class="section-title">🪴 Уровни горшков</div>';
     POT_LEVELS.forEach(pl => {
         const unlocked = state.level >= pl.id * 2;
         const c = document.createElement('div');
@@ -1343,7 +1351,7 @@ function renderRoom() {
                 <div class="card-title">${pl.name} ${unlocked ? '✅' : '🔒'}</div>
                 <div class="card-desc">${pl.desc} · ${pl.price}$</div>
             </div>
-            <span style="font-size:8px;color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${unlocked ? 'Доступен' : 'Ур. ' + pl.id * 2}</span>
+            <span style="font-size:10px;color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${unlocked ? 'Доступен' : 'Ур. ' + pl.id * 2}</span>
         `;
         list.appendChild(c);
     });
@@ -1362,7 +1370,7 @@ function renderRoom() {
                 <div class="card-title">${u.name}</div>
                 <div class="card-desc">${u.desc}</div>
             </div>
-            ${bought ? '<span style="color:var(--hint);font-size:8px;">✅</span>' : `<button class="btn btn-small" onclick="buyRoomUpgrade('${u.id}')">${u.price}$</button>`}
+            ${bought ? '<span style="color:var(--hint);font-size:11px;">✅ Куплено</span>' : `<button class="btn btn-small" onclick="buyRoomUpgrade('${u.id}')">${u.price}$</button>`}
         `;
         list.appendChild(c);
     });
@@ -1390,12 +1398,12 @@ function renderFriends() {
     const container = document.getElementById('friends-list');
     const friends = state.referralsList || [];
     if (friends.length === 0) {
-        container.innerHTML = '<div style="color:var(--hint);font-size:9px;text-align:center;">👤 Пока нет друзей</div>';
+        container.innerHTML = '<div style="color:var(--hint);font-size:10px;text-align:center;">👤 Пока нет друзей</div>';
         return;
     }
-    let html = '<div style="font-size:9px;font-weight:600;color:var(--hint);margin-top:3px;">👥 Друзья</div>';
+    let html = '<div style="font-size:10px;font-weight:600;color:var(--hint);margin-top:4px;">👥 Приглашённые друзья</div>';
     friends.forEach(f => {
-        html += `<div style="padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:9px;">${f.name || 'Друг'}</div>`;
+        html += `<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10px;">${f.name || 'Друг'}</div>`;
     });
     container.innerHTML = html;
 }
