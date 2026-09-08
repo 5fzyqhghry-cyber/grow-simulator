@@ -115,11 +115,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .friend-item{background:rgba(16,30,16,0.85);border-radius:12px;padding:10px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.04);margin-bottom:6px}
 .friend-item .online{color:#4caf50;font-size:8px;display:flex;align-items:center;gap:3px}
 .friend-item .online.offline{color:#666}
+.online-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+.online-dot.online{background:#4caf50}
+.online-dot.offline{background:#666}
 .social-input{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 10px;color:var(--text);font-size:11px;width:100%;outline:none}
 .social-input:focus{border-color:var(--accent)}
 .request-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px}
 .bonus-timer{background:rgba(255,215,0,0.08);border:1px solid var(--gold);border-radius:8px;padding:6px 10px;text-align:center;margin:6px 0;font-size:11px}
 .bonus-timer .countdown{color:var(--gold);font-weight:700;font-size:13px}
+.chat-window{background:rgba(16,30,16,0.95);border-radius:12px;padding:10px;margin-top:8px;max-height:200px;overflow-y:auto;border:1px solid rgba(255,255,255,0.05)}
+.chat-message{padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px}
+.chat-message .sender{font-weight:600;color:var(--accent)}
+.chat-message .time{font-size:8px;color:var(--hint);float:right}
+.chat-input-row{display:flex;gap:6px;margin-top:6px}
+.chat-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 10px;color:var(--text);font-size:11px;outline:none}
+.chat-input:focus{border-color:var(--accent)}
 @media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:9px;gap:4px}.stat{padding:2px 6px}.plant-container{height:65px}.plant-container svg{width:55px;height:60px}.tab{font-size:8px;padding:4px 6px;min-width:28px}.btn{font-size:9px;padding:4px 8px;min-height:30px}}
 </style>
 </head>
@@ -250,6 +260,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
       <div id="bonus-log" style="margin-top:6px;font-size:10px;color:var(--hint);max-height:100px;overflow-y:auto;"></div>
     </div>
+
+    <!-- Чат -->
+    <div style="margin-top:10px;">
+      <div class="section-title">💬 Чат команды</div>
+      <div class="chat-window" id="chatWindow">
+        <div class="chat-message">
+          <span class="sender">🤖 Система:</span>
+          <span class="time">сейчас</span>
+          <div>Добро пожаловать в чат! Здесь видны все игроки.</div>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" placeholder="💬 Напиши сообщение...">
+        <button class="btn btn-small btn-blue" onclick="sendChatMessage()">📤</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -378,7 +404,7 @@ let snoopTimer = null;
 let highTimer = null;
 let highElements = [];
 let toastTimeout = null;
-let bonusInterval = null;
+let chatMessages = [];
 
 // ============================================================
 // ====== БАЗОВЫЕ ФУНКЦИИ ======
@@ -436,6 +462,16 @@ function addXp(a) {
 function save() {
     state.lastUpdate = Date.now();
     try { localStorage.setItem('grow_sim_v3_' + userId, JSON.stringify(state)); } catch(e) {}
+    // Сохраняем публичные данные для друзей
+    try {
+        const publicData = {
+            money: state.money,
+            level: state.level,
+            energy: state.energy,
+            lastActive: Date.now()
+        };
+        localStorage.setItem('grow_sim_public_' + userId, JSON.stringify(publicData));
+    } catch(e) {}
 }
 
 function load() {
@@ -447,7 +483,6 @@ function load() {
         }
     } catch(e) {}
     
-    // Инициализация полей если их нет
     if (!state.pots || state.pots.length === 0) {
         state.pots = [{
             id: state.nextPotId || 1,
@@ -485,6 +520,7 @@ function load() {
     
     updateMarketPrices();
     updateBonusTimer();
+    loadChat();
 }
 
 // ============================================================
@@ -518,7 +554,7 @@ function getPriceChange(strainId) {
 // ====== РЕФЕРАЛЫ ======
 // ============================================================
 function getRefLink() {
-    return `https://t.me/${BOT_USERNAME}/growsimulator?startapp=ref_${userId}`;
+    return `https://t.me/${BOT_USERNAME}?startapp=ref_${userId}`;
 }
 
 function shareReferral() {
@@ -1173,7 +1209,7 @@ function closeModal(id) {
 }
 
 // ============================================================
-// ====== РЕЙТИНГ ======
+// ====== РЕЙТИНГ (ЛОКАЛЬНЫЙ) ======
 // ============================================================
 async function loadLeaderboard(period) {
     const list = document.getElementById('leaderboard-list');
@@ -1184,17 +1220,49 @@ async function loadLeaderboard(period) {
     document.querySelectorAll('#lb-monthly, #lb-yearly').forEach(b => b.style.opacity = '0.5');
     document.getElementById('lb-' + period).style.opacity = '1';
     
+    // Пытаемся загрузить данные друзей из localStorage
     try {
-        const response = await fetch(SERVER_URL + '/api/leaderboard/' + period);
-        const data = await response.json();
+        const players = [];
+        // Добавляем себя
+        players.push({
+            id: userId,
+            name: getUserName(),
+            money: Math.floor(state.money),
+            level: state.level,
+            harvests: state.totalHarvests || 0,
+            friends: state.friends ? state.friends.length : 0
+        });
         
-        if (!data.players || data.players.length === 0) {
-            list.innerHTML = '<div class="empty">📊 Пока нет игроков</div>';
+        // Добавляем друзей (если их данные есть)
+        if (state.friends) {
+            state.friends.forEach(friend => {
+                try {
+                    const raw = localStorage.getItem('grow_sim_public_' + friend.id);
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        players.push({
+                            id: friend.id,
+                            name: friend.name,
+                            money: data.money || 0,
+                            level: data.level || 1,
+                            harvests: data.harvests || 0,
+                            friends: 0
+                        });
+                    }
+                } catch(e) {}
+            });
+        }
+        
+        // Сортируем по деньгам
+        const sorted = players.sort((a, b) => b.money - a.money);
+        
+        if (sorted.length === 0) {
+            list.innerHTML = '<div class="empty">📊 Пока нет игроков. Приглашай друзей!</div>';
             return;
         }
         
         let html = '';
-        const top = data.players.slice(0, 50);
+        const top = sorted.slice(0, 50);
         let myPosition = -1;
         
         top.forEach((player, index) => {
@@ -1215,7 +1283,7 @@ async function loadLeaderboard(period) {
                 <div class="${rankClass}">
                     <span class="rank-pos">${pos}</span>
                     <span class="rank-badge">${badge}</span>
-                    <span class="rank-name">${player.name || 'Игрок'}</span>
+                    <span class="rank-name">${player.name || 'Игрок'} ${player.id === userId ? '⭐' : ''}</span>
                     <span class="rank-level">Lv.${player.level}</span>
                     <span class="rank-money">💰${player.money}</span>
                 </div>
@@ -1229,7 +1297,7 @@ async function loadLeaderboard(period) {
                 <div class="my-rank">
                     <div style="font-size:10px;color:var(--hint);">👑 Ваше место</div>
                     <div style="font-size:20px;font-weight:700;color:var(--gold);">#${myPosition}</div>
-                    <div style="font-size:9px;color:var(--hint);">из ${data.players.length}</div>
+                    <div style="font-size:9px;color:var(--hint);">из ${sorted.length}</div>
                 </div>
             `;
             myRank.style.display = 'block';
@@ -1243,6 +1311,7 @@ async function loadLeaderboard(period) {
             myRank.style.display = 'block';
         }
     } catch (e) {
+        console.log('Ошибка загрузки рейтинга:', e);
         list.innerHTML = '<div class="empty">❌ Ошибка загрузки</div>';
     }
 }
@@ -1280,7 +1349,11 @@ function addFriend() {
 function acceptFriend(index) {
     const req = state.friendRequests[index];
     if (!req) return;
-    state.friends.push({ id: req.from, name: req.name, addedAt: new Date().toISOString() });
+    state.friends.push({ 
+        id: 'friend_' + Date.now(), 
+        name: req.name, 
+        addedAt: new Date().toISOString() 
+    });
     state.friendRequests.splice(index, 1);
     showToast(`👫 ${req.name} теперь в друзьях!`);
     haptic('success');
@@ -1312,17 +1385,16 @@ function removeFriend(index) {
 function updateBonusTimer() {
     const now = Date.now();
     const lastBonus = state.lastBonusTime || 0;
-    const cooldown = 24 * 60 * 60 * 1000; // 24 часа
-    const elapsed = now - lastBonus;
-    const remaining = Math.max(0, cooldown - elapsed);
+    const cooldown = 24 * 60 * 60 * 1000;
+    const remaining = Math.max(0, cooldown - (now - lastBonus));
     
     const timerEl = document.getElementById('bonus-countdown');
     const btnEl = document.getElementById('btn-bonus');
     
     if (remaining <= 0) {
         timerEl.textContent = '🎁 Бонус доступен!';
-        btnEl.disabled = false;
-        btnEl.style.opacity = '1';
+        if (btnEl) btnEl.disabled = false;
+        if (btnEl) btnEl.style.opacity = '1';
         return;
     }
     
@@ -1330,8 +1402,8 @@ function updateBonusTimer() {
     const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
     const seconds = Math.floor((remaining % (60 * 1000)) / 1000);
     timerEl.textContent = `⏳ ${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
-    btnEl.disabled = true;
-    btnEl.style.opacity = '0.5';
+    if (btnEl) btnEl.disabled = true;
+    if (btnEl) btnEl.style.opacity = '0.5';
 }
 
 function sendDailyBonus() {
@@ -1370,6 +1442,77 @@ function sendDailyBonus() {
     save();
     renderSocial();
     updateBonusTimer();
+}
+
+// ============================================================
+// ====== ЧАТ ======
+// ============================================================
+function loadChat() {
+    try {
+        const saved = localStorage.getItem('chat_' + userId);
+        if (saved) {
+            chatMessages = JSON.parse(saved);
+        }
+    } catch(e) {}
+}
+
+function saveChat() {
+    try {
+        localStorage.setItem('chat_' + userId, JSON.stringify(chatMessages));
+    } catch(e) {}
+}
+
+function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    
+    const msg = {
+        from: userId,
+        name: getUserName(),
+        text: text,
+        time: new Date().toISOString()
+    };
+    
+    chatMessages.push(msg);
+    saveChat();
+    input.value = '';
+    renderChat();
+    
+    // Уведомляем друзей через Telegram
+    if (tg) {
+        try {
+            tg.sendData(JSON.stringify({
+                type: 'chat',
+                message: msg
+            }));
+        } catch(e) {}
+    }
+}
+
+function renderChat() {
+    const el = document.getElementById('chatWindow');
+    if (!el) return;
+    
+    const msgs = chatMessages.slice(-20);
+    if (msgs.length === 0) {
+        el.innerHTML = `
+            <div class="chat-message">
+                <span class="sender">💬</span>
+                <div>Нет сообщений. Напиши первое!</div>
+            </div>
+        `;
+        return;
+    }
+    
+    el.innerHTML = msgs.map(msg => `
+        <div class="chat-message">
+            <span class="sender">${msg.from === userId ? '👤' : ''} ${msg.name}</span>
+            <span class="time">${new Date(msg.time).toLocaleTimeString()}</span>
+            <div>${msg.text}</div>
+        </div>
+    `).join('');
+    el.scrollTop = el.scrollHeight;
 }
 
 // ============================================================
@@ -1776,22 +1919,35 @@ function renderSocial() {
         reqDiv.innerHTML = html;
     }
     
-    // Список друзей
+    // Список друзей с прогрессом
     const friendsDiv = document.getElementById('friends-list-social');
     if (state.friends.length === 0) {
         friendsDiv.innerHTML = '<div class="empty"><div class="empty-emoji">👤</div>Нет друзей. Добавь их!</div>';
     } else {
-        let html = '';
+        let html = '<div class="section-title">👫 Мои друзья</div>';
         state.friends.forEach((friend, i) => {
-            const online = Math.random() > 0.3 ? '🟢 онлайн' : '⚪ офлайн';
-            const onlineClass = Math.random() > 0.3 ? 'online' : 'online offline';
+            // Пытаемся загрузить публичные данные друга
+            let friendData = null;
+            try {
+                const raw = localStorage.getItem('grow_sim_public_' + friend.id);
+                if (raw) {
+                    friendData = JSON.parse(raw);
+                }
+            } catch(e) {}
+            
+            const money = friendData?.money || 0;
+            const level = friendData?.level || 1;
+            const isOnline = friendData ? (Date.now() - friendData.lastActive < 60000) : false;
+            const dotClass = isOnline ? 'online' : 'offline';
+            const statusText = isOnline ? '🟢 онлайн' : '⚪ офлайн';
+            
             html += `
                 <div class="friend-item">
-                    <div>${friend.name}</div>
-                    <div class="${onlineClass}">${online}</div>
-                    <div style="margin-left:auto;display:flex;gap:4px;">
-                        <button class="btn btn-small btn-secondary" onclick="removeFriend(${i})">🗑</button>
-                    </div>
+                    <span class="online-dot ${dotClass}"></span>
+                    <span style="flex:1;font-weight:600;">${friend.name}</span>
+                    <span style="font-size:10px;color:var(--hint);">💰${money} • 🏆${level}</span>
+                    <span style="font-size:8px;color:var(--hint);">${statusText}</span>
+                    <button class="btn btn-small btn-secondary" onclick="removeFriend(${i})" style="margin-left:4px;">🗑</button>
                 </div>
             `;
         });
@@ -1815,6 +1971,9 @@ function renderSocial() {
         });
         logDiv.innerHTML = html;
     }
+    
+    // Чат
+    renderChat();
 }
 
 function renderHeader() {
@@ -1874,6 +2033,11 @@ setInterval(() => {
     save();
 }, 1500);
 
+// Обновляем статус друзей каждые 10 секунд
+setInterval(() => {
+    renderSocial();
+}, 10000);
+
 // ============================================================
 // ====== ЗАПУСК ======
 // ============================================================
@@ -1883,7 +2047,7 @@ render();
 setTimeout(() => loadLeaderboard('monthly'), 1000);
 
 // ============================================================
-// ====== ЭКСПОРТ ======
+// ====== ЭКСПОРТЫ ======
 // ============================================================
 window.openSeedModal = openSeedModal;
 window.closeModal = closeModal;
@@ -1913,6 +2077,11 @@ window.acceptFriend = acceptFriend;
 window.rejectFriend = rejectFriend;
 window.removeFriend = removeFriend;
 window.sendDailyBonus = sendDailyBonus;
+window.sendChatMessage = sendChatMessage;
+
+console.log('🌿 Игра загружена!');
+console.log('👥 Друзей:', state.friends?.length || 0);
+console.log('💬 Чат активирован!');
 </script>
 </body>
 </html>
