@@ -11,6 +11,19 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:20px;overflow-x:hidden;background-image:radial-gradient(ellipse at 20% 50%,rgba(46,125,50,0.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 50%,rgba(27,94,32,0.05) 0%,transparent 60%)}
 .high{animation:highShake 0.15s ease-in-out infinite alternate}
 @keyframes highShake{0%{transform:translateX(-2px) rotate(-1deg)}100%{transform:translateX(2px) rotate(1deg)}}
+/* Эффект убойной травы — моргание экрана */
+.snoop-mode{animation:snoopFlash 0.15s ease-in-out infinite alternate}
+@keyframes snoopFlash{0%{opacity:1}50%{opacity:0.2}100%{opacity:1}}
+.snoop-overlay{position:fixed;inset:0;background:rgba(139,69,19,0.3);pointer-events:none;z-index:999;display:none}
+.snoop-overlay.active{display:block;animation:snoopFlash 0.15s ease-in-out infinite alternate}
+.snoop-popup{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#2d1f1a,#1a100d);border:2px solid #d7a86e;border-radius:20px;padding:16px 20px;z-index:1000;display:none;max-width:340px;width:90%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.8);animation:snoopBounce 0.5s ease}
+.snoop-popup.show{display:block}
+@keyframes snoopBounce{0%{transform:translateX(-50%) scale(0.5) translateY(50px);opacity:0}60%{transform:translateX(-50%) scale(1.05) translateY(-10px)}100%{transform:translateX(-50%) scale(1) translateY(0);opacity:1}}
+.snoop-popup .snoop-avatar{font-size:60px;display:block;margin-bottom:4px}
+.snoop-popup .snoop-text{font-size:14px;font-weight:600;color:#d7a86e;margin-bottom:8px}
+.snoop-popup .snoop-sub{font-size:11px;color:var(--hint);margin-bottom:10px}
+.snoop-popup .snoop-btn{background:linear-gradient(135deg,#d7a86e,#8d6e63);border:none;border-radius:12px;padding:10px 24px;font-size:14px;font-weight:700;color:#1a100d;cursor:pointer;box-shadow:0 4px 15px rgba(215,168,110,0.3)}
+.snoop-popup .snoop-btn:active{transform:scale(0.95)}
 .header{position:sticky;top:0;z-index:100;background:rgba(13,26,13,0.92);backdrop-filter:blur(12px);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(76,175,80,0.2)}
 .stats{display:flex;gap:6px;font-size:11px;font-weight:600;flex-wrap:wrap}
 .stat{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,0.05);padding:2px 8px;border-radius:16px}
@@ -23,11 +36,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .pot{border-radius:16px;padding:12px 8px 10px;text-align:center;position:relative;overflow:hidden;min-height:220px;display:flex;flex-direction:column;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.05);transition:all 0.3s ease}
 .pot:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.5)}
-.pot-type-1{background:linear-gradient(145deg,#2d1f1a,#1a100d);border-color:#5d4037}
-.pot-type-2{background:linear-gradient(145deg,#1a2d1a,#0d1a0d);border-color:#4caf50}
-.pot-type-3{background:linear-gradient(145deg,#2d1f0d,#1a1008);border-color:#ff8f00}
-.pot-type-4{background:linear-gradient(145deg,#1a1a2d,#0d0d1a);border-color:#7b1fa2}
-.pot-type-5{background:linear-gradient(145deg,#0d2d1a,#081a10);border-color:#00e676}
+/* 5 уровней горшков */
+.pot-level-1{background:linear-gradient(145deg,#3e2723,#1a100d);border-color:#795548}
+.pot-level-2{background:linear-gradient(145deg,#455a64,#263238);border-color:#78909c}
+.pot-level-3{background:linear-gradient(145deg,#2d2d2d,#1a1a1a);border-color:#9e9e9e}
+.pot-level-4{background:linear-gradient(145deg,#1a2d1a,#0d1a0d);border-color:#4caf50}
+.pot-level-5{background:linear-gradient(145deg,#1a1a2d,#0d0d1a);border-color:#7c4dff;box-shadow:0 0 30px rgba(124,77,255,0.2)}
 .pot.locked{opacity:0.5;filter:grayscale(0.6)}
 .pot.locked::after{content:'🔒';position:absolute;top:8px;right:8px;font-size:16px}
 .pot-emoji{font-size:28px;line-height:1;margin-bottom:2px;position:relative;z-index:2}
@@ -61,6 +75,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .btn-gold{background:var(--gold);color:#111;box-shadow:0 2px 8px rgba(255,215,0,0.3)}
 .btn-smoke{background:linear-gradient(135deg,#795548,#4e342e);color:#fff;box-shadow:0 2px 8px rgba(121,85,72,0.3)}
 .btn-taste{background:linear-gradient(135deg,#ff6f00,#ff8f00);color:#fff;box-shadow:0 2px 8px rgba(255,111,0,0.3)}
+.btn-snoop{background:linear-gradient(135deg,#d7a86e,#8d6e63);color:#1a100d;box-shadow:0 2px 8px rgba(215,168,110,0.3);font-weight:700}
 .btn-full{width:100%}
 .btn-small{padding:3px 6px;font-size:9px}
 .boost-tag{display:inline-block;background:rgba(33,150,243,0.2);color:#64b5f6;font-size:7px;padding:1px 5px;border-radius:6px;margin-left:2px}
@@ -148,6 +163,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </style>
 </head>
 <body>
+<!-- SNOOP DOGG ПОПАП -->
+<div class="snoop-overlay" id="snoopOverlay"></div>
+<div class="snoop-popup" id="snoopPopup">
+  <span class="snoop-avatar">🐶</span>
+  <div class="snoop-text">🍁 Снуп Догг тут!</div>
+  <div class="snoop-sub">"Эй, хочешь попробовать убойной травы? Экран будет моргать 30 секунд!"</div>
+  <button class="snoop-btn" onclick="acceptSnoop()">🔥 ДАВАЙ!</button>
+  <button class="snoop-btn" style="margin-top:6px;background:rgba(255,255,255,0.1);color:#fff;font-size:12px;padding:6px 16px;" onclick="rejectSnoop()">Не сегодня</button>
+</div>
+
 <div class="header">
   <div class="stats">
     <div class="stat">💰 <span id="money">0</span>$</div>
@@ -256,7 +281,81 @@ const BOT_USERNAME = 'Rastafaray420_bot';
 const SERVER_URL = window.location.origin;
 
 // ============================================================
-// ====== ЕЖЕДНЕВНЫЕ ЗАДАНИЯ (21 задание на неделю) ======
+// ====== 5 УРОВНЕЙ ГОРШКОВ ======
+// ============================================================
+const POT_LEVELS = [
+  { id: 1, name: '👢 Дырявый ботинок', price: 1500, class: 'pot-level-1', desc: 'Старый ботинок вместо горшка' },
+  { id: 2, name: '🪣 Железное ведро', price: 3000, class: 'pot-level-2', desc: 'Прочное железное ведро' },
+  { id: 3, name: '🪴 Пластиковое ведро', price: 5000, class: 'pot-level-3', desc: 'Лёгкое и удобное' },
+  { id: 4, name: '🎒 Мешок-горшок', price: 7500, class: 'pot-level-4', desc: 'Дышит, корням комфортно' },
+  { id: 5, name: '💎 Космический горшок', price: 10000, class: 'pot-level-5', desc: 'Инопланетная технология!' }
+];
+
+// ============================================================
+// ====== СОРТА (открываются на уровнях 1, 10, 20, 30, 40, 50...) ======
+// ============================================================
+const STRAINS = [
+  {id:'skunk',name:'Skunk',emoji:'🦨',seedPrice:50,baseTime:120,yield:3,sellPrice:50,energyCost:5,unlock:1},
+  {id:'haze',name:'Purple Haze',emoji:'💜',seedPrice:130,baseTime:140,yield:5,sellPrice:85,energyCost:8,unlock:10},
+  {id:'widow',name:'White Widow',emoji:'⚪',seedPrice:280,baseTime:160,yield:7,sellPrice:140,energyCost:12,unlock:20},
+  {id:'alien',name:'Alien Kush',emoji:'👽',seedPrice:550,baseTime:180,yield:12,sellPrice:220,energyCost:18,unlock:30},
+  {id:'og',name:'OG Kush',emoji:'🔥',seedPrice:950,baseTime:200,yield:18,sellPrice:340,energyCost:25,unlock:40},
+  {id:'cheese',name:'UK Cheese',emoji:'🧀',seedPrice:400,baseTime:150,yield:10,sellPrice:180,energyCost:15,unlock:50},
+  {id:'lemon',name:'Lemon Haze',emoji:'🍋',seedPrice:350,baseTime:145,yield:8,sellPrice:160,energyCost:14,unlock:60},
+  {id:'blue',name:'Blue Dream',emoji:'💎',seedPrice:600,baseTime:170,yield:14,sellPrice:250,energyCost:20,unlock:70},
+  {id:'cookies',name:'Girl Scout Cookies',emoji:'🍪',seedPrice:750,baseTime:190,yield:16,sellPrice:290,energyCost:22,unlock:80},
+  {id:'gelato',name:'Gelato',emoji:'🍦',seedPrice:900,baseTime:210,yield:20,sellPrice:380,energyCost:28,unlock:90},
+  {id:'wedding',name:'Wedding Cake',emoji:'🎂',seedPrice:1100,baseTime:220,yield:22,sellPrice:420,energyCost:30,unlock:100},
+  {id:'runtz',name:'Runtz',emoji:'🍬',seedPrice:1300,baseTime:230,yield:25,sellPrice:480,energyCost:32,unlock:110},
+  {id:'zkittlez',name:'Zkittlez',emoji:'🌈',seedPrice:1500,baseTime:240,yield:28,sellPrice:520,energyCost:35,unlock:120},
+  {id:'kush',name:'Master Kush',emoji:'👑',seedPrice:1800,baseTime:260,yield:32,sellPrice:580,energyCost:38,unlock:130},
+  {id:'glue',name:'Gorilla Glue',emoji:'🦍',seedPrice:2200,baseTime:280,yield:35,sellPrice:650,energyCost:40,unlock:140}
+];
+
+// ============================================================
+// ====== ОСТАЛЬНЫЕ ДАННЫЕ ======
+// ============================================================
+const LAMPS = [
+    {id:'lamp1',name:'CFL',emoji:'💡',price:150,power:1.15,desc:'+15%'},
+    {id:'lamp2',name:'LED',emoji:'✨',price:400,power:1.35,desc:'+35%'},
+    {id:'lamp3',name:'HPS',emoji:'🔆',price:900,power:1.6,desc:'+60%'},
+    {id:'lamp4',name:'Квантовая',emoji:'💎',price:2000,power:2.0,desc:'+100%'}
+];
+const LAMP_ENERGY_COST = {lamp1:0.3,lamp2:0.6,lamp3:1.2,lamp4:1.8};
+
+const FERTS = [
+    {id:'water_boost',name:'Супер-вода',emoji:'💧',price:40,effect:'speed',value:0.2,desc:'+20% скорость'},
+    {id:'yield_boost',name:'Удобрение+',emoji:'🧪',price:90,effect:'yield',value:0.4,desc:'+40% урожай'},
+    {id:'heal',name:'Лекарство',emoji:'💊',price:60,effect:'heal',value:1,desc:'Лечит болезнь'},
+    {id:'mega',name:'Мега-буст',emoji:'🚀',price:350,effect:'both',value:0.35,desc:'+35% всё'}
+];
+
+const ROOM_UPGRADES = [
+    {id:'vent',name:'Вентиляция',emoji:'🌀',price:500,type:'vent',desc:'Болезни реже на 60%'},
+    {id:'auto',name:'Автополив',emoji:'💦',price:1200,type:'auto',desc:'Вода убывает на 55% медленнее'}
+];
+
+const CUSTOMERS = [
+    {name:'Вася',emoji:'🧑🦰',prefer:null,mult:1.1,smoke:15,rep:1},
+    {name:'Марина',emoji:'👩',prefer:'haze',mult:1.35,smoke:20,rep:2},
+    {name:'Колян',emoji:'🧔',prefer:'skunk',mult:1.2,smoke:12,rep:1},
+    {name:'DJ Max',emoji:'🎧',prefer:'og',mult:1.55,smoke:25,rep:3},
+    {name:'Аня',emoji:'👱♀️',prefer:'widow',mult:1.3,smoke:18,rep:2},
+    {name:'Инопланетянин',emoji:'👽',prefer:'alien',mult:1.9,smoke:30,rep:4},
+    {name:'Боб',emoji:'🧔♂️',prefer:null,mult:1.25,smoke:22,rep:2},
+    {name:'Студент',emoji:'🎓',prefer:'skunk',mult:1.08,smoke:10,rep:1}
+];
+
+const STAGE_NAMES = ['','Семя','Росток','Вегетация','Цветение','Готово'];
+const PRODUCTS = {
+    dried:{name:'Сушка',emoji:'🍂',mult:1.4,energy:3,from:'raw'},
+    joint:{name:'Косяк',emoji:'🚬',mult:1.9,energy:5,from:'dried',need:1},
+    oil:{name:'Масло',emoji:'🧴',mult:2.4,energy:8,from:'dried',need:2},
+    edible:{name:'Еда',emoji:'🍪',mult:2.8,energy:10,from:'dried',need:2}
+};
+
+// ============================================================
+// ====== ЕЖЕДНЕВНЫЕ ЗАДАНИЯ ======
 // ============================================================
 const WEEKLY_QUESTS = [
   { day: 1, id: 'w1_1', name: '🌱 Первые шаги', desc: 'Собрать 2 урожая', target: 2, reward: 50 },
@@ -298,7 +397,8 @@ const ACHIEVEMENTS = [
     { id: 'pot_upgrade_1', name: '⬆️ Первое улучшение', desc: 'Улучшить горшок до 1 уровня', check: () => { return Object.values(state.potUpgrades || {}).some(v => v >= 1) }, reward: 100 },
     { id: 'pot_upgrade_5', name: '⭐ Мастер-прокачки', desc: 'Улучшить горшок до 5 уровня', check: () => { return Object.values(state.potUpgrades || {}).some(v => v >= 5) }, reward: 400 },
     { id: 'all_strains', name: '🌈 Коллекционер', desc: 'Посадить все сорта', check: () => { const planted = new Set(state.pots.filter(p => p.strain).map(p => p.strain)); return planted.size >= STRAINS.length }, reward: 1000 },
-    { id: 'high_3', name: '🌀 Накурился', desc: 'Достичь состояния "Накурило" 3 раза', check: () => (state.highCount || 0) >= 3, reward: 150 }
+    { id: 'high_3', name: '🌀 Накурился', desc: 'Достичь состояния "Накурило" 3 раза', check: () => (state.highCount || 0) >= 3, reward: 150 },
+    { id: 'snoop_1', name: '🐶 Снуп Догг', desc: 'Покурить убойной травы у Снуп Догга', check: () => (state.snoopCount || 0) >= 1, reward: 200 }
 ];
 
 // ============================================================
@@ -330,6 +430,55 @@ function applyHighEffect() {
 }
 
 // ============================================================
+// ====== СНУП ДОГГ ======
+// ============================================================
+let snoopTimer = null;
+let snoopActive = false;
+
+function triggerSnoop() {
+    if (snoopActive) return;
+    if (state.snoopCooldown && Date.now() - state.snoopCooldown < 60000) return; // 1 минута кд
+    document.getElementById('snoopPopup').classList.add('show');
+    document.getElementById('snoopOverlay').classList.add('active');
+}
+
+function acceptSnoop() {
+    document.getElementById('snoopPopup').classList.remove('show');
+    document.getElementById('snoopOverlay').classList.remove('active');
+    snoopActive = true;
+    state.snoopCount = (state.snoopCount || 0) + 1;
+    state.snoopCooldown = Date.now();
+    showToast('🐶 Снуп Догг угостил тебя убойной травой! Экран моргает 30 секунд!', false, 'event');
+    haptic('warning');
+    checkAchievements();
+    
+    // Эффект моргания экрана
+    document.body.classList.add('snoop-mode');
+    document.getElementById('snoopOverlay').classList.add('active');
+    
+    snoopTimer = setTimeout(() => {
+        document.body.classList.remove('snoop-mode');
+        document.getElementById('snoopOverlay').classList.remove('active');
+        snoopActive = false;
+        showToast('🌀 Эффект убойной травы прошёл...');
+    }, 30000);
+}
+
+function rejectSnoop() {
+    document.getElementById('snoopPopup').classList.remove('show');
+    document.getElementById('snoopOverlay').classList.remove('active');
+    showToast('Снуп Догг ушёл... может быть, в следующий раз');
+}
+
+// Запуск Снуп Догга случайно
+function trySpawnSnoop() {
+    if (snoopActive) return;
+    if (state.snoopCooldown && Date.now() - state.snoopCooldown < 60000) return;
+    if (Math.random() > 0.015) return; // 1.5% шанс каждую секунду
+    triggerSnoop();
+}
+
+// ============================================================
 // ====== ИНИЦИАЛИЗАЦИЯ ======
 // ============================================================
 const tg = window.Telegram?.WebApp;
@@ -342,74 +491,6 @@ if (tg) {
         userId = String(tg.initDataUnsafe.user.id);
     }
 }
-
-// ============================================================
-// ====== ДАННЫЕ ИГРЫ ======
-// ============================================================
-const STRAINS = [
-    {id:'skunk',name:'Skunk',emoji:'🦨',seedPrice:50,baseTime:120,yield:3,sellPrice:50,energyCost:5,unlock:1},
-    {id:'haze',name:'Purple Haze',emoji:'💜',seedPrice:130,baseTime:140,yield:5,sellPrice:85,energyCost:8,unlock:2},
-    {id:'widow',name:'White Widow',emoji:'⚪',seedPrice:280,baseTime:160,yield:7,sellPrice:140,energyCost:12,unlock:3},
-    {id:'alien',name:'Alien Kush',emoji:'👽',seedPrice:550,baseTime:180,yield:12,sellPrice:220,energyCost:18,unlock:4},
-    {id:'og',name:'OG Kush',emoji:'🔥',seedPrice:950,baseTime:200,yield:18,sellPrice:340,energyCost:25,unlock:5},
-    {id:'cheese',name:'UK Cheese',emoji:'🧀',seedPrice:400,baseTime:150,yield:10,sellPrice:180,energyCost:15,unlock:3},
-    {id:'lemon',name:'Lemon Haze',emoji:'🍋',seedPrice:350,baseTime:145,yield:8,sellPrice:160,energyCost:14,unlock:3},
-    {id:'blue',name:'Blue Dream',emoji:'💎',seedPrice:600,baseTime:170,yield:14,sellPrice:250,energyCost:20,unlock:4},
-    {id:'cookies',name:'Girl Scout Cookies',emoji:'🍪',seedPrice:750,baseTime:190,yield:16,sellPrice:290,energyCost:22,unlock:5},
-    {id:'gelato',name:'Gelato',emoji:'🍦',seedPrice:900,baseTime:210,yield:20,sellPrice:380,energyCost:28,unlock:6},
-    {id:'wedding',name:'Wedding Cake',emoji:'🎂',seedPrice:1100,baseTime:220,yield:22,sellPrice:420,energyCost:30,unlock:7},
-    {id:'runtz',name:'Runtz',emoji:'🍬',seedPrice:1300,baseTime:230,yield:25,sellPrice:480,energyCost:32,unlock:8},
-    {id:'zkittlez',name:'Zkittlez',emoji:'🌈',seedPrice:1500,baseTime:240,yield:28,sellPrice:520,energyCost:35,unlock:9},
-    {id:'kush',name:'Master Kush',emoji:'👑',seedPrice:1800,baseTime:260,yield:32,sellPrice:580,energyCost:38,unlock:10},
-    {id:'glue',name:'Gorilla Glue',emoji:'🦍',seedPrice:2200,baseTime:280,yield:35,sellPrice:650,energyCost:40,unlock:11}
-];
-
-const POT_TYPES = [
-    {id:1,name:'Дырявый ботинок',emoji:'👢',price:0,desc:'Старый ботинок вместо горшка',unlockLevel:1,class:'pot-type-1'},
-    {id:2,name:'Пластиковый горшок',emoji:'🪴',price:500,desc:'Обычный пластиковый',unlockLevel:2,class:'pot-type-2'},
-    {id:3,name:'Глиняный горшок',emoji:'🏺',price:1200,desc:'Дышит, корням комфортно',unlockLevel:4,class:'pot-type-3'},
-    {id:4,name:'Мешок-горшок',emoji:'🎒',price:2500,desc:'Специальный тканевый мешок',unlockLevel:6,class:'pot-type-4'},
-    {id:5,name:'Гидропоника',emoji:'💧',price:5000,desc:'Профессиональная система',unlockLevel:8,class:'pot-type-5'}
-];
-
-const LAMPS = [
-    {id:'lamp1',name:'CFL',emoji:'💡',price:150,power:1.15,desc:'+15%'},
-    {id:'lamp2',name:'LED',emoji:'✨',price:400,power:1.35,desc:'+35%'},
-    {id:'lamp3',name:'HPS',emoji:'🔆',price:900,power:1.6,desc:'+60%'},
-    {id:'lamp4',name:'Квантовая',emoji:'💎',price:2000,power:2.0,desc:'+100%'}
-];
-const LAMP_ENERGY_COST = {lamp1:0.3,lamp2:0.6,lamp3:1.2,lamp4:1.8};
-
-const FERTS = [
-    {id:'water_boost',name:'Супер-вода',emoji:'💧',price:40,effect:'speed',value:0.2,desc:'+20% скорость'},
-    {id:'yield_boost',name:'Удобрение+',emoji:'🧪',price:90,effect:'yield',value:0.4,desc:'+40% урожай'},
-    {id:'heal',name:'Лекарство',emoji:'💊',price:60,effect:'heal',value:1,desc:'Лечит болезнь'},
-    {id:'mega',name:'Мега-буст',emoji:'🚀',price:350,effect:'both',value:0.35,desc:'+35% всё'}
-];
-
-const ROOM_UPGRADES = [
-    {id:'vent',name:'Вентиляция',emoji:'🌀',price:500,type:'vent',desc:'Болезни реже на 60%'},
-    {id:'auto',name:'Автополив',emoji:'💦',price:1200,type:'auto',desc:'Вода убывает на 55% медленнее'}
-];
-
-const CUSTOMERS = [
-    {name:'Вася',emoji:'🧑🦰',prefer:null,mult:1.1,smoke:15,rep:1},
-    {name:'Марина',emoji:'👩',prefer:'haze',mult:1.35,smoke:20,rep:2},
-    {name:'Колян',emoji:'🧔',prefer:'skunk',mult:1.2,smoke:12,rep:1},
-    {name:'DJ Max',emoji:'🎧',prefer:'og',mult:1.55,smoke:25,rep:3},
-    {name:'Аня',emoji:'👱♀️',prefer:'widow',mult:1.3,smoke:18,rep:2},
-    {name:'Инопланетянин',emoji:'👽',prefer:'alien',mult:1.9,smoke:30,rep:4},
-    {name:'Боб',emoji:'🧔♂️',prefer:null,mult:1.25,smoke:22,rep:2},
-    {name:'Студент',emoji:'🎓',prefer:'skunk',mult:1.08,smoke:10,rep:1}
-];
-
-const STAGE_NAMES = ['','Семя','Росток','Вегетация','Цветение','Готово'];
-const PRODUCTS = {
-    dried:{name:'Сушка',emoji:'🍂',mult:1.4,energy:3,from:'raw'},
-    joint:{name:'Косяк',emoji:'🚬',mult:1.9,energy:5,from:'dried',need:1},
-    oil:{name:'Масло',emoji:'🧴',mult:2.4,energy:8,from:'dried',need:2},
-    edible:{name:'Еда',emoji:'🍪',mult:2.8,energy:10,from:'dried',need:2}
-};
 
 // ============================================================
 // ====== СОСТОЯНИЕ ИГРЫ ======
@@ -435,7 +516,6 @@ let state = {
     lastUpdate: Date.now(),
     daily: null,
     nextPotId: 1,
-    potTypeUnlocked: 1,
     totalHarvests: 0,
     registerDate: new Date().toISOString(),
     potUpgrades: {},
@@ -444,9 +524,14 @@ let state = {
     questsProgress: {},
     highCount: 0,
     consumedCount: 0,
-    lastStatsUpdate: 0
+    lastStatsUpdate: 0,
+    snoopCount: 0,
+    snoopCooldown: 0,
+    // Храним уровень горшка для каждого pot
+    potLevel: {} // { potId: levelId }
 };
 let selectedPotId = null;
+let selectedPotLevel = 1;
 
 // ============================================================
 // ====== БАЗОВЫЕ ФУНКЦИИ ======
@@ -477,7 +562,7 @@ function load() {
         }
     } catch(e) {}
     if (state.pots.length === 0) {
-        state.pots.push({
+        const newPot = {
             id: state.nextPotId++,
             strain: null,
             plantedAt: null,
@@ -490,9 +575,10 @@ function load() {
             speedMult: 1,
             yieldMult: 1,
             lastTick: Date.now(),
-            _lastWarning: null,
-            potType: 1
-        });
+            _lastWarning: null
+        };
+        state.pots.push(newPot);
+        state.potLevel[newPot.id] = 1;
     }
     if (!state.registerDate) state.registerDate = new Date().toISOString();
     if (!state.totalHarvests) state.totalHarvests = 0;
@@ -503,6 +589,9 @@ function load() {
     if (!state.highCount) state.highCount = 0;
     if (!state.consumedCount) state.consumedCount = 0;
     if (!state.lastStatsUpdate) state.lastStatsUpdate = 0;
+    if (!state.snoopCount) state.snoopCount = 0;
+    if (!state.snoopCooldown) state.snoopCooldown = 0;
+    if (!state.potLevel) state.potLevel = {};
     resetDailyQuests();
 }
 
@@ -523,8 +612,13 @@ function formatTime(s) {
 function getStrain(id) { return STRAINS.find(s => s.id === id); }
 function getLamp(id) { return LAMPS.find(l => l.id === id); }
 function getFert(id) { return FERTS.find(f => f.id === id); }
-function getPotType(id) { return POT_TYPES.find(p => p.id === id); }
+function getPotLevel(id) { return POT_LEVELS.find(p => p.id === id); }
+
 function xpFor(l) { return l * 100; }
+
+function getAvailableStrains() {
+    return STRAINS.filter(s => state.level >= s.unlock);
+}
 
 function addXp(a) {
     state.xp += a;
@@ -535,9 +629,12 @@ function addXp(a) {
         state.maxEnergy = 100 + (state.level - 1) * 10;
         state.energy = state.maxEnergy;
         up = true;
-        if (state.level % 2 === 0 && state.potTypeUnlocked < POT_TYPES.length) {
-            state.potTypeUnlocked++;
-            showToast('🔓 Новый горшок: ' + POT_TYPES[state.potTypeUnlocked - 1].name);
+        // Проверяем открытие новых сортов
+        const newStrains = STRAINS.filter(s => s.unlock === state.level);
+        if (newStrains.length > 0) {
+            newStrains.forEach(s => {
+                showToast(`🌿 Новый сорт открыт: ${s.name}!`);
+            });
         }
     }
     if (up) {
@@ -702,6 +799,60 @@ function consumeProduct(key, type) {
 }
 
 // ============================================================
+// ====== ПОКУПКА ГОРШКА (С УРОВНЯМИ) ======
+// ============================================================
+function buyPot() {
+    // Определяем максимальный доступный уровень горшка
+    let maxLevel = 1;
+    for (let i = 0; i < POT_LEVELS.length; i++) {
+        if (state.level >= (i + 1) * 2) { // уровень 2 открывается на 2 уровне, 3 на 4, 4 на 6, 5 на 8
+            maxLevel = POT_LEVELS[i].id;
+        }
+    }
+    const level = getPotLevel(maxLevel);
+    if (!level) { showToast('Ошибка', true); return; }
+    const discount = getEventDiscount();
+    const price = Math.floor(level.price * discount);
+    if (state.money < price) { showToast('Мало денег', true); return; }
+    state.money -= price;
+    const newPot = {
+        id: state.nextPotId++,
+        strain: null,
+        plantedAt: null,
+        water: 100,
+        health: 100,
+        stage: 0,
+        disease: false,
+        lamp: null,
+        fert: null,
+        speedMult: 1,
+        yieldMult: 1,
+        lastTick: Date.now(),
+        _lastWarning: null
+    };
+    state.pots.push(newPot);
+    state.potLevel[newPot.id] = maxLevel;
+    state.potUpgrades[newPot.id] = 0;
+    showToast('🪴 Новый ' + level.name + (discount < 1 ? ' (со скидкой!)' : ''));
+    haptic('success');
+    addXp(8);
+    save();
+    render();
+}
+
+function getPotLevelClass(potId) {
+    const levelId = state.potLevel[potId] || 1;
+    const level = getPotLevel(levelId);
+    return level ? level.class : 'pot-level-1';
+}
+
+function getPotLevelName(potId) {
+    const levelId = state.potLevel[potId] || 1;
+    const level = getPotLevel(levelId);
+    return level ? level.name : '👢 Дырявый ботинок';
+}
+
+// ============================================================
 // ====== ПРОКАЧКА ГОРШКОВ ======
 // ============================================================
 function getUpgradeCost(potId) {
@@ -851,64 +1002,37 @@ async function registerUser(referredBy) {
     }
 }
 
-// ============================================================
-// ====== ИСПРАВЛЕННАЯ РЕФЕРАЛЬНАЯ СИСТЕМА (СОХРАНЯЕТ НА СЕРВЕРЕ) ======
-// ============================================================
 async function handleReferral() {
-    console.log('🔍 Проверка рефералки...');
-    console.log('📌 userId:', userId);
-    
-    // Проверяем параметр startapp
     if (tg?.initDataUnsafe?.start_param) {
         const param = tg.initDataUnsafe.start_param;
-        console.log('📥 Параметр start_param:', param);
-        
         if (param.startsWith('ref_')) {
             const refId = param.replace('ref_', '');
-            console.log('👤 Реферальный ID:', refId);
-            console.log('👤 Мой ID:', userId);
-            
             if (refId !== userId && !state.referredBy) {
-                console.log('✅ Новый реферал! Начисляем бонус...');
                 state.referredBy = refId;
-                
                 const result = await registerUser(refId);
                 if (result?.success) {
                     state.money += 100;
                     state.energy = Math.min(state.maxEnergy, state.energy + 30);
                     showToast('🎁 Бонус новичка! +100$ +30⚡');
                     haptic('success');
-                    // Сохраняем, что пользователь пришёл по рефералке
-                    state.referredBy = refId;
-                    console.log('✅ Бонус новичка начислен!');
-                } else {
-                    console.log('❌ Ошибка регистрации:', result);
                 }
                 save();
                 render();
                 return;
-            } else {
-                console.log('⚠️ Реферал уже был активирован или это вы сами');
             }
         }
     }
-    
-    // Загружаем статистику с сервера (включая рефералов!)
-    console.log('📥 Загружаем статистику с сервера...');
-    const stats = await loadReferralsFromServer();
-    if (stats) {
-        console.log('📊 Загружено рефералов:', state.referralsList.length);
+    const success = await loadReferralsFromServer();
+    if (success) {
         document.getElementById('register-block').style.display = 'none';
-        save();
         render();
     } else {
-        console.log('❌ Пользователь не найден на сервере');
         document.getElementById('register-block').style.display = 'block';
     }
 }
 
 // ============================================================
-// ====== ИГРОВАЯ МЕХАНИКА ======
+// ====== ИГРОВАЯ МЕХАНИКА (растения теперь растут!) ======
 // ============================================================
 function waterPot(id) {
     const pot = state.pots.find(p => p.id === id);
@@ -928,18 +1052,18 @@ function openSeedModal(id) {
     selectedPotId = id;
     const list = document.getElementById('seed-list');
     list.innerHTML = '';
-    STRAINS.forEach(s => {
-        const ok = state.level >= s.unlock;
+    const available = getAvailableStrains();
+    available.forEach(s => {
         const can = state.money >= s.seedPrice && state.energy >= s.energyCost;
         const discount = getEventDiscount();
         const finalPrice = Math.floor(s.seedPrice * discount);
         const c = document.createElement('div');
         c.className = 'card';
-        c.style.opacity = ok ? '1' : '0.45';
+        c.style.opacity = can ? '1' : '0.45';
         c.innerHTML = `
             <div class="card-emoji">${s.emoji}</div>
             <div class="card-info">
-                <div class="card-title">${s.name} ${!ok ? '🔒' : ''}</div>
+                <div class="card-title">${s.name}</div>
                 <div class="card-desc">⏱ ${Math.floor(s.baseTime/60)}м · ${s.yield} шт · ${s.sellPrice}$</div>
             </div>
             <div style="text-align:right">
@@ -947,12 +1071,15 @@ function openSeedModal(id) {
                 <div style="font-size:9px;color:var(--hint)">⚡${s.energyCost}</div>
             </div>
         `;
-        if (ok && can) {
+        if (can) {
             c.style.cursor = 'pointer';
             c.onclick = () => plantSeed(s.id);
         }
         list.appendChild(c);
     });
+    if (available.length === 0) {
+        list.innerHTML = '<div class="empty">🌿 Нет доступных сортов. Повышайте уровень!</div>';
+    }
     document.getElementById('modal-seed').classList.add('show');
 }
 
@@ -989,8 +1116,10 @@ function plantSeed(sid) {
 
 function harvest(id) {
     const pot = state.pots.find(p => p.id === id);
-    if (!pot || !pot.strain || getProgress(pot) < 1) return;
-    if (pot.health < 25) { showToast('Растение слабое', true); return; }
+    if (!pot || !pot.strain) { showToast('Нет растения', true); return; }
+    const prog = getProgress(pot);
+    if (prog < 1) { showToast('Растение ещё не выросло', true); return; }
+    if (pot.health < 25) { showToast('Растение слишком слабое', true); return; }
     const s = getStrain(pot.strain);
     const q = getQuality(pot);
     let amount = Math.floor(s.yield * (pot.yieldMult || 1) * (pot.health / 100) * (q >= 1.25 ? 1.1 : 1));
@@ -1052,6 +1181,77 @@ function updatePotStage(pot) {
     else pot.stage = 1;
 }
 
+function tickPots() {
+    state.pots.forEach(pot => {
+        if (!pot.strain) return;
+        const now = Date.now();
+        const dt = (now - (pot.lastTick || now)) / 1000;
+        pot.lastTick = now;
+        
+        // Вода
+        let waterDrain = 0.35;
+        if (state.room.auto) waterDrain *= 0.45;
+        pot.water = Math.max(0, pot.water - waterDrain * dt);
+        if (state.room.auto && pot.water < 60) {
+            pot.water = Math.min(100, pot.water + 0.1 * dt);
+        }
+        
+        // Энергия для лампы
+        if (pot.lamp && pot.stage > 0 && pot.stage < 5) {
+            const cost = LAMP_ENERGY_COST[pot.lamp] || 0;
+            state.energy = Math.max(0, state.energy - cost * dt * 0.5);
+        }
+        
+        // Здоровье
+        let healthRegen = 0.15;
+        let diseaseChance = 0.008;
+        if (state.room.vent) {
+            diseaseChance *= 0.4;
+            healthRegen *= 1.3;
+        }
+        if (pot.water < 20) {
+            pot.health = Math.max(0, pot.health - 0.5 * dt);
+        } else if (pot.water > 40) {
+            pot.health = Math.min(100, pot.health + healthRegen * dt);
+        }
+        
+        // Болезни
+        if (!pot.disease && pot.health < 35 && Math.random() < diseaseChance) {
+            pot.disease = true;
+            showToast('🦠 Вредители!', true);
+            haptic('error');
+        }
+        if (pot.disease) {
+            pot.health = Math.max(0, pot.health - 0.4 * dt);
+        }
+        
+        // Смерть
+        if (pot.health <= 0) {
+            showToast('💀 Растение погибло!', true);
+            if (pot.strain) {
+                const s = getStrain(pot.strain);
+                if (s) {
+                    const refund = Math.floor(s.seedPrice * 0.3);
+                    state.money += refund;
+                    showToast('💰 Возврат ' + refund + '$', false);
+                }
+            }
+            pot.strain = null;
+            pot.plantedAt = null;
+            pot.stage = 0;
+            pot.disease = false;
+            pot.water = 100;
+            pot.health = 100;
+            pot.lamp = null;
+            pot.fert = null;
+            const bonus = getUpgradeBonus(pot.id);
+            pot.speedMult = bonus.speedBonus;
+            pot.yieldMult = bonus.yieldBonus;
+        }
+        updatePotStage(pot);
+    });
+}
+
 function getQuality(pot) {
     let q = 1.0;
     if (pot.health >= 90) q += 0.25;
@@ -1073,42 +1273,9 @@ function getQuality(pot) {
     return q;
 }
 
-function buyPot() {
-    let maxType = 1;
-    for (let i = 0; i < POT_TYPES.length; i++) {
-        if (state.level >= POT_TYPES[i].unlockLevel) maxType = POT_TYPES[i].id;
-    }
-    const pt = getPotType(maxType);
-    if (!pt) { showToast('Ошибка', true); return; }
-    const discount = getEventDiscount();
-    const price = Math.floor((pt.price + state.pots.length * 100) * discount);
-    if (state.money < price) { showToast('Мало денег', true); return; }
-    state.money -= price;
-    const newPot = {
-        id: state.nextPotId++,
-        strain: null,
-        plantedAt: null,
-        water: 100,
-        health: 100,
-        stage: 0,
-        disease: false,
-        lamp: null,
-        fert: null,
-        speedMult: 1,
-        yieldMult: 1,
-        lastTick: Date.now(),
-        _lastWarning: null,
-        potType: pt.id
-    };
-    state.pots.push(newPot);
-    state.potUpgrades[newPot.id] = 0;
-    showToast('🪴 Новый ' + pt.name + (discount < 1 ? ' (со скидкой!)' : ''));
-    haptic('success');
-    addXp(8);
-    save();
-    render();
-}
-
+// ============================================================
+// ====== ОСТАЛЬНЫЕ ФУНКЦИИ ======
+// ============================================================
 function buyLamp(lid) {
     const l = getLamp(lid);
     const discount = getEventDiscount();
@@ -1483,15 +1650,23 @@ function renderFarm() {
     grid.innerHTML = '';
     if (state.pots.length === 0) {
         grid.innerHTML = '<div class="empty"><div class="empty-emoji">🪴</div>Нет горшков!<br><small>Нажми "Купить горшок" ниже</small></div>';
-        document.getElementById('btn-buy-pot').textContent = '➕ Купить горшок (350$)';
+        document.getElementById('btn-buy-pot').textContent = '➕ Купить горшок (1500$)';
         return;
     }
     state.pots.forEach(pot => {
         const div = document.createElement('div');
-        const pt = getPotType(pot.potType) || POT_TYPES[0];
-        div.className = 'pot ' + pt.class;
-        if (state.level < pt.unlockLevel) div.classList.add('locked');
+        const levelClass = getPotLevelClass(pot.id);
+        div.className = 'pot ' + levelClass;
         
+        // Проверка на доступность уровня
+        const potLevelId = state.potLevel[pot.id] || 1;
+        const potLevel = getPotLevel(potLevelId);
+        const requiredLevel = potLevelId * 2;
+        if (state.level < requiredLevel) {
+            div.classList.add('locked');
+        }
+        
+        // Свечение лампы
         if (pot.lamp && pot.strain) {
             const lamp = getLamp(pot.lamp);
             if (lamp) {
@@ -1510,7 +1685,6 @@ function renderFarm() {
                 }
                 glow.className = glowClass;
                 div.appendChild(glow);
-                
                 const beam = document.createElement('div');
                 beam.className = 'light-beam' + (state.energy > 5 ? ' active' : '');
                 div.appendChild(beam);
@@ -1527,8 +1701,8 @@ function renderFarm() {
         if (highTimer) roomIndicators += '<span class="boost-tag high">🌀НАКУРИЛО</span>';
         
         if (!pot.strain) {
-            div.innerHTML += `<div class="pot-emoji">${pt.emoji}</div><div class="pot-name">${pt.name} ${roomIndicators}</div><div class="pot-status">${state.level >= pt.unlockLevel ? 'Готов к посадке' : '🔒 Уровень ' + pt.unlockLevel}</div>`;
-            if (state.level >= pt.unlockLevel) {
+            div.innerHTML += `<div class="pot-emoji">${potLevel?.emoji || '👢'}</div><div class="pot-name">${potLevel?.name || 'Дырявый ботинок'} ${roomIndicators}</div><div class="pot-status">${state.level >= requiredLevel ? 'Готов к посадке' : '🔒 Уровень ' + requiredLevel}</div>`;
+            if (state.level >= requiredLevel) {
                 div.innerHTML += `<button class="btn btn-full" onclick="openSeedModal(${pot.id})">Посадить</button>`;
             }
             const cost = getUpgradeCost(pot.id);
@@ -1587,7 +1761,7 @@ function renderFarm() {
             }
             
             div.innerHTML += `
-                <div class="pot-emoji">${pt.emoji}</div>
+                <div class="pot-emoji">${potLevel?.emoji || '👢'}</div>
                 <div class="pot-name">${s.name} ${tags}</div>
                 <div class="pot-status">${ready ? '✅ Готово!' : STAGE_NAMES[pot.stage] + ' · ' + formatTime(left)}</div>
                 ${diseaseWarning}
@@ -1603,11 +1777,12 @@ function renderFarm() {
         }
         grid.appendChild(div);
     });
-    const maxType = state.level >= 8 ? 5 : state.level >= 6 ? 4 : state.level >= 4 ? 3 : state.level >= 2 ? 2 : 1;
-    const pt2 = getPotType(maxType);
+    // Кнопка покупки горшка
+    const maxLevel = Math.min(5, Math.floor((state.level + 1) / 2) + 1);
+    const buyLevel = getPotLevel(maxLevel) || POT_LEVELS[0];
     const discount = getEventDiscount();
-    const price = Math.floor(((pt2?.price || 0) + state.pots.length * 100) * discount);
-    document.getElementById('btn-buy-pot').textContent = '➕ Купить горшок (' + price + '$)' + (discount < 1 ? ' 🔻' : '');
+    const price = Math.floor(buyLevel.price * discount);
+    document.getElementById('btn-buy-pot').textContent = '➕ Купить горшок (' + price + '$) ' + buyLevel.name;
 }
 
 function renderShop() {
@@ -1702,19 +1877,20 @@ function renderRoom() {
     const list = document.getElementById('room-list');
     if (!list) return;
     list.innerHTML = '';
-    list.innerHTML += '<div class="section-title">🪴 Доступные горшки</div>';
-    POT_TYPES.forEach(pt => {
-        const unlocked = state.level >= pt.unlockLevel;
+    // Показываем уровни горшков
+    list.innerHTML += '<div class="section-title">🪴 Уровни горшков</div>';
+    POT_LEVELS.forEach(pl => {
+        const unlocked = state.level >= pl.id * 2;
         const c = document.createElement('div');
         c.className = 'card';
         c.style.opacity = unlocked ? '1' : '0.5';
         c.innerHTML = `
-            <div class="card-emoji">${pt.emoji}</div>
+            <div class="card-emoji">${pl.emoji}</div>
             <div class="card-info">
-                <div class="card-title">${pt.name} ${unlocked ? '✅' : '🔒'}</div>
-                <div class="card-desc">${pt.desc} ${unlocked ? '' : ' (нужен ' + pt.unlockLevel + ' уровень)'}</div>
+                <div class="card-title">${pl.name} ${unlocked ? '✅' : '🔒'}</div>
+                <div class="card-desc">${pl.desc} · ${pl.price}$</div>
             </div>
-            <span style="font-size:11px;color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${unlocked ? 'Доступен' : pt.unlockLevel + ' ур'}</span>
+            <span style="font-size:11px;color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${unlocked ? 'Доступен' : 'Ур. ' + pl.id * 2}</span>
         `;
         list.appendChild(c);
     });
@@ -1755,7 +1931,7 @@ function renderProfile() {
     document.getElementById('profile-harvests').textContent = state.totalHarvests || 0;
     document.getElementById('profile-pots').textContent = state.pots.length;
     document.getElementById('profile-achievements').textContent = (state.achievements || []).length + '/' + ACHIEVEMENTS.length;
-    document.getElementById('profile-state').textContent = highTimer ? '🌀 Накурило!' : '🧠 Норма';
+    document.getElementById('profile-state').textContent = highTimer ? '🌀 Накурило!' : (snoopActive ? '🔥 Убойная трава!' : '🧠 Норма');
     
     const timeInGame = Math.floor((Date.now() - state.lastUpdate) / 60000);
     document.getElementById('profile-time').textContent = timeInGame + 'м';
@@ -2065,7 +2241,9 @@ setInterval(() => {
     if (state.energy < state.maxEnergy) {
         state.energy = Math.min(state.maxEnergy, state.energy + 0.3);
     }
+    tickPots();
     startEvent();
+    trySpawnSnoop();
     if (state.currentCustomer && Date.now() > state.currentCustomer.expiresAt) {
         showToast(state.currentCustomer.name + ' ушёл');
         rejectCustomer();
@@ -2122,6 +2300,8 @@ window.forceRegister = forceRegister;
 window.upgradePot = upgradePot;
 window.consumeProduct = consumeProduct;
 window.loadLeaderboard = loadLeaderboard;
+window.acceptSnoop = acceptSnoop;
+window.rejectSnoop = rejectSnoop;
 </script>
 </body>
 </html>
