@@ -6,7 +6,6 @@
 <title>🌿 Weed Grow Simulator</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-/* ===== ВЕСЬ СТАРЫЙ CSS (оставляем как есть) ===== */
 :root{--bg:#0d1a0d;--text:#e0e8e0;--hint:#6a8a6a;--button:#2e7d32;--button-text:#fff;--secondary:#1a2e1a;--accent:#4caf50;--danger:#e53935;--warning:#ffb300;--purple:#7b1fa2;--blue:#1e88e5;--gold:#ffd700}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:20px;overflow-x:hidden;background:linear-gradient(180deg,#0a1a0a,#0d1a0d 40%,#1a2a1a)}
@@ -37,16 +36,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .section{display:none}
 .section.active{display:block}
 .farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.pot{background:linear-gradient(145deg,#1a2a1a,#0d1a0d);border-radius:14px;padding:10px 6px 8px;text-align:center;border:2px solid rgba(255,255,255,0.05);min-height:180px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:border-color 0.3s}
-.pot:hover{border-color:rgba(76,175,80,0.3)}
-.pot.empty-pots{opacity:0.7}
+.pot{background:linear-gradient(145deg,#1a2a1a,#0d1a0d);border-radius:14px;padding:10px 6px 8px;text-align:center;border:2px solid rgba(255,255,255,0.05);min-height:180px;display:flex;flex-direction:column;align-items:center}
 .pot .pot-emoji{font-size:28px;line-height:1;margin-bottom:2px;position:relative;z-index:2}
 .pot .pot-name{font-size:12px;font-weight:700;z-index:1;position:relative}
 .pot .pot-status{font-size:10px;color:var(--hint);margin:2px 0 4px;z-index:1;position:relative}
 .pot.ready{border-color:var(--accent);box-shadow:0 0 25px rgba(76,175,80,0.12)}
 .pot.needs-water{border-color:var(--blue)}
 .pot.sick{border-color:var(--danger);animation:shake 0.4s ease-in-out infinite alternate}
+.pot.pests{border-color:var(--warning);animation:pestShake 0.6s ease-in-out infinite alternate}
 @keyframes shake{0%{transform:translateX(-2px)}100%{transform:translateX(2px)}}
+@keyframes pestShake{0%{transform:translateX(-3px) rotate(-1deg)}100%{transform:translateX(3px) rotate(1deg)}}
 .plant-container{position:relative;z-index:1;width:100%;height:80px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px}
 .plant-container svg{width:70px;height:75px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));transition:transform 0.5s}
 .plant-container svg.ready{animation:sway 2s ease-in-out infinite,glowPlant 1.5s ease-in-out infinite}
@@ -60,6 +59,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .bar-fill.water{background:linear-gradient(90deg,#1565c0,#42a5f5)}
 .bar-fill.health{background:linear-gradient(90deg,#2e7d32,#66bb6a)}
 .bar-fill.growth{background:linear-gradient(90deg,#f57f17,#ffb300)}
+.bar-fill.pests{background:linear-gradient(90deg,#f9a825,#ff6f00)}
 .pot-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;z-index:1;position:relative;width:100%}
 .btn{background:var(--button);color:var(--button-text);border:none;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 6px rgba(46,125,50,0.15);min-height:36px;display:inline-flex;align-items:center;gap:4px;justify-content:center;touch-action:manipulation}
 .btn:active{transform:scale(0.95)}
@@ -143,16 +143,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .sell-modal .modal{max-width:400px}
 .sell-options{display:flex;flex-direction:column;gap:8px;margin:10px 0}
 .sell-options .btn{width:100%;justify-content:center}
-.sell-options .btn.selected{background:var(--gold);color:#111;border:2px solid var(--gold)}
 .sell-controls{display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0}
 .sell-controls .btn{min-width:40px;justify-content:center;font-size:16px}
 .sell-controls .qty-display{font-size:20px;font-weight:700;color:var(--gold);min-width:40px;text-align:center}
+.pest-notification{position:fixed;top:100px;left:50%;transform:translateX(-50%);background:rgba(255,179,0,0.15);border:2px solid var(--warning);border-radius:12px;padding:10px 18px;z-index:300;display:none;align-items:center;gap:8px;color:var(--warning);font-size:13px;font-weight:600;backdrop-filter:blur(8px);animation:pestAlert 0.5s ease-in-out infinite alternate}
+@keyframes pestAlert{0%{transform:translateX(-50%) scale(1)}100%{transform:translateX(-50%) scale(1.05)}}
 @media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:9px;gap:4px}.stat{padding:2px 6px}.plant-container{height:65px}.plant-container svg{width:55px;height:60px}.tab{font-size:8px;padding:4px 6px;min-width:28px}.btn{font-size:9px;padding:4px 8px;min-height:30px}}
 </style>
 </head>
 <body>
 
-<!-- ===== SNUOP ===== -->
+<div class="pest-notification" id="pestNotification">🐛 ВНИМАНИЕ! Вредители на кусте! Используй лекарство!</div>
+
 <div class="snoop-overlay" id="snoopOverlay"></div>
 <div class="snoop-popup" id="snoopPopup">
     <span class="snoop-avatar">🐶</span>
@@ -164,22 +166,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
 </div>
 
-<!-- ===== ПОЛИЦЕЙСКАЯ МОДАЛКА ===== -->
 <div class="modal-overlay police-modal" id="policeModal">
     <div class="modal">
         <div class="modal-title">👮 ПОЛИЦИЯ!</div>
-        <div id="policeMessage" style="text-align:center;font-size:13px;margin-bottom:10px;">Высокий уровень палева! Полиция нагрянула с обыском!</div>
-        <div class="police-options" id="policeOptions">
-            <button class="btn btn-police" onclick="handlePoliceChoice('bribe')">💰 Дать взятку (200$)</button>
-            <button class="btn btn-warning" onclick="handlePoliceChoice('half')">📦 Отдать половину товара</button>
-            <button class="btn btn-danger" onclick="handlePoliceChoice('all')">📦 Отдать весь товар</button>
-            <button class="btn btn-secondary" onclick="handlePoliceChoice('resist')">💪 Сопротивляться (риск)</button>
-        </div>
+        <div id="policeMessage" style="text-align:center;font-size:13px;margin-bottom:10px;"></div>
+        <div class="police-options" id="policeOptions"></div>
         <button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closePoliceModal()">Закрыть</button>
     </div>
 </div>
 
-<!-- ===== МОДАЛКА ПРОДАЖИ ===== -->
 <div class="modal-overlay sell-modal" id="sellModal">
     <div class="modal">
         <div class="modal-title" id="sellTitle">💰 Продажа</div>
@@ -195,14 +190,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <button class="btn btn-small btn-secondary" onclick="setSellQty('max')">Макс</button>
             <button class="btn btn-small btn-secondary" onclick="setSellQty('half')">Половина</button>
         </div>
-        <div class="sell-options" id="sellOptions">
+        <div class="sell-options">
             <button class="btn btn-gold" onclick="confirmSell()">💰 Продать</button>
             <button class="btn btn-secondary" onclick="closeSellModal()">Отмена</button>
         </div>
     </div>
 </div>
 
-<!-- ===== HEADER ===== -->
 <div class="header">
   <div class="stats">
     <div class="stat">💰 <span id="money">0</span>$</div>
@@ -215,7 +209,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="level-badge" id="xp-badge">0 XP</div>
 </div>
 
-<!-- ===== TABS ===== -->
 <div class="tabs">
   <div class="tab active" data-tab="farm">🌱 Ферма</div>
   <div class="tab" data-tab="market">📊 Рынок</div>
@@ -228,7 +221,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="tab" data-tab="friends">👥 Друзья</div>
 </div>
 
-<!-- ===== CONTENT ===== -->
 <div class="content">
   <div class="section active" id="section-farm">
     <div id="police-warning" style="display:none;" class="police-alert">🚨 ВНИМАНИЕ! Высокий уровень палева! Полиция может нагрянуть!</div>
@@ -340,7 +332,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   </div>
 </div>
 
-<!-- ===== МОДАЛКИ ===== -->
+<!-- МОДАЛКИ -->
 <div class="modal-overlay" id="modal-seed"><div class="modal"><div class="modal-title">🌱 Выбери семя</div><div class="card-list" id="seed-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-seed')">Отмена</button></div></div>
 <div class="modal-overlay" id="modal-fert"><div class="modal"><div class="modal-title">🧪 Удобрения</div><div class="card-list" id="fert-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-fert')">Отмена</button></div></div>
 <div class="modal-overlay" id="modal-lamp"><div class="modal"><div class="modal-title">💡 Лампы</div><div class="card-list" id="lamp-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-lamp')">Отмена</button></div></div>
@@ -403,7 +395,7 @@ const LAMP_ENERGY_COST = {lamp1:0.2, lamp2:0.4, lamp3:0.8, lamp4:1.2};
 const FERTS = [
     {id:'water_boost', emoji:'💧', name:'Супер-вода', price:40,  effect:'speed', value:0.2,  desc:'+20% скорость'},
     {id:'yield_boost', emoji:'🧪', name:'Удобрение+', price:90,  effect:'yield', value:0.4,  desc:'+40% урожай'},
-    {id:'heal',        emoji:'💊', name:'Лекарство',  price:60,  effect:'heal',  value:1,    desc:'Лечит болезнь'},
+    {id:'heal',        emoji:'💊', name:'Лекарство',  price:60,  effect:'heal',  value:1,    desc:'Лечит болезнь и вредителей'},
     {id:'mega',        emoji:'🚀', name:'Мега-буст',  price:350, effect:'both',  value:0.35, desc:'+35% всё'}
 ];
 
@@ -470,9 +462,7 @@ let highTimer = null;
 let highElements = [];
 let toastTimeout = null;
 let chatMessages = [];
-
-// ===== ПЕРЕМЕННЫЕ ДЛЯ ПРОДАЖИ =====
-let sellTarget = null; // { key, name, price, maxQty }
+let sellTarget = null;
 let sellQty = 1;
 
 // ============================================================
@@ -557,7 +547,6 @@ function load() {
         }
     } catch(e) {}
     
-    // Инициализация горшков
     if (!state.pots || state.pots.length === 0) {
         state.pots = [{
             id: state.nextPotId || 1,
@@ -567,6 +556,8 @@ function load() {
             health: 100,
             stage: 0,
             disease: false,
+            pests: false,
+            pestLevel: 0,
             lamp: null,
             fert: null,
             speedMult: 1,
@@ -578,10 +569,10 @@ function load() {
         }];
         state.nextPotId = 2;
     }
-    
-    // Проверяем, что у всех горшков есть isActive
     state.pots.forEach(pot => {
         if (pot.isActive === undefined) pot.isActive = true;
+        if (pot.pests === undefined) pot.pests = false;
+        if (pot.pestLevel === undefined) pot.pestLevel = 0;
     });
     
     if (!state.totalEarned) state.totalEarned = 0;
@@ -610,6 +601,54 @@ function load() {
     updateBonusTimer();
     loadChat();
     updateGameTime();
+}
+
+// ============================================================
+// ====== ВРЕДИТЕЛИ ======
+// ============================================================
+function checkPests() {
+    state.pots.forEach(pot => {
+        if (!pot.strain || !pot.isActive) return;
+        if (pot.pests) return;
+        if (pot.health < 40) return;
+        
+        // Шанс появления вредителей
+        const chance = 0.0005; // 0.05% в секунду
+        if (Math.random() < chance) {
+            pot.pests = true;
+            pot.pestLevel = Math.floor(Math.random() * 30) + 10;
+            showToast('🐛 Вредители на кусте! Используй лекарство!', true);
+            haptic('warning');
+            document.getElementById('pestNotification').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('pestNotification').style.display = 'none';
+            }, 5000);
+            save();
+            render();
+        }
+    });
+}
+
+function treatPests(potId) {
+    const pot = state.pots.find(p => p.id === potId);
+    if (!pot || !pot.isActive) { showToast('Горшок неактивен', true); return; }
+    if (!pot.pests) { showToast('Нет вредителей на этом кусте', true); return; }
+    
+    // Проверяем наличие лекарства (удобрение heal)
+    const healCount = state.ferts['heal'] || 0;
+    if (healCount <= 0) {
+        showToast('❌ Нет лекарства! Купи его в магазине (раздел удобрения)', true);
+        return;
+    }
+    
+    state.ferts['heal']--;
+    pot.pests = false;
+    pot.pestLevel = 0;
+    pot.health = Math.min(100, pot.health + 20);
+    showToast('💊 Вредители уничтожены! Растение здорово!');
+    haptic('success');
+    save();
+    render();
 }
 
 // ============================================================
@@ -971,9 +1010,33 @@ function tickPots() {
             pot.health = Math.min(100, pot.health + healthRegen * dt);
         }
         
+        // Вредители наносят урон
+        if (pot.pests) {
+            pot.health = Math.max(0, pot.health - 0.1 * dt);
+            pot.pestLevel = Math.min(100, (pot.pestLevel || 0) + 0.5 * dt);
+            if (pot.pestLevel > 80) {
+                pot.pests = false;
+                pot.pestLevel = 0;
+                showToast('💀 Вредители уничтожили растение!', true);
+                pot.strain = null;
+                pot.plantedAt = null;
+                pot.stage = 0;
+                pot.disease = false;
+                pot.water = 100;
+                pot.health = 100;
+                pot.lamp = null;
+                pot.fert = null;
+                pot.speedMult = 1;
+                pot.yieldMult = 1;
+                save();
+                render();
+                return;
+            }
+        }
+        
         if (!pot.disease && pot.health < 30 && Math.random() < diseaseChance) {
             pot.disease = true;
-            showToast('🦠 Вредители!', true);
+            showToast('🦠 Болезнь!', true);
             haptic('error');
         }
         if (pot.disease) {
@@ -993,6 +1056,8 @@ function tickPots() {
             pot.plantedAt = null;
             pot.stage = 0;
             pot.disease = false;
+            pot.pests = false;
+            pot.pestLevel = 0;
             pot.water = 100;
             pot.health = 100;
             pot.lamp = null;
@@ -1052,6 +1117,7 @@ function getQuality(pot) {
     }
     if (pot.fert) q += 0.15;
     if (pot.disease) q -= 0.4;
+    if (pot.pests) q -= 0.5;
     const strain = getStrain(pot.strain);
     if (strain) q *= strain.quality || 1;
     if (q < 0.3) q = 0.3;
@@ -1083,6 +1149,7 @@ function harvest(id) {
         return;
     }
     if (pot.health < 20) { showToast('Растение слишком слабое!', true); return; }
+    if (pot.pests) { showToast('🐛 Сначала уничтожь вредителей!', true); return; }
     
     const s = getStrain(pot.strain);
     if (!s) { showToast('Ошибка: сорт не найден', true); return; }
@@ -1128,6 +1195,8 @@ function harvest(id) {
     pot.plantedAt = null;
     pot.stage = 0;
     pot.disease = false;
+    pot.pests = false;
+    pot.pestLevel = 0;
     pot.water = 100;
     pot.health = 100;
     pot.fert = null;
@@ -1347,6 +1416,10 @@ function waterPot(id) {
     render();
 }
 
+function treatPestsAction(id) {
+    treatPests(id);
+}
+
 function openSeedModal(id) {
     const pot = state.pots.find(p => p.id === id);
     if (!pot) { showToast('Горшок не найден', true); return; }
@@ -1401,6 +1474,8 @@ function plantSeed(sid) {
     pot.health = 100;
     pot.stage = 1;
     pot.disease = false;
+    pot.pests = false;
+    pot.pestLevel = 0;
     pot.speedMult = 1;
     pot.yieldMult = 1;
     pot.lastTick = Date.now();
@@ -1431,6 +1506,8 @@ function buyPot() {
         health: 100,
         stage: 0,
         disease: false,
+        pests: false,
+        pestLevel: 0,
         lamp: null,
         fert: null,
         speedMult: 1,
@@ -1534,8 +1611,10 @@ function applyFert(fid) {
     state.ferts[fid]--;
     if (f.effect === 'heal') {
         pot.disease = false;
+        pot.pests = false;
+        pot.pestLevel = 0;
         pot.health = Math.min(100, pot.health + 40);
-        showToast('💊 Вылечено!');
+        showToast('💊 Растение вылечено от болезней и вредителей!');
     } else {
         if (f.effect === 'speed' || f.effect === 'both') {
             pot.speedMult = (pot.speedMult || 1) * (1 + f.value);
@@ -1629,7 +1708,7 @@ function closeModal(id) {
 }
 
 // ============================================================
-// ====== РЕЙТИНГ ======
+// ====== РЕЙТИНГ (ПОКАЗЫВАЕТ ВСЕХ ИГРОКОВ) ======
 // ============================================================
 function getFriendData(friendId) {
     try {
@@ -1656,6 +1735,7 @@ function loadLeaderboard(period) {
         const players = [];
         const allKeys = Object.keys(localStorage);
         
+        // Собираем ВСЕХ игроков из localStorage
         allKeys.forEach(key => {
             if (key.startsWith('grow_sim_public_')) {
                 try {
@@ -1664,7 +1744,7 @@ function loadLeaderboard(period) {
                     if (data && typeof data.money === 'number') {
                         players.push({
                             id: id,
-                            name: data.username || 'Игрок',
+                            name: data.username || data.name || 'Игрок',
                             money: data.money || 0,
                             level: data.level || 1,
                             heat: data.heat || 0,
@@ -1675,6 +1755,7 @@ function loadLeaderboard(period) {
             }
         });
         
+        // Добавляем себя, если ещё нет
         if (!players.find(p => p.id === userId)) {
             players.push({
                 id: userId,
@@ -1686,6 +1767,7 @@ function loadLeaderboard(period) {
             });
         }
         
+        // Сортируем по деньгам
         const sorted = players.sort((a, b) => b.money - a.money);
         
         if (sorted.length === 0) {
@@ -1945,7 +2027,7 @@ function renderChat() {
 // ============================================================
 // ====== ОТРИСОВКА ======
 // ============================================================
-function getPlantSVG(strainId, stage, health, disease, ready) {
+function getPlantSVG(strainId, stage, health, disease, ready, pests) {
     const colors = {
         skunk: { leaf: '#4caf50', dark: '#2e7d32', flower: '#8bc34a' },
         haze: { leaf: '#7b1fa2', dark: '#4a148c', flower: '#ce93d8' },
@@ -1966,18 +2048,21 @@ function getPlantSVG(strainId, stage, health, disease, ready) {
     const c = colors[strainId] || colors.skunk;
     const hf = health / 100;
     const isSick = disease;
+    const hasPests = pests;
     const s = stage || 0;
     let svg = '';
+    let pestEmoji = hasPests ? '<text x="15" y="15" font-size="14">🐛</text>' : '';
+    
     if (s === 1) {
-        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="85" rx="25" ry="6" fill="#3e2723" opacity="0.3"/><circle cx="50" cy="75" r="6" fill="${c.leaf}" opacity="${hf*0.8}"/><circle cx="47" cy="73" r="3" fill="${c.dark}" opacity="0.4"/><path d="M50 75 L48 60 L52 60 Z" fill="${c.dark}" opacity="0.3"/></svg>`;
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="85" rx="25" ry="6" fill="#3e2723" opacity="0.3"/><circle cx="50" cy="75" r="6" fill="${c.leaf}" opacity="${hf*0.8}"/><circle cx="47" cy="73" r="3" fill="${c.dark}" opacity="0.4"/><path d="M50 75 L48 60 L52 60 Z" fill="${c.dark}" opacity="0.3"/>${pestEmoji}</svg>`;
     } else if (s === 2) {
-        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="90" rx="28" ry="6" fill="#3e2723" opacity="0.3"/><line x1="50" y1="85" x2="50" y2="55" stroke="${c.dark}" stroke-width="2.5" opacity="${hf}"/><path d="M50 55 Q38 50 32 62 Q40 58 50 55" fill="${c.leaf}" opacity="${hf*0.7}"/><path d="M50 55 Q62 50 68 62 Q60 58 50 55" fill="${c.leaf}" opacity="${hf*0.7}"/>${isSick?`<circle cx="50" cy="65" r="10" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="8" to="12" dur="0.8s" repeatCount="indefinite"/></circle>`:''}</svg>`;
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="90" rx="28" ry="6" fill="#3e2723" opacity="0.3"/><line x1="50" y1="85" x2="50" y2="55" stroke="${c.dark}" stroke-width="2.5" opacity="${hf}"/><path d="M50 55 Q38 50 32 62 Q40 58 50 55" fill="${c.leaf}" opacity="${hf*0.7}"/><path d="M50 55 Q62 50 68 62 Q60 58 50 55" fill="${c.leaf}" opacity="${hf*0.7}"/>${isSick?`<circle cx="50" cy="65" r="10" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="8" to="12" dur="0.8s" repeatCount="indefinite"/></circle>`:''}${pestEmoji}</svg>`;
     } else if (s === 3) {
-        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="92" rx="30" ry="6" fill="#3e2723" opacity="0.3"/><line x1="50" y1="88" x2="50" y2="40" stroke="${c.dark}" stroke-width="3" opacity="${hf}"/><path d="M50 50 Q35 40 28 58 Q40 50 50 50" fill="${c.leaf}" opacity="${hf*0.7}"/><path d="M50 50 Q65 40 72 58 Q60 50 50 50" fill="${c.leaf}" opacity="${hf*0.7}"/><path d="M50 40 Q38 32 32 48 Q42 40 50 40" fill="${c.dark}" opacity="${hf*0.4}"/><path d="M50 40 Q62 32 68 48 Q58 40 50 40" fill="${c.dark}" opacity="${hf*0.4}"/>${isSick?`<circle cx="50" cy="60" r="12" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="10" to="14" dur="0.8s" repeatCount="indefinite"/></circle>`:''}</svg>`;
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="92" rx="30" ry="6" fill="#3e2723" opacity="0.3"/><line x1="50" y1="88" x2="50" y2="40" stroke="${c.dark}" stroke-width="3" opacity="${hf}"/><path d="M50 50 Q35 40 28 58 Q40 50 50 50" fill="${c.leaf}" opacity="${hf*0.7}"/><path d="M50 50 Q65 40 72 58 Q60 50 50 50" fill="${c.leaf}" opacity="${hf*0.7}"/><path d="M50 40 Q38 32 32 48 Q42 40 50 40" fill="${c.dark}" opacity="${hf*0.4}"/><path d="M50 40 Q62 32 68 48 Q58 40 50 40" fill="${c.dark}" opacity="${hf*0.4}"/>${isSick?`<circle cx="50" cy="60" r="12" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="10" to="14" dur="0.8s" repeatCount="indefinite"/></circle>`:''}${pestEmoji}</svg>`;
     } else if (s === 4) {
-        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="94" rx="32" ry="6" fill="#3e2723" opacity="0.3"/><line x1="50" y1="90" x2="50" y2="30" stroke="${c.dark}" stroke-width="3.5" opacity="${hf}"/><path d="M50 42 Q30 30 22 52 Q35 42 50 42" fill="${c.leaf}" opacity="${hf*0.6}"/><path d="M50 42 Q70 30 78 52 Q65 42 50 42" fill="${c.leaf}" opacity="${hf*0.6}"/><path d="M50 58 Q35 48 28 65 Q40 56 50 58" fill="${c.leaf}" opacity="${hf*0.5}"/><path d="M50 58 Q65 48 72 65 Q60 56 50 58" fill="${c.leaf}" opacity="${hf*0.5}"/><circle cx="50" cy="35" r="10" fill="${c.flower}" opacity="${hf*0.5}"/><circle cx="38" cy="45" r="6" fill="${c.flower}" opacity="${hf*0.4}"/><circle cx="62" cy="45" r="6" fill="${c.flower}" opacity="${hf*0.4}"/>${isSick?`<circle cx="50" cy="55" r="16" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="12" to="18" dur="0.8s" repeatCount="indefinite"/></circle>`:''}</svg>`;
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="94" rx="32" ry="6" fill="#3e2723" opacity="0.3"/><line x1="50" y1="90" x2="50" y2="30" stroke="${c.dark}" stroke-width="3.5" opacity="${hf}"/><path d="M50 42 Q30 30 22 52 Q35 42 50 42" fill="${c.leaf}" opacity="${hf*0.6}"/><path d="M50 42 Q70 30 78 52 Q65 42 50 42" fill="${c.leaf}" opacity="${hf*0.6}"/><path d="M50 58 Q35 48 28 65 Q40 56 50 58" fill="${c.leaf}" opacity="${hf*0.5}"/><path d="M50 58 Q65 48 72 65 Q60 56 50 58" fill="${c.leaf}" opacity="${hf*0.5}"/><circle cx="50" cy="35" r="10" fill="${c.flower}" opacity="${hf*0.5}"/><circle cx="38" cy="45" r="6" fill="${c.flower}" opacity="${hf*0.4}"/><circle cx="62" cy="45" r="6" fill="${c.flower}" opacity="${hf*0.4}"/>${isSick?`<circle cx="50" cy="55" r="16" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="12" to="18" dur="0.8s" repeatCount="indefinite"/></circle>`:''}${pestEmoji}</svg>`;
     } else if (s === 5) {
-        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="94" rx="34" ry="6" fill="#3e2723" opacity="0.3"/><line x1="50" y1="90" x2="50" y2="25" stroke="${c.dark}" stroke-width="4" opacity="${hf}"/><path d="M50 38 Q25 25 16 50 Q32 38 50 38" fill="${c.leaf}" opacity="${hf*0.5}"/><path d="M50 38 Q75 25 84 50 Q68 38 50 38" fill="${c.leaf}" opacity="${hf*0.5}"/><path d="M50 55 Q32 42 22 62 Q38 52 50 55" fill="${c.leaf}" opacity="${hf*0.4}"/><path d="M50 55 Q68 42 78 62 Q62 52 50 55" fill="${c.leaf}" opacity="${hf*0.4}"/><circle cx="50" cy="30" r="14" fill="${c.flower}" opacity="${hf*0.6}"/><circle cx="32" cy="45" r="8" fill="${c.flower}" opacity="${hf*0.5}"/><circle cx="68" cy="45" r="8" fill="${c.flower}" opacity="${hf*0.5}"/><circle cx="42" cy="52" r="6" fill="${c.flower}" opacity="${hf*0.4}"/><circle cx="58" cy="52" r="6" fill="${c.flower}" opacity="${hf*0.4}"/>${ready?`<text x="50" y="12" font-size="14" text-anchor="middle" fill="#ffd700">✨</text>`:''}${isSick?`<circle cx="50" cy="60" r="20" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.4"><animate attributeName="r" from="16" to="22" dur="0.8s" repeatCount="indefinite"/></circle>`:''}</svg>`;
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="94" rx="34" ry="6" fill="#3e2723" opacity="0.3"/><line x1="50" y1="90" x2="50" y2="25" stroke="${c.dark}" stroke-width="4" opacity="${hf}"/><path d="M50 38 Q25 25 16 50 Q32 38 50 38" fill="${c.leaf}" opacity="${hf*0.5}"/><path d="M50 38 Q75 25 84 50 Q68 38 50 38" fill="${c.leaf}" opacity="${hf*0.5}"/><path d="M50 55 Q32 42 22 62 Q38 52 50 55" fill="${c.leaf}" opacity="${hf*0.4}"/><path d="M50 55 Q68 42 78 62 Q62 52 50 55" fill="${c.leaf}" opacity="${hf*0.4}"/><circle cx="50" cy="30" r="14" fill="${c.flower}" opacity="${hf*0.6}"/><circle cx="32" cy="45" r="8" fill="${c.flower}" opacity="${hf*0.5}"/><circle cx="68" cy="45" r="8" fill="${c.flower}" opacity="${hf*0.5}"/><circle cx="42" cy="52" r="6" fill="${c.flower}" opacity="${hf*0.4}"/><circle cx="58" cy="52" r="6" fill="${c.flower}" opacity="${hf*0.4}"/>${ready?`<text x="50" y="12" font-size="14" text-anchor="middle" fill="#ffd700">✨</text>`:''}${isSick?`<circle cx="50" cy="60" r="20" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.4"><animate attributeName="r" from="16" to="22" dur="0.8s" repeatCount="indefinite"/></circle>`:''}${pestEmoji}</svg>`;
     }
     return svg;
 }
@@ -1993,7 +2078,16 @@ function renderFarm() {
     }
     state.pots.forEach(pot => {
         const div = document.createElement('div');
-        div.className = 'pot' + (pot.isActive ? '' : ' empty-pots');
+        let potClass = 'pot';
+        if (pot.isActive && pot.strain) {
+            if (pot.pests) potClass += ' pests';
+            else if (pot.disease) potClass += ' sick';
+            else if (getProgress(pot) >= 1) potClass += ' ready';
+            else if (pot.water < 25) potClass += ' needs-water';
+        } else if (!pot.isActive) {
+            potClass += ' empty-pots';
+        }
+        div.className = potClass;
         
         if (!pot.strain) {
             div.innerHTML += `
@@ -2008,12 +2102,10 @@ function renderFarm() {
             const left = Math.max(0, Math.ceil(getEffectiveTime(pot) - (Date.now() - pot.plantedAt) / 1000));
             updatePotStage(pot);
             const ready = prog >= 1;
-            if (ready) div.classList.add('ready');
-            else if (pot.water < 25) div.classList.add('needs-water');
-            if (pot.disease) div.classList.add('sick');
             
             let tags = '';
             if (pot.disease) tags += ' 🦠';
+            if (pot.pests) tags += ' 🐛';
             if (pot.lamp) {
                 const l = getLamp(pot.lamp);
                 if (l) tags += ` ${l.emoji}`;
@@ -2024,11 +2116,17 @@ function renderFarm() {
             if (ready && pot.isActive) {
                 actions = `<button class="btn btn-full" onclick="harvest(${pot.id})">🌿 Собрать урожай</button>`;
             } else if (pot.isActive) {
+                let pestBtn = '';
+                if (pot.pests) {
+                    const healCount = state.ferts['heal'] || 0;
+                    pestBtn = `<button class="btn btn-small btn-warning" onclick="treatPestsAction(${pot.id})">💊 Лечить (${healCount})</button>`;
+                }
                 actions = `
                     <div class="pot-actions">
                         <button class="btn btn-blue btn-small" onclick="waterPot(${pot.id})">💧</button>
                         <button class="btn btn-warning btn-small" onclick="openFertModal(${pot.id})">🧪</button>
                         <button class="btn btn-purple btn-small" onclick="openLampModal(${pot.id})">💡</button>
+                        ${pestBtn}
                     </div>
                 `;
             } else {
@@ -2039,12 +2137,13 @@ function renderFarm() {
                 <div class="pot-emoji">${pot.isActive ? (STAGE_EMOJI[pot.stage] || '🌱') : '🔒'}</div>
                 <div class="pot-name">${pot.isActive ? (s.emoji + ' ' + s.name + tags) : '🔒 Закрыт'}</div>
                 <div class="pot-status">${pot.isActive ? (ready ? '✅ Готово!' : STAGE_NAMES[pot.stage] + ' · ' + formatTime(left)) : 'Недоступен'}</div>
-                ${pot.isActive ? `<div class="plant-container">${getPlantSVG(pot.strain, pot.stage, pot.health, pot.disease, ready)}</div>` : ''}
+                ${pot.isActive ? `<div class="plant-container">${getPlantSVG(pot.strain, pot.stage, pot.health, pot.disease, ready, pot.pests)}</div>` : ''}
                 ${pot.isActive ? `
                 <div class="bars">
                     <div class="bar-row"><span>💧</span><div class="bar"><div class="bar-fill water" style="width:${pot.water}%"></div></div></div>
                     <div class="bar-row"><span>❤️</span><div class="bar"><div class="bar-fill health" style="width:${pot.health}%"></div></div></div>
                     <div class="bar-row"><span>⏱</span><div class="bar"><div class="bar-fill growth" style="width:${prog * 100}%"></div></div></div>
+                    ${pot.pests ? `<div class="bar-row"><span>🐛</span><div class="bar"><div class="bar-fill pests" style="width:${Math.min(100, pot.pestLevel || 0)}%"></div></div></div>` : ''}
                 </div>
                 ` : ''}
                 ${actions}
@@ -2119,11 +2218,12 @@ function renderShop() {
         const owned = state.ferts[f.id] || 0;
         const c = document.createElement('div');
         c.className = 'card';
+        const isHeal = f.id === 'heal';
         c.innerHTML = `
             <div class="card-emoji">${f.emoji}</div>
             <div class="card-info">
                 <div class="card-title">${f.emoji} ${f.name} ${owned ? `<span class="inv-count">×${owned}</span>` : ''}</div>
-                <div class="card-desc">${f.desc}</div>
+                <div class="card-desc">${f.desc} ${isHeal ? '💊 Лечит болезни и вредителей' : ''}</div>
             </div>
             <button class="btn btn-small" onclick="buyFert('${f.id}')">${f.price}$</button>
         `;
@@ -2160,7 +2260,6 @@ function renderInventory() {
             return;
         }
         
-        // Продукты переработки
         const info = getProductInfo(id);
         if (info) {
             const c = document.createElement('div');
@@ -2486,6 +2585,7 @@ setInterval(() => {
         state.energy = Math.min(state.maxEnergy, state.energy + 0.3);
     }
     tickPots();
+    checkPests();
     updateMarketPrices();
     trySpawnSnoop();
     renderHeader();
@@ -2612,6 +2712,7 @@ window.closeModal = closeModal;
 window.plantSeed = plantSeed;
 window.harvest = harvest;
 window.waterPot = waterPot;
+window.treatPestsAction = treatPestsAction;
 window.openFertModal = openFertModal;
 window.applyFert = applyFert;
 window.openLampModal = openLampModal;
