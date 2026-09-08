@@ -119,8 +119,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="snoop-overlay" id="snoopOverlay"></div>
 <div class="snoop-popup" id="snoopPopup">
     <span class="snoop-avatar">🐶</span>
-    <div class="snoop-text">🍁 Снуп Догг!</div>
-    <div class="snoop-sub">"Попробуй убойную травку! 30 сек кайфа +50$!"</div>
+    <div class="snoop-text">🍁 Снуп Догг тут!</div>
+    <div class="snoop-sub">"Эй, братан! Попробуй мою убойную травку — экран будет трястись 30 секунд! И 50$ твои!"</div>
     <div>
         <button class="snoop-btn" onclick="acceptSnoop()">🔥 ДАВАЙ!</button>
         <button class="snoop-btn snoop-btn-secondary" onclick="rejectSnoop()">Не сегодня</button>
@@ -173,7 +173,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div style="margin-top:8px"><button class="btn btn-full" onclick="sellAll()" id="btn-sell-all">💰 Продать всё</button></div>
   </div>
 
-  <!-- ====== ЦЕХ (ПЕРЕРАБОТКА) ====== -->
   <div class="section" id="section-process">
     <div class="section-title">⚗️ Переработка сырья</div>
     <div class="card-list" id="process-list"></div>
@@ -351,6 +350,8 @@ let state = {
 };
 let selectedPotId = null;
 let snoopTimer = null;
+let highTimer = null;
+let highElements = [];
 
 // ============================================================
 // ====== БАЗОВЫЕ ФУНКЦИИ ======
@@ -448,12 +449,19 @@ function addXp(a) {
 }
 
 // ============================================================
-// ====== СНУП ДОГГ ======
+// ====== СНУП ДОГГ (ИСПРАВЛЕНО — ПОЯВЛЯЕТСЯ ЧАЩЕ) ======
 // ============================================================
 function trySpawnSnoop() {
+    // Проверяем, не активен ли уже
     if (state.snoopActive) return;
-    if (Date.now() - state.snoopCooldown < 240000) return;
-    if (Math.random() > 0.08) return;
+    
+    // Проверяем кд (2 минуты вместо 4)
+    if (Date.now() - state.snoopCooldown < 120000) return;
+    
+    // 12% шанс каждую секунду (было 8%)
+    if (Math.random() > 0.12) return;
+    
+    // Показываем попап
     document.getElementById('snoopPopup').classList.add('show');
     document.getElementById('snoopOverlay').classList.add('active');
     state.snoopActive = true;
@@ -475,7 +483,7 @@ function acceptSnoop() {
         document.body.classList.remove('snoop-high');
         document.getElementById('snoopOverlay').classList.remove('active');
         document.getElementById('profile-state').textContent = '🧠 Норма';
-        showToast('🌀 Эффект прошёл...');
+        showToast('🌀 Эффект убойной травы прошёл...');
     }, 30000);
     state.snoopActive = false;
     state.snoopCooldown = Date.now();
@@ -494,9 +502,6 @@ function rejectSnoop() {
 // ============================================================
 // ====== ЭФФЕКТ "НАКУРИЛО" ======
 // ============================================================
-let highTimer = null;
-let highElements = [];
-
 function applyHighEffect() {
     if (highTimer) return;
     showToast('🌀 Тебя накурило! Иконки дрожат 30 секунд!', false, 'high');
@@ -811,7 +816,7 @@ function sellProduct(key) {
 }
 
 // ============================================================
-// ====== ПОТРЕБЛЕНИЕ ПРОДУКТОВ (ЭФФЕКТ "НАКУРИЛО") ======
+// ====== ПОТРЕБЛЕНИЕ ПРОДУКТОВ ======
 // ============================================================
 function consumeProduct(key, type) {
     const amt = state.inventory[key] || 0;
@@ -1450,12 +1455,10 @@ function renderInventory() {
     });
 }
 
-// ====== ЦЕХ (ПЕРЕРАБОТКА) ======
 function renderProcess() {
     const list = document.getElementById('process-list');
     list.innerHTML = '';
     
-    // Сырьё для сушки
     const raws = Object.entries(state.inventory).filter(([k, v]) => v > 0 && getStrain(k));
     if (!raws.length) {
         list.innerHTML = '<div class="empty"><div class="empty-emoji">⚗️</div>Нет сырья для переработки</div>';
@@ -1476,7 +1479,6 @@ function renderProcess() {
         });
     }
     
-    // Сушка → продукты
     const dried = Object.entries(state.inventory).filter(([k, v]) => v > 0 && k.endsWith('_dried'));
     dried.forEach(([key, amt]) => {
         const info = getProductInfo(key);
@@ -1499,7 +1501,6 @@ function renderProcess() {
         list.appendChild(c);
     });
     
-    // Готовая продукция
     const plist = document.getElementById('products-list');
     plist.innerHTML = '';
     const products = Object.entries(state.inventory).filter(([k, v]) => v > 0 && 
@@ -1592,7 +1593,8 @@ function renderProfile() {
     document.getElementById('profile-energy').textContent = Math.floor(state.energy) + '/' + state.maxEnergy;
     document.getElementById('profile-harvests').textContent = state.totalHarvests || 0;
     document.getElementById('profile-pots').textContent = state.pots.length;
-    document.getElementById('profile-state').textContent = document.body.classList.contains('snoop-high') ? '🔥 Убойная трава!' : (highTimer ? '🌀 Накурило!' : '🧠 Норма');
+    const stateText = document.body.classList.contains('snoop-high') ? '🔥 Убойная трава!' : (highTimer ? '🌀 Накурило!' : '🧠 Норма');
+    document.getElementById('profile-state').textContent = stateText;
 }
 
 function renderFriends() {
