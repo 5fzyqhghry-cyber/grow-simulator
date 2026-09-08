@@ -137,7 +137,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <button class="btn btn-full" onclick="shareReferral()">📤 Поделиться</button>
       <button class="btn btn-secondary btn-full" style="margin-top:4px" onclick="copyReferral()">📋 Скопировать</button>
       
-      <!-- ===== НОВАЯ КНОПКА РЕГИСТРАЦИИ ===== -->
       <div id="register-block" style="margin-top:10px;display:none;">
         <button class="btn btn-purple btn-full" onclick="forceRegister()" style="background:linear-gradient(135deg,#ff6f00,#ff8f00);">
           🔐 Зарегистрироваться на сервере
@@ -391,7 +390,7 @@ function copyReferral() {
 }
 
 // ============================================================
-// ====== ПРИНУДИТЕЛЬНАЯ РЕГИСТРАЦИЯ (НОВАЯ ФУНКЦИЯ!) ======
+// ====== ПРИНУДИТЕЛЬНАЯ РЕГИСТРАЦИЯ (ИСПРАВЛЕНА) ======
 // ============================================================
 async function forceRegister() {
     showToast('⏳ Регистрация...');
@@ -410,8 +409,11 @@ async function forceRegister() {
         if (data.success) {
             showToast('✅ Вы зарегистрированы на сервере!');
             document.getElementById('register-block').style.display = 'none';
-            // Обновляем статистику
-            await fetchStats();
+            
+            // ===== ОБНОВЛЯЕМ СПИСОК ДРУЗЕЙ =====
+            await loadReferralsFromServer();
+            
+            save();
             render();
         } else {
             showToast('❌ Ошибка: ' + (data.error || 'неизвестная'), true);
@@ -419,6 +421,28 @@ async function forceRegister() {
     } catch (e) {
         console.error('❌ Ошибка регистрации:', e);
         showToast('❌ Ошибка соединения с сервером', true);
+    }
+}
+
+// ============================================================
+// ====== ЗАГРУЗКА ДРУЗЕЙ С СЕРВЕРА ======
+// ============================================================
+async function loadReferralsFromServer() {
+    try {
+        const response = await fetch(SERVER_URL + '/api/stats/' + userId);
+        const data = await response.json();
+        console.log('📊 Данные с сервера:', data);
+        if (data && data.stats) {
+            state.referrals = data.stats.totalReferrals || 0;
+            state.referralEarned = data.stats.totalEarned || 0;
+            state.referralsList = data.stats.friends || [];
+            console.log('📊 Загружено друзей:', state.referralsList.length);
+            return true;
+        }
+        return false;
+    } catch (e) {
+        console.error('❌ Ошибка загрузки друзей:', e);
+        return false;
     }
 }
 
@@ -442,18 +466,6 @@ async function registerUser(referredBy) {
         return data;
     } catch (e) {
         console.error('❌ Ошибка:', e);
-        return null;
-    }
-}
-
-async function fetchStats() {
-    try {
-        const response = await fetch(SERVER_URL + '/api/stats/' + userId);
-        const data = await response.json();
-        console.log('📊 Статистика:', data);
-        return data;
-    } catch (e) {
-        console.error('❌ Ошибка получения статистики:', e);
         return null;
     }
 }
@@ -497,29 +509,19 @@ async function handleReferral() {
     
     // Загружаем статистику с сервера
     console.log('📥 Загружаем статистику с сервера...');
-    const stats = await fetchStats();
-    if (stats?.stats) {
-        state.referrals = stats.stats.totalReferrals || 0;
-        state.referralEarned = stats.stats.totalEarned || 0;
-        state.referralsList = stats.stats.friends || [];
-        console.log('📊 Обновлённая статистика:', {
-            referrals: state.referrals,
-            earned: state.referralEarned,
-            friends: state.referralsList.length
-        });
-        // Если пользователь найден — скрываем кнопку регистрации
+    const success = await loadReferralsFromServer();
+    if (success) {
         document.getElementById('register-block').style.display = 'none';
-        save();
+        console.log('📊 Статистика загружена успешно');
         render();
     } else {
-        // Если пользователь не найден — показываем кнопку регистрации
         console.log('❌ Пользователь не найден на сервере');
         document.getElementById('register-block').style.display = 'block';
     }
 }
 
 // ============================================================
-// ====== ОСТАЛЬНЫЕ ФУНКЦИИ ИГРЫ (СОКРАЩЕННО) ======
+// ====== ОСТАЛЬНЫЕ ФУНКЦИИ ИГРЫ ======
 // ============================================================
 function waterPot(id) {
     const pot = state.pots.find(p => p.id === id);
