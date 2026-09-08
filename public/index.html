@@ -198,7 +198,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div class="profile-stat"><span class="label">🪴 Горшков</span><span class="value" id="profile-pots">0</span></div>
       <div class="profile-stat"><span class="label">🌀 Состояние</span><span class="value" id="profile-state">🧠 Норма</span></div>
     </div>
-    <!-- ===== НОВЫЕ КНОПКИ СОХРАНЕНИЯ ===== -->
     <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
         <div style="display:flex;gap:6px;">
             <button class="btn btn-small" onclick="exportSave()" style="flex:1;background:linear-gradient(135deg,#2e7d32,#1b5e20);">💾 Скачать сохранение</button>
@@ -227,6 +226,54 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
       <button class="btn btn-full" onclick="shareReferral()">📤 Поделиться</button>
       <button class="btn btn-secondary btn-full" style="margin-top:3px;" onclick="copyReferral()">📋 Скопировать</button>
+      
+      <!-- ====== ПИРАМИДАЛЬНАЯ СТАТИСТИКА ====== -->
+      <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.05);padding-top:10px;">
+        <div style="font-weight:700;font-size:11px;margin-bottom:4px;">🏛️ Пирамида рефералов</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:4px;font-size:8px;text-align:center;">
+          <div style="background:rgba(255,215,0,0.1);border-radius:6px;padding:4px;">
+            <div style="font-weight:700;color:var(--gold);">Ур.1</div>
+            <div>30%</div>
+            <div id="pyramid-1">0</div>
+          </div>
+          <div style="background:rgba(192,192,192,0.05);border-radius:6px;padding:4px;">
+            <div style="font-weight:700;color:#c0c0c0;">Ур.2</div>
+            <div>20%</div>
+            <div id="pyramid-2">0</div>
+          </div>
+          <div style="background:rgba(205,127,50,0.05);border-radius:6px;padding:4px;">
+            <div style="font-weight:700;color:#cd7f32;">Ур.3</div>
+            <div>15%</div>
+            <div id="pyramid-3">0</div>
+          </div>
+          <div style="background:rgba(33,150,243,0.05);border-radius:6px;padding:4px;">
+            <div style="font-weight:700;color:#42a5f5;">Ур.4</div>
+            <div>10%</div>
+            <div id="pyramid-4">0</div>
+          </div>
+          <div style="background:rgba(156,39,176,0.05);border-radius:6px;padding:4px;">
+            <div style="font-weight:700;color:#ab47bc;">Ур.5</div>
+            <div>5%</div>
+            <div id="pyramid-5">0</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ====== АДМИН-ПАНЕЛЬ ====== -->
+      <div id="admin-panel" style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.05);padding-top:10px;display:none;">
+        <div style="font-weight:700;font-size:11px;margin-bottom:4px;">🔧 Админ-панель рефералов</div>
+        <div style="display:flex;gap:6px;margin-bottom:6px;">
+          <input type="text" id="manual-ref-input" placeholder="ID пользователя (например, 884905508)" style="flex:1;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--text);font-size:10px;">
+          <button class="btn btn-small btn-gold" onclick="manualAddReferral()" style="white-space:nowrap;">➕ Привязать</button>
+        </div>
+        <div style="font-size:8px;color:var(--hint);text-align:center;">Введите ID пользователя, который перешёл по вашей ссылке</div>
+      </div>
+      
+      <!-- Кнопка для показа/скрытия админ-панели -->
+      <div style="margin-top:6px;text-align:center;">
+        <button class="btn btn-small btn-secondary" onclick="toggleAdminPanel()" style="font-size:8px;">🔧 Управление рефералами</button>
+      </div>
+      
       <div id="friends-list" style="margin-top:6px;"></div>
     </div>
   </div>
@@ -248,7 +295,7 @@ const SERVER_URL = window.location.origin;
 const tg = window.Telegram?.WebApp;
 
 // ============================================================
-// ====== ФИКСИРОВАННЫЙ userId (НЕ МЕНЯЕТСЯ) ======
+// ====== ФИКСИРОВАННЫЙ userId ======
 // ============================================================
 let userId;
 if (tg?.initDataUnsafe?.user?.id) {
@@ -366,6 +413,7 @@ let snoopTimer = null;
 let highTimer = null;
 let highElements = [];
 let saveTimeout = null;
+let adminPanelVisible = false;
 
 // ============================================================
 // ====== БАЗОВЫЕ ФУНКЦИИ ======
@@ -421,7 +469,7 @@ function addXp(a) {
 }
 
 // ============================================================
-// ====== АВТОСОХРАНЕНИЕ НА СЕРВЕР ======
+// ====== АВТОСОХРАНЕНИЕ ======
 // ============================================================
 function save() {
     state.lastUpdate = Date.now();
@@ -436,21 +484,12 @@ function save() {
 
 async function saveToServer() {
     try {
-        const response = await fetch(SERVER_URL + '/api/save-game', {
+        await fetch(SERVER_URL + '/api/save-game', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId: userId,
-                gameState: state
-            })
+            body: JSON.stringify({ userId, gameState: state })
         });
-        const data = await response.json();
-        if (data.success) {
-            console.log('💾 Автосохранение на сервер успешно');
-        }
-    } catch(e) {
-        console.log('❌ Ошибка сохранения на сервер:', e);
-    }
+    } catch(e) {}
 }
 
 async function loadFromServer() {
@@ -461,39 +500,22 @@ async function loadFromServer() {
             const oldLevel = state.level;
             const oldMoney = state.money;
             const oldPots = state.pots;
-            
             state = { ...state, ...data.gameState };
-            
             if (!state.level) state.level = oldLevel || 1;
             if (!state.money) state.money = oldMoney || 100;
             if (!state.pots || state.pots.length === 0) state.pots = oldPots || [];
-            
             localStorage.setItem('grow_sim_v3_' + userId, JSON.stringify(state));
-            console.log('📥 Прогресс восстановлен с сервера');
             showToast('💾 Прогресс восстановлен с сервера');
             return true;
         }
         return false;
-    } catch(e) {
-        console.log('❌ Ошибка загрузки с сервера:', e);
-        return false;
-    }
+    } catch(e) { return false; }
 }
 
-// ============================================================
-// ====== ЭКСПОРТ / ИМПОРТ СОХРАНЕНИЯ ======
-// ============================================================
 function exportSave() {
     const saveData = localStorage.getItem('grow_sim_v3_' + userId);
     if (!saveData) { showToast('Нет сохранения', true); return; }
-    
-    const exportData = {
-        version: '1.0',
-        userId: userId,
-        exportedAt: new Date().toISOString(),
-        gameData: JSON.parse(saveData)
-    };
-    
+    const exportData = { version: '1.0', userId, exportedAt: new Date().toISOString(), gameData: JSON.parse(saveData) };
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -534,6 +556,62 @@ function importSave() {
         reader.readAsText(file);
     };
     input.click();
+}
+
+// ============================================================
+// ====== АДМИН-ПАНЕЛЬ ======
+// ============================================================
+function toggleAdminPanel() {
+    adminPanelVisible = !adminPanelVisible;
+    document.getElementById('admin-panel').style.display = adminPanelVisible ? 'block' : 'none';
+}
+
+async function manualAddReferral() {
+    const input = document.getElementById('manual-ref-input');
+    const refId = input.value.trim();
+    if (!refId) {
+        showToast('Введите ID пользователя', true);
+        return;
+    }
+    if (refId === userId) {
+        showToast('Нельзя привязать самого себя', true);
+        return;
+    }
+    
+    showToast('⏳ Проверка...');
+    try {
+        const checkResponse = await fetch(SERVER_URL + '/api/user/' + refId);
+        const checkData = await checkResponse.json();
+        
+        if (!checkData.success) {
+            showToast('❌ Пользователь не найден на сервере. Попросите его зайти в игру.', true);
+            return;
+        }
+        
+        const response = await fetch(SERVER_URL + '/api/manual-referral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                referrerId: userId,
+                referredId: refId
+            })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast(`✅ Пользователь ${refId} привязан! Бонус: ${data.bonus}$`);
+            haptic('success');
+            await loadReferralsFromServer();
+            save();
+            render();
+            input.value = '';
+        } else {
+            showToast('❌ ' + (data.error || 'Ошибка при привязке'), true);
+        }
+    } catch (e) {
+        console.error('Ошибка:', e);
+        showToast('❌ Ошибка соединения с сервером', true);
+    }
 }
 
 // ============================================================
@@ -587,14 +665,11 @@ function applyHighEffect() {
     if (highTimer) return;
     showToast('🌀 Тебя накурило! Иконки дрожат 30 секунд!', false, 'high');
     haptic('warning');
-    
     document.querySelectorAll('.pot-emoji, .card-emoji, .plant-container svg, .btn').forEach(el => {
         el.classList.add('snoop-high');
         highElements.push(el);
     });
-    
     document.getElementById('profile-state').textContent = '🌀 Накурило!';
-    
     highTimer = setTimeout(() => {
         highElements.forEach(el => el.classList.remove('snoop-high'));
         highElements = [];
@@ -812,7 +887,7 @@ function harvest(id) {
 }
 
 // ============================================================
-// ====== ЦЕХ (ПЕРЕРАБОТКА) ======
+// ====== ЦЕХ ======
 // ============================================================
 function getProductInfo(key) {
     const s = getStrain(key);
@@ -896,9 +971,6 @@ function sellProduct(key) {
     render();
 }
 
-// ============================================================
-// ====== ПОТРЕБЛЕНИЕ ПРОДУКТОВ ======
-// ============================================================
 function consumeProduct(key, type) {
     const amt = state.inventory[key] || 0;
     if (amt <= 0) { showToast('Нет товара', true); return; }
@@ -908,12 +980,7 @@ function consumeProduct(key, type) {
     if (state.inventory[key] <= 0) delete state.inventory[key];
     state.consumedCount = (state.consumedCount || 0) + 1;
     
-    const names = {
-        'dried': 'сушку',
-        'joint': 'косяк',
-        'oil': 'масло',
-        'edible': 'еду'
-    };
+    const names = { 'dried': 'сушку', 'joint': 'косяк', 'oil': 'масло', 'edible': 'еду' };
     showToast(`💨 Покурил ${names[type] || 'товар'} (${state.consumedCount}/3)`);
     haptic('medium');
     
@@ -1289,40 +1356,125 @@ async function loadLeaderboard(period) {
 }
 
 // ============================================================
-// ====== РЕФЕРАЛЫ ======
+// ====== РЕФЕРАЛЫ (ПИРАМИДАЛЬНАЯ СИСТЕМА) ======
 // ============================================================
-function getRefLink() {
-    return `https://t.me/${BOT_USERNAME}/growsimulator?startapp=ref_${userId}`;
-}
-
-function shareReferral() {
-    const link = getRefLink();
-    if (tg?.openTelegramLink) {
-        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('🌿 Присоединяйся!')}`);
-    } else {
-        navigator.clipboard?.writeText(link).then(() => showToast('📋 Ссылка скопирована'));
+async function loadReferralsFromServer() {
+    try {
+        const response = await fetch(SERVER_URL + '/api/stats/' + userId);
+        const data = await response.json();
+        console.log('📊 Данные с сервера:', data);
+        if (data && data.stats) {
+            state.referrals = data.stats.totalReferrals || 0;
+            state.referralEarned = data.stats.totalEarned || 0;
+            state.referralsList = data.stats.friends || [];
+            if (data.stats.referredBy) {
+                state.referredBy = data.stats.referredBy;
+            }
+            if (data.stats.pyramidStats) {
+                updatePyramidStats(data.stats.pyramidStats);
+            }
+            console.log('👥 Загружено друзей:', state.referralsList.length);
+            renderFriends();
+            return true;
+        }
+        return false;
+    } catch (e) {
+        console.error('❌ Ошибка загрузки друзей:', e);
+        return false;
     }
 }
 
-function copyReferral() {
-    const link = getRefLink();
-    navigator.clipboard?.writeText(link).then(() => showToast('📋 Ссылка скопирована'));
+function updatePyramidStats(pyramidData) {
+    if (!pyramidData) {
+        fetch(SERVER_URL + '/api/referral-stats/' + userId)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.stats) {
+                    const levels = data.stats.levels;
+                    document.getElementById('pyramid-1').textContent = levels.level1?.count || 0;
+                    document.getElementById('pyramid-2').textContent = levels.level2?.count || 0;
+                    document.getElementById('pyramid-3').textContent = levels.level3?.count || 0;
+                    document.getElementById('pyramid-4').textContent = levels.level4?.count || 0;
+                    document.getElementById('pyramid-5').textContent = levels.level5?.count || 0;
+                }
+            })
+            .catch(() => {});
+        return;
+    }
+    
+    document.getElementById('pyramid-1').textContent = pyramidData.levels?.[1] || 0;
+    document.getElementById('pyramid-2').textContent = pyramidData.levels?.[2] || 0;
+    document.getElementById('pyramid-3').textContent = pyramidData.levels?.[3] || 0;
+    document.getElementById('pyramid-4').textContent = pyramidData.levels?.[4] || 0;
+    document.getElementById('pyramid-5').textContent = pyramidData.levels?.[5] || 0;
 }
 
-function handleReferral() {
+async function registerUser(referredBy) {
+    try {
+        const response = await fetch(SERVER_URL + '/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: userId,
+                userName: tg?.initDataUnsafe?.user?.first_name || 'Игрок',
+                referredBy: referredBy
+            })
+        });
+        return await response.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function handleReferral() {
+    console.log('🔍 Проверка рефералки...');
+    console.log('📌 userId:', userId);
+    
     if (tg?.initDataUnsafe?.start_param) {
         const param = tg.initDataUnsafe.start_param;
+        console.log('📥 Параметр start_param:', param);
+        
         if (param.startsWith('ref_')) {
             const refId = param.replace('ref_', '');
+            console.log('👤 Реферальный ID:', refId);
+            console.log('👤 Мой ID:', userId);
+            
             if (refId !== userId && !state.referredBy) {
+                console.log('✅ Новый реферал! Начисляем бонус...');
                 state.referredBy = refId;
-                state.money += 100;
-                state.energy = Math.min(state.maxEnergy, state.energy + 30);
-                showToast('🎁 Бонус новичка! +100$ +30⚡');
-                save();
-                render();
+                
+                const result = await registerUser(refId);
+                if (result?.success) {
+                    state.money += 100;
+                    state.energy = Math.min(state.maxEnergy, state.energy + 30);
+                    showToast('🎁 Бонус новичка! +100$ +30⚡');
+                    haptic('success');
+                    state.referredBy = refId;
+                    console.log('✅ Бонус новичка начислен!');
+                    
+                    await loadReferralsFromServer();
+                    save();
+                    render();
+                } else {
+                    console.log('❌ Ошибка регистрации:', result);
+                }
+                return;
+            } else {
+                console.log('⚠️ Реферал уже был активирован или это вы сами');
             }
         }
+    }
+    
+    console.log('📥 Загружаем статистику с сервера...');
+    const stats = await loadReferralsFromServer();
+    if (stats) {
+        console.log('📊 Загружено рефералов:', state.referralsList.length);
+        document.getElementById('register-block').style.display = 'none';
+        save();
+        render();
+    } else {
+        console.log('❌ Пользователь не найден на сервере');
+        document.getElementById('register-block').style.display = 'block';
     }
 }
 
@@ -1681,17 +1833,53 @@ function renderProfile() {
 function renderFriends() {
     document.getElementById('ref-count').textContent = state.referrals || 0;
     document.getElementById('ref-earned').textContent = state.referralEarned || 0;
+    updatePyramidStats();
+    
     const container = document.getElementById('friends-list');
+    if (!container) return;
+    
     const friends = state.referralsList || [];
+    console.log('👥 Отрисовка друзей:', friends.length);
+    
     if (friends.length === 0) {
-        container.innerHTML = '<div style="color:var(--hint);font-size:10px;text-align:center;">👤 Пока нет друзей</div>';
+        container.innerHTML = `
+            <div style="color:var(--hint);font-size:10px;text-align:center;padding:8px;">
+                👤 Пока нет друзей<br>
+                <span style="font-size:8px;">Пригласи друзей и получай бонусы!</span>
+            </div>
+        `;
         return;
     }
+    
     let html = '<div style="font-size:10px;font-weight:600;color:var(--hint);margin-top:4px;">👥 Приглашённые друзья</div>';
-    friends.forEach(f => {
-        html += `<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10px;">${f.name || 'Друг'}</div>`;
+    friends.forEach((friend, index) => {
+        const date = friend.date ? new Date(friend.date).toLocaleDateString() : 'Недавно';
+        const level = friend.level || 1;
+        const levelBonus = [30, 20, 15, 10, 5][level - 1] || 0;
+        html += `
+            <div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10px;display:flex;justify-content:space-between;">
+                <span>${friend.name || 'Друг'} <span style="color:var(--hint);font-size:8px;">(Ур.${level})</span></span>
+                <span style="color:var(--gold);font-size:9px;">+${friend.bonus || 0}$ (${levelBonus}%)</span>
+            </div>
+        `;
     });
     container.innerHTML = html;
+}
+
+function updatePyramidStats() {
+    fetch(SERVER_URL + '/api/referral-stats/' + userId)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.stats) {
+                const levels = data.stats.levels;
+                document.getElementById('pyramid-1').textContent = levels.level1?.count || 0;
+                document.getElementById('pyramid-2').textContent = levels.level2?.count || 0;
+                document.getElementById('pyramid-3').textContent = levels.level3?.count || 0;
+                document.getElementById('pyramid-4').textContent = levels.level4?.count || 0;
+                document.getElementById('pyramid-5').textContent = levels.level5?.count || 0;
+            }
+        })
+        .catch(() => {});
 }
 
 function renderHeader() {
@@ -1715,10 +1903,9 @@ function render() {
 }
 
 // ============================================================
-// ====== ЗАГРУЗКА ПРИ ЗАПУСКЕ ======
+// ====== ЗАГРУЗКА ======
 // ============================================================
 async function load() {
-    // Сначала пробуем загрузить из localStorage
     try {
         const raw = localStorage.getItem('grow_sim_v3_' + userId);
         if (raw) {
@@ -1727,9 +1914,7 @@ async function load() {
         }
     } catch(e) {}
     
-    // Потом пробуем загрузить с сервера
     const serverLoaded = await loadFromServer();
-    
     if (!serverLoaded) {
         saveToServer();
     }
@@ -1835,6 +2020,8 @@ window.acceptSnoop = acceptSnoop;
 window.rejectSnoop = rejectSnoop;
 window.exportSave = exportSave;
 window.importSave = importSave;
+window.toggleAdminPanel = toggleAdminPanel;
+window.manualAddReferral = manualAddReferral;
 </script>
 </body>
 </html>
