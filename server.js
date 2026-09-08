@@ -6,107 +6,184 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ============================================================
-// НАСТРОЙКИ
-// ============================================================
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
 const DATA_FILE = path.join(__dirname, 'data', 'referrals.json');
+const LEADERBOARD_FILE = path.join(__dirname, 'data', 'leaderboard.json');
 
 // ============================================================
-// РАБОТА С БАЗОЙ ДАННЫХ (JSON)
+// ЗАГРУЗКА/СОХРАНЕНИЕ ДАННЫХ
 // ============================================================
 function loadData() {
   try {
     if (!fs.existsSync(DATA_FILE)) {
       fs.writeFileSync(DATA_FILE, JSON.stringify({ users: {}, referrals: {} }, null, 2));
     }
-    const raw = fs.readFileSync(DATA_FILE, 'utf8');
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error('❌ Ошибка загрузки данных:', e);
-    return { users: {}, referrals: {} };
-  }
+    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  } catch { return { users: {}, referrals: {} }; }
 }
 
 function saveData(data) {
+  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+}
+
+function loadLeaderboard() {
   try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-    console.log('✅ Данные сохранены');
-  } catch (e) {
-    console.error('❌ Ошибка сохранения:', e);
-  }
+    if (!fs.existsSync(LEADERBOARD_FILE)) {
+      fs.writeFileSync(LEADERBOARD_FILE, JSON.stringify({ monthly: {}, yearly: {} }, null, 2));
+    }
+    return JSON.parse(fs.readFileSync(LEADERBOARD_FILE, 'utf8'));
+  } catch { return { monthly: {}, yearly: {} }; }
+}
+
+function saveLeaderboard(data) {
+  fs.writeFileSync(LEADERBOARD_FILE, JSON.stringify(data, null, 2));
 }
 
 // ============================================================
-// API — РЕГИСТРАЦИЯ НОВОГО ИГРОКА
+// ОБНОВЛЕНИЕ РЕЙТИНГА
+// ============================================================
+function updateLeaderboard(userId, userName, stats) {
+  const lb = loadLeaderboard();
+  const now = new Date();
+  const monthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  const yearKey = String(now.getFullYear());
+  
+  if (!lb.monthly[monthKey]) lb.monthly[monthKey] = {};
+  lb.monthly[monthKey][userId] = {
+    name: userName || 'Игрок',
+    money: stats.money || 0,
+    level: stats.level || 1,
+    harvests: stats.harvests || 0,
+    friends: stats.friends || 0,
+    updatedAt: now.toISOString()
+  };
+  
+  if (!lb.yearly[yearKey]) lb.yearly[yearKey] = {};
+  lb.yearly[yearKey][userId] = {
+    name: userName || 'Игрок',
+    money: stats.money || 0,
+    level: stats.level || 1,
+    harvests: stats.harvests || 0,
+    friends: stats.friends || 0,
+    updatedAt: now.toISOString()
+  };
+  
+  saveLeaderboard(lb);
+}
+
+// ============================================================
+// API — РЕГИСТРАЦИЯ
 // ============================================================
 app.post('/api/register', (req, res) => {
   const { userId, userName, referredBy } = req.body;
-  
-  console.log('📥 Запрос на регистрацию:', { userId, userName, referredBy });
-  
-  if (!userId) {
-    return res.status(400).json({ error: 'userId обязателен' });
-  }
+  if (!userId) return res.status(400).json({ error: 'userId обязателен' });
   
   const db = loadData();
-  
-  // Проверяем, есть ли уже такой пользователь
   if (db.users[userId]) {
-    console.log('ℹ️ Пользователь уже зарегистрирован:', userId);
-    return res.json({ 
-      success: true, 
-      message: 'Пользователь уже зарегистрирован',
-      user: db.users[userId]
-    });
+    return res.json({ success: true, user: db.users[userId] });
   }
   
-  // Регистрируем нового пользователя
   db.users[userId] = {
     id: userId,
     name: userName || 'Игрок',
     registeredAt: new Date().toISOString(),
     referredBy: referredBy || null,
     totalEarned: 0,
-    referrals: 0
+    referrals: 0,
+    level: 1,
+    harvests: 0,
+    money: 0
   };
   
-  console.log('✅ Новый пользователь зарегистрирован:', userId);
-  
-  // Если есть реферальный код — начисляем бонусы
   if (referredBy && db.users[referredBy]) {
-    console.log('🎁 Начисляем бонус пригласившему:', referredBy);
-    
-    // Начисляем бонус пригласившему
     db.users[referredBy].referrals += 1;
     db.users[referredBy].totalEarned += 150;
-    
-    // Сохраняем в историю рефералов
-    if (!db.referrals[referredBy]) {
-      db.referrals[referredBy] = [];
-    }
+    if (!db.referrals[referredBy]) db.referrals[referredBy] = [];
     db.referrals[referredBy].push({
       userId: userId,
       userName: userName || 'Игрок',
       date: new Date().toISOString(),
       bonus: 150
     });
-    
-    console.log('✅ Бонус начислен! Всего рефералов:', db.users[referredBy].referrals);
-  } else {
-    console.log('ℹ️ Без реферала или пригласивший не найден');
   }
   
   saveData(db);
+  res.json({ success: true, user: db.users[userId], referrerBonus: referredBy ? 150 : 0 });
+});
+
+// ============================================================
+// API — ОБНОВЛЕНИЕ СТАТИСТИКИ (для рейтинга)
+// ============================================================
+app.post('/api/update-stats', (req, res) => {
+  const { userId, userName, stats } = req.body;
+  if (!userId) return res.status(400).json({ error: 'userId обязателен' });
+  
+  const db = loadData();
+  if (!db.users[userId]) {
+    db.users[userId] = {
+      id: userId,
+      name: userName || 'Игрок',
+      registeredAt: new Date().toISOString(),
+      referredBy: null,
+      totalEarned: 0,
+      referrals: 0,
+      level: 1,
+      harvests: 0,
+      money: 0
+    };
+  }
+  
+  db.users[userId].level = stats.level || 1;
+  db.users[userId].harvests = stats.harvests || 0;
+  db.users[userId].money = stats.money || 0;
+  db.users[userId].name = userName || 'Игрок';
+  
+  saveData(db);
+  
+  updateLeaderboard(userId, userName || 'Игрок', {
+    money: stats.money || 0,
+    level: stats.level || 1,
+    harvests: stats.harvests || 0,
+    friends: stats.friends || 0
+  });
+  
+  res.json({ success: true });
+});
+
+// ============================================================
+// API — ПОЛУЧИТЬ РЕЙТИНГ
+// ============================================================
+app.get('/api/leaderboard/:period', (req, res) => {
+  const { period } = req.params;
+  const now = new Date();
+  let key;
+  if (period === 'monthly') {
+    key = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  } else if (period === 'yearly') {
+    key = String(now.getFullYear());
+  } else {
+    return res.status(400).json({ error: 'Неверный период. Используйте monthly или yearly' });
+  }
+  
+  const lb = loadLeaderboard();
+  const data = lb[period]?.[key] || {};
+  
+  const sorted = Object.entries(data).map(([id, info]) => ({
+    id: id,
+    name: info.name || 'Игрок',
+    money: info.money || 0,
+    level: info.level || 1,
+    harvests: info.harvests || 0,
+    friends: info.friends || 0
+  })).sort((a, b) => b.money - a.money);
   
   res.json({
-    success: true,
-    message: 'Пользователь зарегистрирован',
-    user: db.users[userId],
-    referrerBonus: referredBy ? 150 : 0
+    period: period,
+    key: key,
+    players: sorted
   });
 });
 
@@ -115,59 +192,35 @@ app.post('/api/register', (req, res) => {
 // ============================================================
 app.get('/api/stats/:userId', (req, res) => {
   const { userId } = req.params;
-  console.log('📊 Запрос статистики для:', userId);
-  
   const db = loadData();
-  
   if (!db.users[userId]) {
-    console.log('❌ Пользователь не найден:', userId);
     return res.status(404).json({ error: 'Пользователь не найден' });
   }
   
   const user = db.users[userId];
   const referrals = db.referrals[userId] || [];
-  
-  console.log('📊 Статистика:', {
-    totalReferrals: user.referrals || 0,
-    totalEarned: user.totalEarned || 0,
-    friends: referrals.length
-  });
-  
   res.json({
-    user: user,
-    referrals: referrals,
+    user,
+    referrals,
     stats: {
       totalReferrals: user.referrals || 0,
       totalEarned: user.totalEarned || 0,
-      friends: referrals.map(r => ({
-        name: r.userName,
-        date: r.date,
-        bonus: r.bonus
-      }))
+      friends: referrals.map(r => ({ name: r.userName, date: r.date, bonus: r.bonus })),
+      level: user.level || 1,
+      harvests: user.harvests || 0,
+      money: user.money || 0
     }
   });
 });
 
 // ============================================================
-// API — ПОЛУЧИТЬ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ (для админа)
+// API — ПОЛУЧИТЬ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ
 // ============================================================
 app.get('/api/users', (req, res) => {
   const db = loadData();
   res.json(db.users);
 });
 
-// ============================================================
-// API — ПОЛУЧИТЬ ВСЕ РЕФЕРАЛЫ (для админа)
-// ============================================================
-app.get('/api/referrals', (req, res) => {
-  const db = loadData();
-  res.json(db.referrals);
-});
-
-// ============================================================
-// ЗАПУСК СЕРВЕРА
-// ============================================================
 app.listen(PORT, () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
-  console.log(`📁 Данные хранятся в: ${DATA_FILE}`);
 });
