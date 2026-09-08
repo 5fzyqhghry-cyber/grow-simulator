@@ -6,6 +6,7 @@
 <title>🌿 Weed Grow Simulator</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
+/* ===== ВЕСЬ СТАРЫЙ CSS (оставляем как есть) ===== */
 :root{--bg:#0d1a0d;--text:#e0e8e0;--hint:#6a8a6a;--button:#2e7d32;--button-text:#fff;--secondary:#1a2e1a;--accent:#4caf50;--danger:#e53935;--warning:#ffb300;--purple:#7b1fa2;--blue:#1e88e5;--gold:#ffd700}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:20px;overflow-x:hidden;background:linear-gradient(180deg,#0a1a0a,#0d1a0d 40%,#1a2a1a)}
@@ -36,7 +37,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .section{display:none}
 .section.active{display:block}
 .farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.pot{background:linear-gradient(145deg,#1a2a1a,#0d1a0d);border-radius:14px;padding:10px 6px 8px;text-align:center;border:2px solid rgba(255,255,255,0.05);min-height:180px;display:flex;flex-direction:column;align-items:center}
+.pot{background:linear-gradient(145deg,#1a2a1a,#0d1a0d);border-radius:14px;padding:10px 6px 8px;text-align:center;border:2px solid rgba(255,255,255,0.05);min-height:180px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:border-color 0.3s}
+.pot:hover{border-color:rgba(76,175,80,0.3)}
+.pot.empty-pots{opacity:0.7}
 .pot .pot-emoji{font-size:28px;line-height:1;margin-bottom:2px;position:relative;z-index:2}
 .pot .pot-name{font-size:12px;font-weight:700;z-index:1;position:relative}
 .pot .pot-status{font-size:10px;color:var(--hint);margin:2px 0 4px;z-index:1;position:relative}
@@ -137,11 +140,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .police-modal .modal{max-width:400px}
 .police-options{display:flex;flex-direction:column;gap:8px;margin:10px 0}
 .police-options .btn{width:100%;justify-content:center}
+.sell-modal .modal{max-width:400px}
+.sell-options{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.sell-options .btn{width:100%;justify-content:center}
+.sell-options .btn.selected{background:var(--gold);color:#111;border:2px solid var(--gold)}
+.sell-controls{display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0}
+.sell-controls .btn{min-width:40px;justify-content:center;font-size:16px}
+.sell-controls .qty-display{font-size:20px;font-weight:700;color:var(--gold);min-width:40px;text-align:center}
 @media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:9px;gap:4px}.stat{padding:2px 6px}.plant-container{height:65px}.plant-container svg{width:55px;height:60px}.tab{font-size:8px;padding:4px 6px;min-width:28px}.btn{font-size:9px;padding:4px 8px;min-height:30px}}
 </style>
 </head>
 <body>
 
+<!-- ===== SNUOP ===== -->
 <div class="snoop-overlay" id="snoopOverlay"></div>
 <div class="snoop-popup" id="snoopPopup">
     <span class="snoop-avatar">🐶</span>
@@ -153,7 +164,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
 </div>
 
-<!-- Модалка полиции -->
+<!-- ===== ПОЛИЦЕЙСКАЯ МОДАЛКА ===== -->
 <div class="modal-overlay police-modal" id="policeModal">
     <div class="modal">
         <div class="modal-title">👮 ПОЛИЦИЯ!</div>
@@ -168,6 +179,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
 </div>
 
+<!-- ===== МОДАЛКА ПРОДАЖИ ===== -->
+<div class="modal-overlay sell-modal" id="sellModal">
+    <div class="modal">
+        <div class="modal-title" id="sellTitle">💰 Продажа</div>
+        <div id="sellInfo" style="text-align:center;font-size:13px;margin-bottom:6px;"></div>
+        <div class="sell-controls">
+            <button class="btn btn-secondary btn-small" onclick="changeSellQty(-10)">-10</button>
+            <button class="btn btn-secondary btn-small" onclick="changeSellQty(-1)">-1</button>
+            <span class="qty-display" id="sellQtyDisplay">1</span>
+            <button class="btn btn-secondary btn-small" onclick="changeSellQty(1)">+1</button>
+            <button class="btn btn-secondary btn-small" onclick="changeSellQty(10)">+10</button>
+        </div>
+        <div style="display:flex;justify-content:center;gap:8px;margin:6px 0;">
+            <button class="btn btn-small btn-secondary" onclick="setSellQty('max')">Макс</button>
+            <button class="btn btn-small btn-secondary" onclick="setSellQty('half')">Половина</button>
+        </div>
+        <div class="sell-options" id="sellOptions">
+            <button class="btn btn-gold" onclick="confirmSell()">💰 Продать</button>
+            <button class="btn btn-secondary" onclick="closeSellModal()">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== HEADER ===== -->
 <div class="header">
   <div class="stats">
     <div class="stat">💰 <span id="money">0</span>$</div>
@@ -180,6 +215,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="level-badge" id="xp-badge">0 XP</div>
 </div>
 
+<!-- ===== TABS ===== -->
 <div class="tabs">
   <div class="tab active" data-tab="farm">🌱 Ферма</div>
   <div class="tab" data-tab="market">📊 Рынок</div>
@@ -192,6 +228,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="tab" data-tab="friends">👥 Друзья</div>
 </div>
 
+<!-- ===== CONTENT ===== -->
 <div class="content">
   <div class="section active" id="section-farm">
     <div id="police-warning" style="display:none;" class="police-alert">🚨 ВНИМАНИЕ! Высокий уровень палева! Полиция может нагрянуть!</div>
@@ -292,7 +329,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div class="chat-message">
           <span class="sender">🤖 Система:</span>
           <span class="time">сейчас</span>
-          <div>Добро пожаловать в чат! Здесь видны все игроки.</div>
+          <div>Добро пожаловать в чат!</div>
         </div>
       </div>
       <div class="chat-input-row">
@@ -303,7 +340,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   </div>
 </div>
 
-<!-- МОДАЛКИ -->
+<!-- ===== МОДАЛКИ ===== -->
 <div class="modal-overlay" id="modal-seed"><div class="modal"><div class="modal-title">🌱 Выбери семя</div><div class="card-list" id="seed-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-seed')">Отмена</button></div></div>
 <div class="modal-overlay" id="modal-fert"><div class="modal"><div class="modal-title">🧪 Удобрения</div><div class="card-list" id="fert-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-fert')">Отмена</button></div></div>
 <div class="modal-overlay" id="modal-lamp"><div class="modal"><div class="modal-title">💡 Лампы</div><div class="card-list" id="lamp-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-lamp')">Отмена</button></div></div>
@@ -424,9 +461,8 @@ let state = {
     lastBonusTime: 0,
     bonusLog: [],
     lastHeatCheck: Date.now(),
-    gameTime: 12 * 60, // 12:00 в минутах
-    policeActive: false,
-    policeTimer: 0
+    gameTime: 12 * 60,
+    policeActive: false
 };
 let selectedPotId = null;
 let snoopTimer = null;
@@ -434,6 +470,10 @@ let highTimer = null;
 let highElements = [];
 let toastTimeout = null;
 let chatMessages = [];
+
+// ===== ПЕРЕМЕННЫЕ ДЛЯ ПРОДАЖИ =====
+let sellTarget = null; // { key, name, price, maxQty }
+let sellQty = 1;
 
 // ============================================================
 // ====== БАЗОВЫЕ ФУНКЦИИ ======
@@ -517,6 +557,7 @@ function load() {
         }
     } catch(e) {}
     
+    // Инициализация горшков
     if (!state.pots || state.pots.length === 0) {
         state.pots = [{
             id: state.nextPotId || 1,
@@ -532,10 +573,17 @@ function load() {
             yieldMult: 1,
             lastTick: Date.now(),
             _lastWarning: null,
-            potLevel: 1
+            potLevel: 1,
+            isActive: true
         }];
         state.nextPotId = 2;
     }
+    
+    // Проверяем, что у всех горшков есть isActive
+    state.pots.forEach(pot => {
+        if (pot.isActive === undefined) pot.isActive = true;
+    });
+    
     if (!state.totalEarned) state.totalEarned = 0;
     if (!state.maxEarned) state.maxEarned = 5000;
     if (!state.heat) state.heat = 0;
@@ -557,7 +605,6 @@ function load() {
     if (!state.referralsList) state.referralsList = [];
     if (!state.gameTime) state.gameTime = 12 * 60;
     if (!state.policeActive) state.policeActive = false;
-    if (!state.policeTimer) state.policeTimer = 0;
     
     updateMarketPrices();
     updateBonusTimer();
@@ -571,11 +618,8 @@ function load() {
 function updateGameTime() {
     const now = Date.now();
     const dt = (now - (state.lastTick || now)) / 1000;
-    
-    // Время идёт быстрее: 1 игровая минута = 3 реальные секунды
     state.gameTime = (state.gameTime || 12 * 60) + dt / 3;
     
-    // Смена дня и ночи
     const hours = Math.floor(state.gameTime / 60) % 24;
     const minutes = Math.floor(state.gameTime % 60);
     const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
@@ -594,22 +638,19 @@ function updateHeat() {
     const dt = (now - state.lastHeatCheck) / 1000;
     state.lastHeatCheck = now;
     
-    // Естественное снижение палева
     let reduction = 0;
     if (state.room.vent) {
-        reduction = 1; // 1 единица в минуту
+        reduction = 1;
     }
     
     if (state.heat > 0) {
         state.heat = Math.max(0, state.heat - (dt / 60) * reduction);
     }
     
-    // Днём палево растёт быстрее (больше света)
     const hours = Math.floor(state.gameTime / 60) % 24;
     const isDay = hours >= 6 && hours < 18;
     const growthMultiplier = isDay ? 1.2 : 0.6;
     
-    // Шанс на обыск
     if (state.heat > 30 && !state.policeActive && Math.random() < 0.0005 * (state.heat / 100) * growthMultiplier) {
         state.policeActive = true;
         triggerPoliceRaid();
@@ -638,6 +679,9 @@ function addHeat(amount) {
     render();
 }
 
+// ============================================================
+// ====== ПОЛИЦИЯ ======
+// ============================================================
 function triggerPoliceRaid() {
     const hasItems = Object.keys(state.inventory).length > 0;
     const hasMoney = state.money > 0;
@@ -651,7 +695,6 @@ function triggerPoliceRaid() {
         return;
     }
     
-    // Показываем модальное окно с выбором
     const modal = document.getElementById('policeModal');
     const message = document.getElementById('policeMessage');
     
@@ -665,7 +708,6 @@ function triggerPoliceRaid() {
     }
     message.textContent = messageText;
     
-    // Показываем только доступные опции
     const optionsDiv = document.getElementById('policeOptions');
     optionsDiv.innerHTML = '';
     
@@ -755,7 +797,6 @@ function handlePoliceChoice(choice) {
             break;
             
         case 'resist':
-            // Риск: 50% шанс убежать, 50% заберут всё
             if (Math.random() < 0.5) {
                 state.heat = Math.max(0, state.heat - 70);
                 message = '💪 Ты успешно сопротивлялся и сбежал! Палево сильно снижено!';
@@ -774,7 +815,7 @@ function handlePoliceChoice(choice) {
     }
     
     closePoliceModal();
-    showToast(message, choice === 'resist' && Math.random() < 0.5);
+    showToast(message, false);
     save();
     render();
 }
@@ -785,7 +826,7 @@ function closePoliceModal() {
 }
 
 // ============================================================
-// ====== ЭКОНОМИЧЕСКИЙ БАЛАНС ======
+// ====== ЭКОНОМИКА ======
 // ============================================================
 function canEarn(amount) {
     if (state.totalEarned + amount > state.maxEarned + state.level * 500) {
@@ -904,6 +945,7 @@ function tickPots() {
     state.lastTick = now;
     
     state.pots.forEach(pot => {
+        if (!pot.isActive) return;
         if (!pot.strain) return;
         
         let waterDrain = 0.15;
@@ -1031,6 +1073,7 @@ function qualityName(q) {
 function harvest(id) {
     const pot = state.pots.find(p => p.id === id);
     if (!pot) { showToast('Горшок не найден', true); return; }
+    if (!pot.isActive) { showToast('Этот горшок неактивен', true); return; }
     if (!pot.strain) { showToast('Нет растения', true); return; }
     
     const prog = getProgress(pot);
@@ -1097,7 +1140,7 @@ function harvest(id) {
 }
 
 // ============================================================
-// ====== ЦЕХ ======
+// ====== ПРОДУКТЫ И ЦЕХ ======
 // ============================================================
 function getProductInfo(key) {
     const s = getStrain(key);
@@ -1208,114 +1251,83 @@ function processItem(strainId, productType) {
     render();
 }
 
-function sellProduct(key) {
+// ============================================================
+// ====== ПРОДАЖА С ВЫБОРОМ КОЛИЧЕСТВА ======
+// ============================================================
+function openSellModal(key) {
     const amt = state.inventory[key] || 0;
     if (amt <= 0) return;
+    
     const info = getProductInfo(key);
     if (!info) return;
-    const total = amt * info.sellPrice;
     
+    sellTarget = {
+        key: key,
+        name: info.name,
+        price: info.sellPrice,
+        maxQty: amt
+    };
+    sellQty = Math.min(1, amt);
+    
+    document.getElementById('sellTitle').textContent = '💰 Продажа: ' + info.name;
+    document.getElementById('sellInfo').textContent = `Цена: ${info.sellPrice}$ за шт. | Всего: ${amt} шт.`;
+    document.getElementById('sellQtyDisplay').textContent = sellQty;
+    document.getElementById('sellModal').classList.add('show');
+}
+
+function changeSellQty(delta) {
+    if (!sellTarget) return;
+    const newQty = Math.max(1, Math.min(sellTarget.maxQty, sellQty + delta));
+    sellQty = newQty;
+    document.getElementById('sellQtyDisplay').textContent = sellQty;
+}
+
+function setSellQty(mode) {
+    if (!sellTarget) return;
+    if (mode === 'max') {
+        sellQty = sellTarget.maxQty;
+    } else if (mode === 'half') {
+        sellQty = Math.max(1, Math.floor(sellTarget.maxQty / 2));
+    }
+    document.getElementById('sellQtyDisplay').textContent = sellQty;
+}
+
+function confirmSell() {
+    if (!sellTarget) return;
+    const { key, price, maxQty } = sellTarget;
+    const qty = Math.min(sellQty, maxQty);
+    
+    if (qty <= 0) { showToast('Выберите количество', true); return; }
+    if ((state.inventory[key] || 0) < qty) { showToast('Недостаточно товара', true); return; }
+    
+    const total = qty * price;
     if (!canEarn(total)) {
         showToast('⚠️ Рынок перенасыщен!', true);
         return;
     }
     
     addMoney(total);
-    delete state.inventory[key];
-    showToast('💰 Продано за ' + total + '$');
+    state.inventory[key] -= qty;
+    if (state.inventory[key] <= 0) delete state.inventory[key];
+    
+    showToast(`💰 Продано ${qty} шт. за ${total}$`);
     haptic('success');
     addXp(Math.floor(total / 10));
     addHeat(total / 15);
+    
+    closeSellModal();
     save();
     render();
 }
 
-function consumeProduct(key, type) {
-    const amt = state.inventory[key] || 0;
-    if (amt <= 0) { showToast('Нет товара', true); return; }
-    if (state.consumedCount >= 3) { showToast('🌀 Ты уже накурился!', true); return; }
-    
-    state.inventory[key]--;
-    if (state.inventory[key] <= 0) delete state.inventory[key];
-    state.consumedCount = (state.consumedCount || 0) + 1;
-    
-    const names = { 'dried': 'сушку', 'joint': 'косяк', 'oil': 'масло', 'edible': 'еду' };
-    showToast(`💨 Покурил ${names[type] || 'товар'} (${state.consumedCount}/3)`);
-    haptic('medium');
-    addHeat(2);
-    
-    if (state.consumedCount >= 3) {
-        applyHighEffect();
-        state.consumedCount = 0;
-    }
-    save();
-    render();
+function closeSellModal() {
+    document.getElementById('sellModal').classList.remove('show');
+    sellTarget = null;
+    sellQty = 1;
 }
 
-// ============================================================
-// ====== ЭФФЕКТ "НАКУРИЛО" ======
-// ============================================================
-function applyHighEffect() {
-    if (highTimer) return;
-    showToast('🌀 Тебя накурило! 30 секунд!', false);
-    haptic('warning');
-    document.querySelectorAll('.pot-emoji, .card-emoji, .plant-container svg, .btn').forEach(el => {
-        el.classList.add('snoop-high');
-        highElements.push(el);
-    });
-    document.getElementById('profile-state').textContent = '🌀 Накурило!';
-    highTimer = setTimeout(() => {
-        highElements.forEach(el => el.classList.remove('snoop-high'));
-        highElements = [];
-        highTimer = null;
-        document.getElementById('profile-state').textContent = '🧠 Норма';
-        showToast('🌀 Эффект прошёл...');
-    }, 30000);
-}
-
-// ============================================================
-// ====== СНУП ДОГГ ======
-// ============================================================
-function trySpawnSnoop() {
-    if (state.snoopActive) return;
-    if (Date.now() - state.snoopCooldown < 120000) return;
-    if (Math.random() > 0.12) return;
-    document.getElementById('snoopPopup').classList.add('show');
-    document.getElementById('snoopOverlay').classList.add('active');
-    state.snoopActive = true;
-    haptic('warning');
-}
-
-function acceptSnoop() {
-    document.getElementById('snoopPopup').classList.remove('show');
-    document.getElementById('snoopOverlay').classList.remove('active');
-    state.money += 50;
-    state.energy = Math.min(state.maxEnergy, state.energy + 20);
-    showToast('🔥 Сильный накур! +50$ +20⚡');
-    haptic('success');
-    document.body.classList.add('snoop-high');
-    document.getElementById('snoopOverlay').classList.add('active');
-    document.getElementById('profile-state').textContent = '🔥 Убойная трава!';
-    clearTimeout(snoopTimer);
-    snoopTimer = setTimeout(() => {
-        document.body.classList.remove('snoop-high');
-        document.getElementById('snoopOverlay').classList.remove('active');
-        document.getElementById('profile-state').textContent = '🧠 Норма';
-        showToast('🌀 Эффект убойной травы прошёл...');
-    }, 30000);
-    state.snoopActive = false;
-    state.snoopCooldown = Date.now();
-    addHeat(10);
-    save();
-    render();
-}
-
-function rejectSnoop() {
-    document.getElementById('snoopPopup').classList.remove('show');
-    document.getElementById('snoopOverlay').classList.remove('active');
-    state.snoopActive = false;
-    state.snoopCooldown = Date.now();
-    showToast('Снуп Догг ушёл...');
+function sellProduct(key) {
+    openSellModal(key);
 }
 
 // ============================================================
@@ -1323,7 +1335,8 @@ function rejectSnoop() {
 // ============================================================
 function waterPot(id) {
     const pot = state.pots.find(p => p.id === id);
-    if (!pot || !pot.strain) return;
+    if (!pot || !pot.isActive) { showToast('Горшок неактивен', true); return; }
+    if (!pot.strain) return;
     if (state.energy < 2) { showToast('Нужно 2⚡', true); return; }
     state.energy -= 2;
     pot.water = Math.min(100, pot.water + 45);
@@ -1335,6 +1348,11 @@ function waterPot(id) {
 }
 
 function openSeedModal(id) {
+    const pot = state.pots.find(p => p.id === id);
+    if (!pot) { showToast('Горшок не найден', true); return; }
+    if (!pot.isActive) { showToast('Этот горшок неактивен', true); return; }
+    if (pot.strain) { showToast('Здесь уже есть растение', true); return; }
+    
     selectedPotId = id;
     const list = document.getElementById('seed-list');
     list.innerHTML = '';
@@ -1371,7 +1389,10 @@ function plantSeed(sid) {
         return;
     }
     const pot = state.pots.find(p => p.id === selectedPotId);
-    if (!pot || pot.strain) return;
+    if (!pot || !pot.isActive || pot.strain) {
+        showToast('Горшок занят или неактивен', true);
+        return;
+    }
     state.money -= s.seedPrice;
     state.energy -= s.energyCost;
     pot.strain = sid;
@@ -1416,7 +1437,8 @@ function buyPot() {
         yieldMult: 1,
         lastTick: Date.now(),
         _lastWarning: null,
-        potLevel: maxLevel
+        potLevel: maxLevel,
+        isActive: true
     });
     showToast('🪴 Новый горшок!');
     haptic('success');
@@ -1475,6 +1497,10 @@ function buyRoomUpgrade(uid) {
 }
 
 function openFertModal(id) {
+    const pot = state.pots.find(p => p.id === id);
+    if (!pot || !pot.isActive) { showToast('Горшок неактивен', true); return; }
+    if (!pot.strain) { showToast('Сначала посади растение', true); return; }
+    
     selectedPotId = id;
     const list = document.getElementById('fert-list');
     list.innerHTML = '';
@@ -1501,7 +1527,8 @@ function openFertModal(id) {
 
 function applyFert(fid) {
     const pot = state.pots.find(p => p.id === selectedPotId);
-    if (!pot || !pot.strain) return;
+    if (!pot || !pot.isActive) { showToast('Горшок неактивен', true); return; }
+    if (!pot.strain) { showToast('Нет растения', true); return; }
     if ((state.ferts[fid] || 0) <= 0) return;
     const f = getFert(fid);
     state.ferts[fid]--;
@@ -1527,6 +1554,10 @@ function applyFert(fid) {
 }
 
 function openLampModal(id) {
+    const pot = state.pots.find(p => p.id === id);
+    if (!pot || !pot.isActive) { showToast('Горшок неактивен', true); return; }
+    if (!pot.strain) { showToast('Сначала посади растение', true); return; }
+    
     selectedPotId = id;
     const list = document.getElementById('lamp-list');
     list.innerHTML = '';
@@ -1553,7 +1584,8 @@ function openLampModal(id) {
 
 function applyLamp(potId, lampId) {
     const pot = state.pots.find(p => p.id === potId);
-    if (!pot || !pot.strain) { showToast('Сначала посади растение', true); return; }
+    if (!pot || !pot.isActive) { showToast('Горшок неактивен', true); return; }
+    if (!pot.strain) { showToast('Сначала посади растение', true); return; }
     if ((state.lamps[lampId] || 0) <= 0) { showToast('Нет лампы', true); return; }
     if (pot.lamp) { state.lamps[pot.lamp] = (state.lamps[pot.lamp] || 0) + 1; }
     state.lamps[lampId]--;
@@ -1961,14 +1993,14 @@ function renderFarm() {
     }
     state.pots.forEach(pot => {
         const div = document.createElement('div');
-        div.className = 'pot';
+        div.className = 'pot' + (pot.isActive ? '' : ' empty-pots');
         
         if (!pot.strain) {
             div.innerHTML += `
-                <div class="pot-emoji">🪴</div>
-                <div class="pot-name">Пустой горшок</div>
-                <div class="pot-status">Готов к посадке</div>
-                <button class="btn btn-full" onclick="openSeedModal(${pot.id})">🌱 Посадить</button>
+                <div class="pot-emoji">${pot.isActive ? '🪴' : '🔒'}</div>
+                <div class="pot-name">${pot.isActive ? 'Пустой горшок' : 'Неактивный горшок'}</div>
+                <div class="pot-status">${pot.isActive ? 'Готов к посадке' : '❌ Недоступен'}</div>
+                ${pot.isActive ? `<button class="btn btn-full" onclick="openSeedModal(${pot.id})">🌱 Посадить</button>` : '<span style="font-size:9px;color:var(--hint);">🔒 Закрыт</span>'}
             `;
         } else {
             const s = getStrain(pot.strain);
@@ -1989,9 +2021,9 @@ function renderFarm() {
             if (pot.fert) tags += ' 🧪';
             
             let actions = '';
-            if (ready) {
+            if (ready && pot.isActive) {
                 actions = `<button class="btn btn-full" onclick="harvest(${pot.id})">🌿 Собрать урожай</button>`;
-            } else {
+            } else if (pot.isActive) {
                 actions = `
                     <div class="pot-actions">
                         <button class="btn btn-blue btn-small" onclick="waterPot(${pot.id})">💧</button>
@@ -1999,18 +2031,22 @@ function renderFarm() {
                         <button class="btn btn-purple btn-small" onclick="openLampModal(${pot.id})">💡</button>
                     </div>
                 `;
+            } else {
+                actions = '<span style="font-size:9px;color:var(--hint);">🔒 Закрыт</span>';
             }
             
             div.innerHTML += `
-                <div class="pot-emoji">${STAGE_EMOJI[pot.stage] || '🌱'}</div>
-                <div class="pot-name">${s.emoji} ${s.name} ${tags}</div>
-                <div class="pot-status">${ready ? '✅ Готово!' : STAGE_NAMES[pot.stage] + ' · ' + formatTime(left)}</div>
-                <div class="plant-container">${getPlantSVG(pot.strain, pot.stage, pot.health, pot.disease, ready)}</div>
+                <div class="pot-emoji">${pot.isActive ? (STAGE_EMOJI[pot.stage] || '🌱') : '🔒'}</div>
+                <div class="pot-name">${pot.isActive ? (s.emoji + ' ' + s.name + tags) : '🔒 Закрыт'}</div>
+                <div class="pot-status">${pot.isActive ? (ready ? '✅ Готово!' : STAGE_NAMES[pot.stage] + ' · ' + formatTime(left)) : 'Недоступен'}</div>
+                ${pot.isActive ? `<div class="plant-container">${getPlantSVG(pot.strain, pot.stage, pot.health, pot.disease, ready)}</div>` : ''}
+                ${pot.isActive ? `
                 <div class="bars">
                     <div class="bar-row"><span>💧</span><div class="bar"><div class="bar-fill water" style="width:${pot.water}%"></div></div></div>
                     <div class="bar-row"><span>❤️</span><div class="bar"><div class="bar-fill health" style="width:${pot.health}%"></div></div></div>
                     <div class="bar-row"><span>⏱</span><div class="bar"><div class="bar-fill growth" style="width:${prog * 100}%"></div></div></div>
                 </div>
+                ` : ''}
                 ${actions}
             `;
         }
@@ -2108,19 +2144,37 @@ function renderInventory() {
     list.innerHTML = '';
     entries.forEach(([id, amt]) => {
         const s = getStrain(id);
-        if (!s) return;
-        const price = getMarketPrice(id);
-        const c = document.createElement('div');
-        c.className = 'card';
-        c.innerHTML = `
-            <div class="card-emoji">${s.emoji}</div>
-            <div class="card-info">
-                <div class="card-title">${s.emoji} ${s.name} <span class="inv-count">×${amt}</span></div>
-                <div class="card-desc">💰${price}$ · ${amt * price}$</div>
-            </div>
-            <button class="btn btn-small" onclick="sellProduct('${id}')">💰</button>
-        `;
-        list.appendChild(c);
+        if (s) {
+            const price = getMarketPrice(id);
+            const c = document.createElement('div');
+            c.className = 'card';
+            c.innerHTML = `
+                <div class="card-emoji">${s.emoji}</div>
+                <div class="card-info">
+                    <div class="card-title">${s.emoji} ${s.name} <span class="inv-count">×${amt}</span></div>
+                    <div class="card-desc">💰${price}$ · ${amt * price}$</div>
+                </div>
+                <button class="btn btn-small" onclick="openSellModal('${id}')">💰 Продать</button>
+            `;
+            list.appendChild(c);
+            return;
+        }
+        
+        // Продукты переработки
+        const info = getProductInfo(id);
+        if (info) {
+            const c = document.createElement('div');
+            c.className = 'card';
+            c.innerHTML = `
+                <div class="card-emoji">${info.emoji}</div>
+                <div class="card-info">
+                    <div class="card-title">${info.name} <span class="inv-count">×${amt}</span></div>
+                    <div class="card-desc">💰${info.sellPrice}$ · ${amt * info.sellPrice}$</div>
+                </div>
+                <button class="btn btn-small" onclick="openSellModal('${id}')">💰 Продать</button>
+            `;
+            list.appendChild(c);
+        }
     });
 }
 
@@ -2175,7 +2229,7 @@ function renderProcess() {
     if (!plist) return;
     plist.innerHTML = '';
     const products = Object.entries(state.inventory).filter(([k, v]) => v > 0 && 
-        (k.includes('_joint') || k.includes('_oil') || k.includes('_edible') || k.includes('_dried')));
+        (k.includes('_joint') || k.includes('_oil') || k.includes('_edible')));
     
     if (!products.length) {
         plist.innerHTML = '<div class="empty"><div class="empty-emoji">🍃</div>Нет готовой продукции</div>';
@@ -2183,9 +2237,9 @@ function renderProcess() {
         products.forEach(([key, amt]) => {
             const info = getProductInfo(key);
             if (!info) return;
-            const isConsumable = info.type === 'dried' || info.type === 'joint' || info.type === 'oil' || info.type === 'edible';
-            const btnLabel = info.type === 'dried' ? '🚬 Покурить' : '🍽 Попробовать';
-            const btnClass = info.type === 'dried' ? 'btn-smoke' : 'btn-taste';
+            const isConsumable = info.type === 'joint' || info.type === 'oil' || info.type === 'edible';
+            const btnLabel = info.type === 'joint' ? '🚬 Покурить' : info.type === 'oil' ? '🧴 Покурить' : '🍽 Попробовать';
+            const btnClass = info.type === 'joint' ? 'btn-smoke' : info.type === 'oil' ? 'btn-taste' : 'btn-taste';
             const c = document.createElement('div');
             c.className = 'card';
             c.innerHTML = `
@@ -2195,7 +2249,7 @@ function renderProcess() {
                     <div class="card-desc">${info.sellPrice}$ · ${amt * info.sellPrice}$</div>
                 </div>
                 <div style="display:flex;gap:4px;flex-wrap:wrap;">
-                    <button class="btn btn-small" onclick="sellProduct('${key}')">💰</button>
+                    <button class="btn btn-small" onclick="openSellModal('${key}')">💰</button>
                     ${isConsumable ? `<button class="btn btn-small ${btnClass}" onclick="consumeProduct('${key}','${info.type}')">${btnLabel}</button>` : ''}
                 </div>
             `;
@@ -2442,17 +2496,14 @@ setInterval(() => {
     save();
 }, 1500);
 
-// Обновляем статус друзей каждые 10 секунд
 setInterval(() => {
     renderSocial();
 }, 10000);
 
-// Обновляем палево каждые 5 секунд
 setInterval(() => {
     updateHeat();
 }, 5000);
 
-// Обновляем время каждую секунду
 setInterval(() => {
     updateGameTime();
 }, 1000);
@@ -2464,6 +2515,94 @@ load();
 handleReferral();
 render();
 setTimeout(() => loadLeaderboard('monthly'), 1000);
+
+// ============================================================
+// ====== СНУП ДОГГ ======
+// ============================================================
+function trySpawnSnoop() {
+    if (state.snoopActive) return;
+    if (Date.now() - state.snoopCooldown < 120000) return;
+    if (Math.random() > 0.12) return;
+    document.getElementById('snoopPopup').classList.add('show');
+    document.getElementById('snoopOverlay').classList.add('active');
+    state.snoopActive = true;
+    haptic('warning');
+}
+
+function acceptSnoop() {
+    document.getElementById('snoopPopup').classList.remove('show');
+    document.getElementById('snoopOverlay').classList.remove('active');
+    state.money += 50;
+    state.energy = Math.min(state.maxEnergy, state.energy + 20);
+    showToast('🔥 Сильный накур! +50$ +20⚡');
+    haptic('success');
+    document.body.classList.add('snoop-high');
+    document.getElementById('snoopOverlay').classList.add('active');
+    document.getElementById('profile-state').textContent = '🔥 Убойная трава!';
+    clearTimeout(snoopTimer);
+    snoopTimer = setTimeout(() => {
+        document.body.classList.remove('snoop-high');
+        document.getElementById('snoopOverlay').classList.remove('active');
+        document.getElementById('profile-state').textContent = '🧠 Норма';
+        showToast('🌀 Эффект убойной травы прошёл...');
+    }, 30000);
+    state.snoopActive = false;
+    state.snoopCooldown = Date.now();
+    addHeat(10);
+    save();
+    render();
+}
+
+function rejectSnoop() {
+    document.getElementById('snoopPopup').classList.remove('show');
+    document.getElementById('snoopOverlay').classList.remove('active');
+    state.snoopActive = false;
+    state.snoopCooldown = Date.now();
+    showToast('Снуп Догг ушёл...');
+}
+
+// ============================================================
+// ====== ПОТРЕБЛЕНИЕ ПРОДУКТОВ ======
+// ============================================================
+function consumeProduct(key, type) {
+    const amt = state.inventory[key] || 0;
+    if (amt <= 0) { showToast('Нет товара', true); return; }
+    if (state.consumedCount >= 3) { showToast('🌀 Ты уже накурился!', true); return; }
+    
+    state.inventory[key]--;
+    if (state.inventory[key] <= 0) delete state.inventory[key];
+    state.consumedCount = (state.consumedCount || 0) + 1;
+    
+    const names = { 'joint': 'косяк', 'oil': 'масло', 'edible': 'еду' };
+    showToast(`💨 Покурил ${names[type] || 'товар'} (${state.consumedCount}/3)`);
+    haptic('medium');
+    addHeat(2);
+    
+    if (state.consumedCount >= 3) {
+        applyHighEffect();
+        state.consumedCount = 0;
+    }
+    save();
+    render();
+}
+
+function applyHighEffect() {
+    if (highTimer) return;
+    showToast('🌀 Тебя накурило! 30 секунд!', false);
+    haptic('warning');
+    document.querySelectorAll('.pot-emoji, .card-emoji, .plant-container svg, .btn').forEach(el => {
+        el.classList.add('snoop-high');
+        highElements.push(el);
+    });
+    document.getElementById('profile-state').textContent = '🌀 Накурило!';
+    highTimer = setTimeout(() => {
+        highElements.forEach(el => el.classList.remove('snoop-high'));
+        highElements = [];
+        highTimer = null;
+        document.getElementById('profile-state').textContent = '🧠 Норма';
+        showToast('🌀 Эффект прошёл...');
+    }, 30000);
+}
 
 // ============================================================
 // ====== ЭКСПОРТЫ ======
@@ -2484,6 +2623,11 @@ window.buyPot = buyPot;
 window.buyRoomUpgrade = buyRoomUpgrade;
 window.sellAll = sellAll;
 window.sellProduct = sellProduct;
+window.openSellModal = openSellModal;
+window.changeSellQty = changeSellQty;
+window.setSellQty = setSellQty;
+window.confirmSell = confirmSell;
+window.closeSellModal = closeSellModal;
 window.processItem = processItem;
 window.consumeProduct = consumeProduct;
 window.shareReferral = shareReferral;
