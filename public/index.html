@@ -136,6 +136,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
       <button class="btn btn-full" onclick="shareReferral()">📤 Поделиться</button>
       <button class="btn btn-secondary btn-full" style="margin-top:4px" onclick="copyReferral()">📋 Скопировать</button>
+      
+      <!-- ===== НОВАЯ КНОПКА РЕГИСТРАЦИИ ===== -->
+      <div id="register-block" style="margin-top:10px;display:none;">
+        <button class="btn btn-purple btn-full" onclick="forceRegister()" style="background:linear-gradient(135deg,#ff6f00,#ff8f00);">
+          🔐 Зарегистрироваться на сервере
+        </button>
+        <div style="font-size:9px;color:var(--hint);margin-top:4px;">Нажмите, если бонусы за друзей не начисляются</div>
+      </div>
+      
       <div id="friends-list"></div>
     </div>
   </div>
@@ -382,7 +391,39 @@ function copyReferral() {
 }
 
 // ============================================================
-// ====== РЕФЕРАЛЬНАЯ СИСТЕМА (ИСПРАВЛЕННАЯ) ======
+// ====== ПРИНУДИТЕЛЬНАЯ РЕГИСТРАЦИЯ (НОВАЯ ФУНКЦИЯ!) ======
+// ============================================================
+async function forceRegister() {
+    showToast('⏳ Регистрация...');
+    try {
+        const response = await fetch(SERVER_URL + '/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: userId,
+                userName: tg?.initDataUnsafe?.user?.first_name || 'Игрок',
+                referredBy: null
+            })
+        });
+        const data = await response.json();
+        console.log('✅ Принудительная регистрация:', data);
+        if (data.success) {
+            showToast('✅ Вы зарегистрированы на сервере!');
+            document.getElementById('register-block').style.display = 'none';
+            // Обновляем статистику
+            await fetchStats();
+            render();
+        } else {
+            showToast('❌ Ошибка: ' + (data.error || 'неизвестная'), true);
+        }
+    } catch (e) {
+        console.error('❌ Ошибка регистрации:', e);
+        showToast('❌ Ошибка соединения с сервером', true);
+    }
+}
+
+// ============================================================
+// ====== РЕФЕРАЛЬНАЯ СИСТЕМА ======
 // ============================================================
 async function registerUser(referredBy) {
     try {
@@ -420,8 +461,6 @@ async function fetchStats() {
 async function handleReferral() {
     console.log('🔍 Проверка рефералки...');
     console.log('📌 userId:', userId);
-    console.log('📌 tg:', tg);
-    console.log('📌 start_param:', tg?.initDataUnsafe?.start_param);
     
     // Проверяем параметр startapp
     if (tg?.initDataUnsafe?.start_param) {
@@ -468,10 +507,14 @@ async function handleReferral() {
             earned: state.referralEarned,
             friends: state.referralsList.length
         });
+        // Если пользователь найден — скрываем кнопку регистрации
+        document.getElementById('register-block').style.display = 'none';
         save();
         render();
     } else {
-        console.log('❌ Не удалось загрузить статистику');
+        // Если пользователь не найден — показываем кнопку регистрации
+        console.log('❌ Пользователь не найден на сервере');
+        document.getElementById('register-block').style.display = 'block';
     }
 }
 
@@ -1351,6 +1394,7 @@ window.processItem = processItem;
 window.sellProduct = sellProduct;
 window.applyLampToPot = applyLampToPot;
 window.openLampModal = openLampModal;
+window.forceRegister = forceRegister;
 </script>
 </body>
 </html>
