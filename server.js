@@ -78,60 +78,18 @@ function saveGameData(data) {
 }
 
 // ============================================================
-// ПИРАМИДАЛЬНАЯ СИСТЕМА
-// ============================================================
-function getAllReferrals(userId, db, level = 0, maxLevel = 5) {
-  if (level >= maxLevel) return [];
-  const directReferrals = db.referrals[userId] || [];
-  let result = [];
-  directReferrals.forEach(ref => {
-    result.push({ ...ref, level: level + 1, bonus: getLevelBonus(level + 1) });
-    const subReferrals = getAllReferrals(ref.userId, db, level + 1, maxLevel);
-    result = result.concat(subReferrals);
-  });
-  return result;
-}
-
-function getLevelBonus(level) {
-  const bonuses = { 1: 0.30, 2: 0.20, 3: 0.15, 4: 0.10, 5: 0.05 };
-  return bonuses[level] || 0;
-}
-
-function getLevelLimit(level) { return 15; }
-
-function canAddReferral(userId, level, db) {
-  const referrals = getAllReferrals(userId, db);
-  const countAtLevel = referrals.filter(r => r.level === level).length;
-  return countAtLevel < getLevelLimit(level);
-}
-
-function findAvailableReferrer(userId, db, depth = 0) {
-  if (depth > 5) return null;
-  for (let level = 1; level <= 5; level++) {
-    if (canAddReferral(userId, level, db)) {
-      return { userId, level };
-    }
-  }
-  const directRefs = db.referrals[userId] || [];
-  for (const ref of directRefs) {
-    const result = findAvailableReferrer(ref.userId, db, depth + 1);
-    if (result) return result;
-  }
-  return null;
-}
-
-// ============================================================
-// API — РЕГИСТРАЦИЯ
+// API — РЕГИСТРАЦИЯ (ПРОСТАЯ РЕФЕРАЛКА)
 // ============================================================
 app.post('/api/register', (req, res) => {
   const { userId, userName, referredBy } = req.body;
   if (!userId) return res.status(400).json({ error: 'userId обязателен' });
-  
+
   const db = loadData();
+
   if (db.users[userId]) {
     return res.json({ success: true, user: db.users[userId] });
   }
-  
+
   db.users[userId] = {
     id: userId,
     name: userName || 'Игрок',
@@ -141,136 +99,53 @@ app.post('/api/register', (req, res) => {
     referrals: 0,
     level: 1,
     harvests: 0,
-    money: 0,
-    referralTree: { level1: [], level2: [], level3: [], level4: [], level5: [] }
+    money: 0
   };
-  
+
   if (referredBy && db.users[referredBy]) {
-    const target = findAvailableReferrer(referredBy, db);
-    if (target) {
-      const level = target.level;
-      const referrerId = target.userId;
-      const levelKey = 'level' + level;
-      const bonus = getLevelBonus(level) * 100;
-      
-      db.users[referrerId].referralTree[levelKey].push(userId);
-      db.users[referrerId].referrals += 1;
-      db.users[referrerId].totalEarned += bonus;
-      
-      if (!db.referrals[referrerId]) db.referrals[referrerId] = [];
-      db.referrals[referrerId].push({
-        userId: userId,
-        userName: userName || 'Игрок',
-        date: new Date().toISOString(),
-        bonus: bonus,
-        level: level
-      });
-      
-      db.users[userId].referralLevel = level;
-      db.users[userId].referrerId = referrerId;
-    }
+    db.users[referredBy].referrals += 1;
+    db.users[referredBy].totalEarned += 150;
+
+    if (!db.referrals[referredBy]) db.referrals[referredBy] = [];
+    db.referrals[referredBy].push({
+      userId: userId,
+      userName: userName || 'Игрок',
+      date: new Date().toISOString(),
+      bonus: 150
+    });
   }
-  
+
   saveData(db);
   res.json({ success: true, user: db.users[userId], referrerBonus: referredBy ? 150 : 0 });
 });
 
 // ============================================================
-// API — ПРОВЕРКА ПОЛЬЗОВАТЕЛЯ
+// API — ПОЛУЧИТЬ СТАТИСТИКУ ПОЛЬЗОВАТЕЛЯ
 // ============================================================
-app.get('/api/user/:userId', (req, res) => {
+app.get('/api/stats/:userId', (req, res) => {
   const { userId } = req.params;
   const db = loadData();
-  if (db.users[userId]) {
-    res.json({ success: true, user: db.users[userId] });
-  } else {
-    res.json({ success: false });
-  }
-});
 
-// ============================================================
-// API — РУЧНАЯ ПРИВЯЗКА РЕФЕРАЛА
-// ============================================================
-app.post('/api/manual-referral', (req, res) => {
-  const { referrerId, referredId } = req.body;
-  if (!referrerId || !referredId) {
-    return res.status(400).json({ error: 'referrerId и referredId обязательны' });
-  }
-  
-  const db = loadData();
-  if (!db.users[referrerId]) {
-    return res.status(404).json({ error: 'Пригласивший не найден' });
-  }
-  if (!db.users[referredId]) {
-    return res.status(404).json({ error: 'Приглашённый не найден' });
-  }
-  
-  const allReferrals = getAllReferrals(referrerId, db);
-  if (allReferrals.some(r => r.userId === referredId)) {
-    return res.status(400).json({ error: 'Этот пользователь уже в вашей сети' });
-  }
-  
-  const target = findAvailableReferrer(referrerId, db);
-  if (!target) {
-    return res.status(400).json({ error: 'Нет свободных мест в пирамиде' });
-  }
-  
-  const level = target.level;
-  const levelKey = 'level' + level;
-  const bonus = getLevelBonus(level) * 100;
-  
-  db.users[referrerId].referralTree[levelKey].push(referredId);
-  db.users[referrerId].referrals += 1;
-  db.users[referrerId].totalEarned += bonus;
-  
-  if (!db.referrals[referrerId]) db.referrals[referrerId] = [];
-  db.referrals[referrerId].push({
-    userId: referredId,
-    userName: db.users[referredId].name || 'Игрок',
-    date: new Date().toISOString(),
-    bonus: bonus,
-    level: level
-  });
-  
-  db.users[referredId].money = (db.users[referredId].money || 0) + 100;
-  db.users[referredId].referredBy = referrerId;
-  db.users[referredId].referralLevel = level;
-  db.users[referredId].referrerId = referrerId;
-  
-  saveData(db);
-  res.json({ success: true, bonus: bonus, level: level });
-});
-
-// ============================================================
-// API — СТАТИСТИКА РЕФЕРАЛОВ
-// ============================================================
-app.get('/api/referral-stats/:userId', (req, res) => {
-  const { userId } = req.params;
-  const db = loadData();
   if (!db.users[userId]) {
     return res.status(404).json({ error: 'Пользователь не найден' });
   }
-  
-  const allReferrals = getAllReferrals(userId, db);
-  const levels = {
-    level1: { count: 0, users: [] },
-    level2: { count: 0, users: [] },
-    level3: { count: 0, users: [] },
-    level4: { count: 0, users: [] },
-    level5: { count: 0, users: [] }
-  };
-  let totalBonus = 0;
-  
-  allReferrals.forEach(ref => {
-    const key = 'level' + ref.level;
-    if (levels[key]) {
-      levels[key].count += 1;
-      levels[key].users.push(ref);
+
+  const user = db.users[userId];
+  const referrals = db.referrals[userId] || [];
+
+  res.json({
+    user,
+    referrals,
+    stats: {
+      totalReferrals: user.referrals || 0,
+      totalEarned: user.totalEarned || 0,
+      friends: referrals.map(r => ({ name: r.userName, date: r.date, bonus: r.bonus })),
+      level: user.level || 1,
+      harvests: user.harvests || 0,
+      money: user.money || 0,
+      referredBy: user.referredBy || null
     }
-    totalBonus += ref.bonus || 0;
   });
-  
-  res.json({ success: true, stats: { totalReferrals: allReferrals.length, totalEarned: totalBonus, levels: levels, referralsList: allReferrals } });
 });
 
 // ============================================================
@@ -279,7 +154,7 @@ app.get('/api/referral-stats/:userId', (req, res) => {
 app.post('/api/update-stats', (req, res) => {
   const { userId, userName, stats } = req.body;
   if (!userId) return res.status(400).json({ error: 'userId обязателен' });
-  
+
   const db = loadData();
   if (!db.users[userId]) {
     db.users[userId] = {
@@ -291,57 +166,17 @@ app.post('/api/update-stats', (req, res) => {
       referrals: 0,
       level: 1,
       harvests: 0,
-      money: 0,
-      referralTree: { level1: [], level2: [], level3: [], level4: [], level5: [] }
+      money: 0
     };
   }
-  
+
   db.users[userId].level = stats.level || 1;
   db.users[userId].harvests = stats.harvests || 0;
   db.users[userId].money = stats.money || 0;
   db.users[userId].name = userName || 'Игрок';
-  
+
   saveData(db);
   res.json({ success: true });
-});
-
-// ============================================================
-// API — СТАТИСТИКА ПОЛЬЗОВАТЕЛЯ
-// ============================================================
-app.get('/api/stats/:userId', (req, res) => {
-  const { userId } = req.params;
-  const db = loadData();
-  if (!db.users[userId]) {
-    return res.status(404).json({ error: 'Пользователь не найден' });
-  }
-  
-  const user = db.users[userId];
-  const referrals = db.referrals[userId] || [];
-  const allReferrals = getAllReferrals(userId, db);
-  
-  res.json({
-    user,
-    referrals,
-    stats: {
-      totalReferrals: user.referrals || 0,
-      totalEarned: user.totalEarned || 0,
-      friends: referrals.map(r => ({ name: r.userName, date: r.date, bonus: r.bonus, level: r.level })),
-      level: user.level || 1,
-      harvests: user.harvests || 0,
-      money: user.money || 0,
-      referredBy: user.referredBy || null,
-      pyramidStats: {
-        total: allReferrals.length,
-        levels: {
-          1: allReferrals.filter(r => r.level === 1).length,
-          2: allReferrals.filter(r => r.level === 2).length,
-          3: allReferrals.filter(r => r.level === 3).length,
-          4: allReferrals.filter(r => r.level === 4).length,
-          5: allReferrals.filter(r => r.level === 5).length
-        }
-      }
-    }
-  });
 });
 
 // ============================================================
@@ -350,7 +185,7 @@ app.get('/api/stats/:userId', (req, res) => {
 app.post('/api/save-game', (req, res) => {
   const { userId, gameState } = req.body;
   if (!userId) return res.status(400).json({ error: 'userId обязателен' });
-  
+
   const db = loadGameData();
   db[userId] = { ...gameState, savedAt: new Date().toISOString() };
   saveGameData(db);
@@ -381,7 +216,7 @@ app.get('/api/leaderboard/:period', (req, res) => {
   } else {
     return res.status(400).json({ error: 'Неверный период' });
   }
-  
+
   const lb = loadLeaderboard();
   const data = lb[period]?.[key] || {};
   const sorted = Object.entries(data).map(([id, info]) => ({
@@ -392,26 +227,12 @@ app.get('/api/leaderboard/:period', (req, res) => {
     harvests: info.harvests || 0,
     friends: info.friends || 0
   })).sort((a, b) => b.money - a.money);
-  
+
   res.json({ period: period, key: key, players: sorted });
 });
 
 // ============================================================
-// API — ВСЕ ПОЛЬЗОВАТЕЛИ
-// ============================================================
-app.get('/api/all-users', (req, res) => {
-  const db = loadData();
-  const users = Object.keys(db.users).map(id => ({
-    id: id,
-    name: db.users[id].name || 'Игрок',
-    registeredAt: db.users[id].registeredAt,
-    referredBy: db.users[id].referredBy || null
-  }));
-  res.json({ success: true, users: users });
-});
-
-// ============================================================
-// ЗАПУСК СЕРВЕРА
+// ЗАПУСК
 // ============================================================
 app.listen(PORT, () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
