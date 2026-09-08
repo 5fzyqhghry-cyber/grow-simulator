@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>🌿 Grow Simulator</title>
+<title>🌿 Weed Grow Simulator</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{--bg:#0d1a0d;--text:#e0e8e0;--hint:#6a8a6a;--button:#2e7d32;--button-text:#fff;--secondary:#1a2e1a;--accent:#4caf50;--danger:#e53935;--warning:#ffb300;--purple:#7b1fa2;--blue:#1e88e5;--gold:#ffd700}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:20px;overflow-x:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:20px;overflow-x:hidden;background:linear-gradient(180deg,#0a1a0a,#0d1a0d 40%,#1a2a1a)}
 .snoop-high{animation:snoopShake 0.08s ease-in-out infinite alternate,snoopFlash 0.15s ease-in-out infinite alternate}
 @keyframes snoopShake{0%{transform:translateX(-3px)}100%{transform:translateX(3px)}}
 @keyframes snoopFlash{0%{opacity:1}50%{opacity:0.3}100%{opacity:1}}
@@ -115,7 +115,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </head>
 <body>
 
-<!-- СНУП ДОГГ -->
 <div class="snoop-overlay" id="snoopOverlay"></div>
 <div class="snoop-popup" id="snoopPopup">
     <span class="snoop-avatar">🐶</span>
@@ -198,13 +197,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div class="profile-stat"><span class="label">🪴 Горшков</span><span class="value" id="profile-pots">0</span></div>
       <div class="profile-stat"><span class="label">🌀 Состояние</span><span class="value" id="profile-state">🧠 Норма</span></div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
-        <div style="display:flex;gap:6px;">
-            <button class="btn btn-small" onclick="exportSave()" style="flex:1;background:linear-gradient(135deg,#2e7d32,#1b5e20);">💾 Скачать сохранение</button>
-            <button class="btn btn-small btn-warning" onclick="importSave()" style="flex:1;">📂 Восстановить</button>
-        </div>
-        <div style="font-size:8px;color:var(--hint);text-align:center;">Автосохранение на сервер каждые 5 секунд</div>
-    </div>
   </div>
 
   <div class="section" id="section-leaderboard">
@@ -226,54 +218,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
       <button class="btn btn-full" onclick="shareReferral()">📤 Поделиться</button>
       <button class="btn btn-secondary btn-full" style="margin-top:3px;" onclick="copyReferral()">📋 Скопировать</button>
-      
-      <!-- ====== ПИРАМИДАЛЬНАЯ СТАТИСТИКА ====== -->
-      <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.05);padding-top:10px;">
-        <div style="font-weight:700;font-size:11px;margin-bottom:4px;">🏛️ Пирамида рефералов</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:4px;font-size:8px;text-align:center;">
-          <div style="background:rgba(255,215,0,0.1);border-radius:6px;padding:4px;">
-            <div style="font-weight:700;color:var(--gold);">Ур.1</div>
-            <div>30%</div>
-            <div id="pyramid-1">0</div>
-          </div>
-          <div style="background:rgba(192,192,192,0.05);border-radius:6px;padding:4px;">
-            <div style="font-weight:700;color:#c0c0c0;">Ур.2</div>
-            <div>20%</div>
-            <div id="pyramid-2">0</div>
-          </div>
-          <div style="background:rgba(205,127,50,0.05);border-radius:6px;padding:4px;">
-            <div style="font-weight:700;color:#cd7f32;">Ур.3</div>
-            <div>15%</div>
-            <div id="pyramid-3">0</div>
-          </div>
-          <div style="background:rgba(33,150,243,0.05);border-radius:6px;padding:4px;">
-            <div style="font-weight:700;color:#42a5f5;">Ур.4</div>
-            <div>10%</div>
-            <div id="pyramid-4">0</div>
-          </div>
-          <div style="background:rgba(156,39,176,0.05);border-radius:6px;padding:4px;">
-            <div style="font-weight:700;color:#ab47bc;">Ур.5</div>
-            <div>5%</div>
-            <div id="pyramid-5">0</div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- ====== АДМИН-ПАНЕЛЬ ====== -->
-      <div id="admin-panel" style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.05);padding-top:10px;display:none;">
-        <div style="font-weight:700;font-size:11px;margin-bottom:4px;">🔧 Админ-панель рефералов</div>
-        <div style="display:flex;gap:6px;margin-bottom:6px;">
-          <input type="text" id="manual-ref-input" placeholder="ID пользователя (например, 884905508)" style="flex:1;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--text);font-size:10px;">
-          <button class="btn btn-small btn-gold" onclick="manualAddReferral()" style="white-space:nowrap;">➕ Привязать</button>
-        </div>
-        <div style="font-size:8px;color:var(--hint);text-align:center;">Введите ID пользователя, который перешёл по вашей ссылке</div>
-      </div>
-      
-      <!-- Кнопка для показа/скрытия админ-панели -->
-      <div style="margin-top:6px;text-align:center;">
-        <button class="btn btn-small btn-secondary" onclick="toggleAdminPanel()" style="font-size:8px;">🔧 Управление рефералами</button>
-      </div>
-      
       <div id="friends-list" style="margin-top:6px;"></div>
     </div>
   </div>
@@ -294,25 +238,19 @@ const BOT_USERNAME = 'Rastafaray420_bot';
 const SERVER_URL = window.location.origin;
 const tg = window.Telegram?.WebApp;
 
-// ============================================================
-// ====== ФИКСИРОВАННЫЙ userId ======
-// ============================================================
-let userId;
-if (tg?.initDataUnsafe?.user?.id) {
-    userId = String(tg.initDataUnsafe.user.id);
-} else {
-    userId = localStorage.getItem('grow_sim_user_id');
-    if (!userId) {
-        userId = 'user_' + Math.random().toString(36).slice(2,9);
-        localStorage.setItem('grow_sim_user_id', userId);
+let userId = 'guest_' + Math.random().toString(36).slice(2,9);
+if (tg) {
+    tg.ready();
+    tg.expand();
+    try { tg.setHeaderColor('secondary_bg_color'); } catch(e) {}
+    if (tg.initDataUnsafe?.user?.id) {
+        userId = String(tg.initDataUnsafe.user.id);
     }
 }
 
 // ============================================================
 // ====== ДАННЫЕ ======
 // ============================================================
-
-// СОРТА
 const STRAINS = [
     {id:'skunk',   emoji:'🦨', name:'Skunk',               seedPrice:50,  baseTime:120, yield:3,  sellPrice:50,  energyCost:5,  unlock:1,  quality:1.0},
     {id:'haze',    emoji:'💜', name:'Purple Haze',         seedPrice:130, baseTime:160, yield:5,  sellPrice:85,  energyCost:8,  unlock:3,  quality:1.2},
@@ -331,7 +269,6 @@ const STRAINS = [
     {id:'glue',    emoji:'🦍', name:'Gorilla Glue',        seedPrice:2200,baseTime:320, yield:35, sellPrice:650, energyCost:40, unlock:30, quality:2.5}
 ];
 
-// ГОРШКИ
 const POT_LEVELS = [
     {id:1, emoji:'🪴', name:'Базовый горшок',    price:0,     desc:'Стандартный горшок'},
     {id:2, emoji:'🪣', name:'Железный горшок',   price:1000,  desc:'Прочный железный горшок'},
@@ -340,7 +277,6 @@ const POT_LEVELS = [
     {id:5, emoji:'💎', name:'Космический горшок',price:10000, desc:'Инопланетная технология'}
 ];
 
-// ЛАМПЫ
 const LAMPS = [
     {id:'lamp1', emoji:'💡', name:'CFL',       price:150,  power:1.15, desc:'+15% скорость'},
     {id:'lamp2', emoji:'✨', name:'LED',       price:400,  power:1.35, desc:'+35% скорость'},
@@ -349,7 +285,6 @@ const LAMPS = [
 ];
 const LAMP_ENERGY_COST = {lamp1:0.2, lamp2:0.4, lamp3:0.8, lamp4:1.2};
 
-// УДОБРЕНИЯ
 const FERTS = [
     {id:'water_boost', emoji:'💧', name:'Супер-вода', price:40,  effect:'speed', value:0.2,  desc:'+20% скорость'},
     {id:'yield_boost', emoji:'🧪', name:'Удобрение+', price:90,  effect:'yield', value:0.4,  desc:'+40% урожай'},
@@ -357,14 +292,12 @@ const FERTS = [
     {id:'mega',        emoji:'🚀', name:'Мега-буст',  price:350, effect:'both',  value:0.35, desc:'+35% всё'}
 ];
 
-// УЛУЧШЕНИЯ КОМНАТЫ
 const ROOM_UPGRADES = [
     {id:'vent',   emoji:'🌀', name:'Вентиляция',   price:500,  type:'vent',   desc:'Болезни реже на 60%'},
     {id:'auto',   emoji:'💦', name:'Автополив',    price:1200, type:'auto',   desc:'Автоматический полив'},
     {id:'heater', emoji:'🔥', name:'Обогреватель', price:800,  type:'heater', desc:'Скорость роста +15%'}
 ];
 
-// ПРОДУКТЫ ДЛЯ ПЕРЕРАБОТКИ
 const PRODUCTS = {
     dried: { name: 'Сушка', emoji: '🍂', mult: 1.4, energy: 3, from: 'raw' },
     joint: { name: 'Косяк', emoji: '🚬', mult: 1.9, energy: 5, from: 'dried', need: 1 },
@@ -412,8 +345,6 @@ let selectedPotId = null;
 let snoopTimer = null;
 let highTimer = null;
 let highElements = [];
-let saveTimeout = null;
-let adminPanelVisible = false;
 
 // ============================================================
 // ====== БАЗОВЫЕ ФУНКЦИИ ======
@@ -462,221 +393,51 @@ function addXp(a) {
     if (up) {
         showToast('🎉 Уровень ' + state.level + '!');
         haptic('success');
-        updateServerStats();
     }
     save();
     render();
 }
 
-// ============================================================
-// ====== АВТОСОХРАНЕНИЕ ======
-// ============================================================
 function save() {
     state.lastUpdate = Date.now();
+    try { localStorage.setItem('grow_sim_v3_' + userId, JSON.stringify(state)); } catch(e) {}
+}
+
+function load() {
     try {
-        localStorage.setItem('grow_sim_v3_' + userId, JSON.stringify(state));
+        const raw = localStorage.getItem('grow_sim_v3_' + userId);
+        if (raw) {
+            const l = JSON.parse(raw);
+            state = { ...state, ...l };
+        }
     } catch(e) {}
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => {
-        saveToServer();
-    }, 5000);
-}
-
-async function saveToServer() {
-    try {
-        await fetch(SERVER_URL + '/api/save-game', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, gameState: state })
+    if (state.pots.length === 0) {
+        state.pots.push({
+            id: state.nextPotId++,
+            strain: null,
+            plantedAt: null,
+            water: 100,
+            health: 100,
+            stage: 0,
+            disease: false,
+            lamp: null,
+            fert: null,
+            speedMult: 1,
+            yieldMult: 1,
+            lastTick: Date.now(),
+            _lastWarning: null,
+            potLevel: 1
         });
-    } catch(e) {}
-}
-
-async function loadFromServer() {
-    try {
-        const response = await fetch(SERVER_URL + '/api/load-game/' + userId);
-        const data = await response.json();
-        if (data.success && data.gameState) {
-            const oldLevel = state.level;
-            const oldMoney = state.money;
-            const oldPots = state.pots;
-            state = { ...state, ...data.gameState };
-            if (!state.level) state.level = oldLevel || 1;
-            if (!state.money) state.money = oldMoney || 100;
-            if (!state.pots || state.pots.length === 0) state.pots = oldPots || [];
-            localStorage.setItem('grow_sim_v3_' + userId, JSON.stringify(state));
-            showToast('💾 Прогресс восстановлен с сервера');
-            return true;
-        }
-        return false;
-    } catch(e) { return false; }
-}
-
-function exportSave() {
-    const saveData = localStorage.getItem('grow_sim_v3_' + userId);
-    if (!saveData) { showToast('Нет сохранения', true); return; }
-    const exportData = { version: '1.0', userId, exportedAt: new Date().toISOString(), gameData: JSON.parse(saveData) };
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `grow_sim_save_${new Date().toISOString().slice(0,10)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('💾 Сохранение скачано!');
-    haptic('success');
-}
-
-function importSave() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e2) {
-            try {
-                const data = JSON.parse(e2.target.result);
-                if (data.gameData) {
-                    localStorage.setItem('grow_sim_v3_' + userId, JSON.stringify(data.gameData));
-                } else {
-                    localStorage.setItem('grow_sim_v3_' + userId, e2.target.result);
-                }
-                showToast('✅ Сохранение восстановлено! Перезагрузите игру');
-                haptic('success');
-                setTimeout(() => location.reload(), 1000);
-            } catch(err) {
-                showToast('❌ Ошибка: неверный файл', true);
-                haptic('error');
-            }
-        };
-        reader.readAsText(file);
-    };
-    input.click();
-}
-
-// ============================================================
-// ====== АДМИН-ПАНЕЛЬ ======
-// ============================================================
-function toggleAdminPanel() {
-    adminPanelVisible = !adminPanelVisible;
-    document.getElementById('admin-panel').style.display = adminPanelVisible ? 'block' : 'none';
-}
-
-async function manualAddReferral() {
-    const input = document.getElementById('manual-ref-input');
-    const refId = input.value.trim();
-    if (!refId) {
-        showToast('Введите ID пользователя', true);
-        return;
     }
-    if (refId === userId) {
-        showToast('Нельзя привязать самого себя', true);
-        return;
-    }
-    
-    showToast('⏳ Проверка...');
-    try {
-        const checkResponse = await fetch(SERVER_URL + '/api/user/' + refId);
-        const checkData = await checkResponse.json();
-        
-        if (!checkData.success) {
-            showToast('❌ Пользователь не найден на сервере. Попросите его зайти в игру.', true);
-            return;
-        }
-        
-        const response = await fetch(SERVER_URL + '/api/manual-referral', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                referrerId: userId,
-                referredId: refId
-            })
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-            showToast(`✅ Пользователь ${refId} привязан! Бонус: ${data.bonus}$`);
-            haptic('success');
-            await loadReferralsFromServer();
-            save();
-            render();
-            input.value = '';
-        } else {
-            showToast('❌ ' + (data.error || 'Ошибка при привязке'), true);
-        }
-    } catch (e) {
-        console.error('Ошибка:', e);
-        showToast('❌ Ошибка соединения с сервером', true);
-    }
-}
-
-// ============================================================
-// ====== СНУП ДОГГ ======
-// ============================================================
-function trySpawnSnoop() {
-    if (state.snoopActive) return;
-    if (Date.now() - state.snoopCooldown < 120000) return;
-    if (Math.random() > 0.12) return;
-    document.getElementById('snoopPopup').classList.add('show');
-    document.getElementById('snoopOverlay').classList.add('active');
-    state.snoopActive = true;
-    haptic('warning');
-}
-
-function acceptSnoop() {
-    document.getElementById('snoopPopup').classList.remove('show');
-    document.getElementById('snoopOverlay').classList.remove('active');
-    state.money += 50;
-    state.energy = Math.min(state.maxEnergy, state.energy + 20);
-    showToast('🔥 Сильный накур! +50$ +20⚡', false, 'event');
-    haptic('success');
-    document.body.classList.add('snoop-high');
-    document.getElementById('snoopOverlay').classList.add('active');
-    document.getElementById('profile-state').textContent = '🔥 Убойная трава!';
-    clearTimeout(snoopTimer);
-    snoopTimer = setTimeout(() => {
-        document.body.classList.remove('snoop-high');
-        document.getElementById('snoopOverlay').classList.remove('active');
-        document.getElementById('profile-state').textContent = '🧠 Норма';
-        showToast('🌀 Эффект убойной травы прошёл...');
-    }, 30000);
-    state.snoopActive = false;
-    state.snoopCooldown = Date.now();
-    save();
-    render();
-}
-
-function rejectSnoop() {
-    document.getElementById('snoopPopup').classList.remove('show');
-    document.getElementById('snoopOverlay').classList.remove('active');
-    state.snoopActive = false;
-    state.snoopCooldown = Date.now();
-    showToast('Снуп Догг ушёл...');
-}
-
-// ============================================================
-// ====== ЭФФЕКТ "НАКУРИЛО" ======
-// ============================================================
-function applyHighEffect() {
-    if (highTimer) return;
-    showToast('🌀 Тебя накурило! Иконки дрожат 30 секунд!', false, 'high');
-    haptic('warning');
-    document.querySelectorAll('.pot-emoji, .card-emoji, .plant-container svg, .btn').forEach(el => {
-        el.classList.add('snoop-high');
-        highElements.push(el);
-    });
-    document.getElementById('profile-state').textContent = '🌀 Накурило!';
-    highTimer = setTimeout(() => {
-        highElements.forEach(el => el.classList.remove('snoop-high'));
-        highElements = [];
-        highTimer = null;
-        document.getElementById('profile-state').textContent = '🧠 Норма';
-        showToast('🌀 Эффект прошёл...');
-    }, 30000);
+    if (!state.registerDate) state.registerDate = new Date().toISOString();
+    if (!state.totalHarvests) state.totalHarvests = 0;
+    if (!state.potUpgrades) state.potUpgrades = {};
+    if (!state.marketPrices) state.marketPrices = {};
+    if (!state.marketUpdateTime) state.marketUpdateTime = 0;
+    if (!state.snoopCooldown) state.snoopCooldown = 0;
+    if (!state.snoopActive) state.snoopActive = false;
+    if (!state.consumedCount) state.consumedCount = 0;
+    updateMarketPrices();
 }
 
 // ============================================================
@@ -705,6 +466,44 @@ function getPriceChange(strainId) {
     const current = getMarketPrice(strainId);
     const base = STRAINS.find(s => s.id === strainId)?.sellPrice || 50;
     return ((current - base) / base * 100);
+}
+
+// ============================================================
+// ====== РЕФЕРАЛЫ ======
+// ============================================================
+function getRefLink() {
+    return `https://t.me/${BOT_USERNAME}/growsimulator?startapp=ref_${userId}`;
+}
+
+function shareReferral() {
+    const link = getRefLink();
+    if (tg?.openTelegramLink) {
+        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('🌿 Присоединяйся!')}`);
+    } else {
+        navigator.clipboard?.writeText(link).then(() => showToast('📋 Ссылка скопирована'));
+    }
+}
+
+function copyReferral() {
+    const link = getRefLink();
+    navigator.clipboard?.writeText(link).then(() => showToast('📋 Ссылка скопирована'));
+}
+
+function handleReferral() {
+    if (tg?.initDataUnsafe?.start_param) {
+        const param = tg.initDataUnsafe.start_param;
+        if (param.startsWith('ref_')) {
+            const refId = param.replace('ref_', '');
+            if (refId !== userId && !state.referredBy) {
+                state.referredBy = refId;
+                state.money += 100;
+                state.energy = Math.min(state.maxEnergy, state.energy + 30);
+                showToast('🎁 Бонус новичка! +100$ +30⚡');
+                save();
+                render();
+            }
+        }
+    }
 }
 
 // ============================================================
@@ -994,6 +793,71 @@ function consumeProduct(key, type) {
 }
 
 // ============================================================
+// ====== ЭФФЕКТ "НАКУРИЛО" ======
+// ============================================================
+function applyHighEffect() {
+    if (highTimer) return;
+    showToast('🌀 Тебя накурило! Иконки дрожат 30 секунд!', false, 'high');
+    haptic('warning');
+    document.querySelectorAll('.pot-emoji, .card-emoji, .plant-container svg, .btn').forEach(el => {
+        el.classList.add('snoop-high');
+        highElements.push(el);
+    });
+    document.getElementById('profile-state').textContent = '🌀 Накурило!';
+    highTimer = setTimeout(() => {
+        highElements.forEach(el => el.classList.remove('snoop-high'));
+        highElements = [];
+        highTimer = null;
+        document.getElementById('profile-state').textContent = '🧠 Норма';
+        showToast('🌀 Эффект прошёл...');
+    }, 30000);
+}
+
+// ============================================================
+// ====== СНУП ДОГГ ======
+// ============================================================
+function trySpawnSnoop() {
+    if (state.snoopActive) return;
+    if (Date.now() - state.snoopCooldown < 120000) return;
+    if (Math.random() > 0.12) return;
+    document.getElementById('snoopPopup').classList.add('show');
+    document.getElementById('snoopOverlay').classList.add('active');
+    state.snoopActive = true;
+    haptic('warning');
+}
+
+function acceptSnoop() {
+    document.getElementById('snoopPopup').classList.remove('show');
+    document.getElementById('snoopOverlay').classList.remove('active');
+    state.money += 50;
+    state.energy = Math.min(state.maxEnergy, state.energy + 20);
+    showToast('🔥 Сильный накур! +50$ +20⚡', false, 'event');
+    haptic('success');
+    document.body.classList.add('snoop-high');
+    document.getElementById('snoopOverlay').classList.add('active');
+    document.getElementById('profile-state').textContent = '🔥 Убойная трава!';
+    clearTimeout(snoopTimer);
+    snoopTimer = setTimeout(() => {
+        document.body.classList.remove('snoop-high');
+        document.getElementById('snoopOverlay').classList.remove('active');
+        document.getElementById('profile-state').textContent = '🧠 Норма';
+        showToast('🌀 Эффект убойной травы прошёл...');
+    }, 30000);
+    state.snoopActive = false;
+    state.snoopCooldown = Date.now();
+    save();
+    render();
+}
+
+function rejectSnoop() {
+    document.getElementById('snoopPopup').classList.remove('show');
+    document.getElementById('snoopOverlay').classList.remove('active');
+    state.snoopActive = false;
+    state.snoopCooldown = Date.now();
+    showToast('Снуп Догг ушёл...');
+}
+
+// ============================================================
 // ====== ДЕЙСТВИЯ ======
 // ============================================================
 function waterPot(id) {
@@ -1262,27 +1126,8 @@ function closeModal(id) {
 }
 
 // ============================================================
-// ====== СЕРВЕР ======
+// ====== РЕЙТИНГ ======
 // ============================================================
-async function updateServerStats() {
-    try {
-        await fetch(SERVER_URL + '/api/update-stats', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId: userId,
-                userName: tg?.initDataUnsafe?.user?.first_name || 'Игрок',
-                stats: {
-                    money: state.money,
-                    level: state.level,
-                    harvests: state.totalHarvests || 0,
-                    friends: state.referrals || 0
-                }
-            })
-        });
-    } catch(e) {}
-}
-
 async function loadLeaderboard(period) {
     const list = document.getElementById('leaderboard-list');
     const myRank = document.getElementById('my-rank');
@@ -1352,129 +1197,6 @@ async function loadLeaderboard(period) {
         }
     } catch (e) {
         list.innerHTML = '<div class="empty">❌ Ошибка загрузки</div>';
-    }
-}
-
-// ============================================================
-// ====== РЕФЕРАЛЫ (ПИРАМИДАЛЬНАЯ СИСТЕМА) ======
-// ============================================================
-async function loadReferralsFromServer() {
-    try {
-        const response = await fetch(SERVER_URL + '/api/stats/' + userId);
-        const data = await response.json();
-        console.log('📊 Данные с сервера:', data);
-        if (data && data.stats) {
-            state.referrals = data.stats.totalReferrals || 0;
-            state.referralEarned = data.stats.totalEarned || 0;
-            state.referralsList = data.stats.friends || [];
-            if (data.stats.referredBy) {
-                state.referredBy = data.stats.referredBy;
-            }
-            if (data.stats.pyramidStats) {
-                updatePyramidStats(data.stats.pyramidStats);
-            }
-            console.log('👥 Загружено друзей:', state.referralsList.length);
-            renderFriends();
-            return true;
-        }
-        return false;
-    } catch (e) {
-        console.error('❌ Ошибка загрузки друзей:', e);
-        return false;
-    }
-}
-
-function updatePyramidStats(pyramidData) {
-    if (!pyramidData) {
-        fetch(SERVER_URL + '/api/referral-stats/' + userId)
-            .then(r => r.json())
-            .then(data => {
-                if (data.success && data.stats) {
-                    const levels = data.stats.levels;
-                    document.getElementById('pyramid-1').textContent = levels.level1?.count || 0;
-                    document.getElementById('pyramid-2').textContent = levels.level2?.count || 0;
-                    document.getElementById('pyramid-3').textContent = levels.level3?.count || 0;
-                    document.getElementById('pyramid-4').textContent = levels.level4?.count || 0;
-                    document.getElementById('pyramid-5').textContent = levels.level5?.count || 0;
-                }
-            })
-            .catch(() => {});
-        return;
-    }
-    
-    document.getElementById('pyramid-1').textContent = pyramidData.levels?.[1] || 0;
-    document.getElementById('pyramid-2').textContent = pyramidData.levels?.[2] || 0;
-    document.getElementById('pyramid-3').textContent = pyramidData.levels?.[3] || 0;
-    document.getElementById('pyramid-4').textContent = pyramidData.levels?.[4] || 0;
-    document.getElementById('pyramid-5').textContent = pyramidData.levels?.[5] || 0;
-}
-
-async function registerUser(referredBy) {
-    try {
-        const response = await fetch(SERVER_URL + '/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId: userId,
-                userName: tg?.initDataUnsafe?.user?.first_name || 'Игрок',
-                referredBy: referredBy
-            })
-        });
-        return await response.json();
-    } catch (e) {
-        return null;
-    }
-}
-
-async function handleReferral() {
-    console.log('🔍 Проверка рефералки...');
-    console.log('📌 userId:', userId);
-    
-    if (tg?.initDataUnsafe?.start_param) {
-        const param = tg.initDataUnsafe.start_param;
-        console.log('📥 Параметр start_param:', param);
-        
-        if (param.startsWith('ref_')) {
-            const refId = param.replace('ref_', '');
-            console.log('👤 Реферальный ID:', refId);
-            console.log('👤 Мой ID:', userId);
-            
-            if (refId !== userId && !state.referredBy) {
-                console.log('✅ Новый реферал! Начисляем бонус...');
-                state.referredBy = refId;
-                
-                const result = await registerUser(refId);
-                if (result?.success) {
-                    state.money += 100;
-                    state.energy = Math.min(state.maxEnergy, state.energy + 30);
-                    showToast('🎁 Бонус новичка! +100$ +30⚡');
-                    haptic('success');
-                    state.referredBy = refId;
-                    console.log('✅ Бонус новичка начислен!');
-                    
-                    await loadReferralsFromServer();
-                    save();
-                    render();
-                } else {
-                    console.log('❌ Ошибка регистрации:', result);
-                }
-                return;
-            } else {
-                console.log('⚠️ Реферал уже был активирован или это вы сами');
-            }
-        }
-    }
-    
-    console.log('📥 Загружаем статистику с сервера...');
-    const stats = await loadReferralsFromServer();
-    if (stats) {
-        console.log('📊 Загружено рефералов:', state.referralsList.length);
-        document.getElementById('register-block').style.display = 'none';
-        save();
-        render();
-    } else {
-        console.log('❌ Пользователь не найден на сервере');
-        document.getElementById('register-block').style.display = 'block';
     }
 }
 
@@ -1833,14 +1555,11 @@ function renderProfile() {
 function renderFriends() {
     document.getElementById('ref-count').textContent = state.referrals || 0;
     document.getElementById('ref-earned').textContent = state.referralEarned || 0;
-    updatePyramidStats();
     
     const container = document.getElementById('friends-list');
     if (!container) return;
     
     const friends = state.referralsList || [];
-    console.log('👥 Отрисовка друзей:', friends.length);
-    
     if (friends.length === 0) {
         container.innerHTML = `
             <div style="color:var(--hint);font-size:10px;text-align:center;padding:8px;">
@@ -1854,32 +1573,14 @@ function renderFriends() {
     let html = '<div style="font-size:10px;font-weight:600;color:var(--hint);margin-top:4px;">👥 Приглашённые друзья</div>';
     friends.forEach((friend, index) => {
         const date = friend.date ? new Date(friend.date).toLocaleDateString() : 'Недавно';
-        const level = friend.level || 1;
-        const levelBonus = [30, 20, 15, 10, 5][level - 1] || 0;
         html += `
             <div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10px;display:flex;justify-content:space-between;">
-                <span>${friend.name || 'Друг'} <span style="color:var(--hint);font-size:8px;">(Ур.${level})</span></span>
-                <span style="color:var(--gold);font-size:9px;">+${friend.bonus || 0}$ (${levelBonus}%)</span>
+                <span>${friend.name || 'Друг'}</span>
+                <span style="color:var(--gold);font-size:9px;">+${friend.bonus || 150}$</span>
             </div>
         `;
     });
     container.innerHTML = html;
-}
-
-function updatePyramidStats() {
-    fetch(SERVER_URL + '/api/referral-stats/' + userId)
-        .then(r => r.json())
-        .then(data => {
-            if (data.success && data.stats) {
-                const levels = data.stats.levels;
-                document.getElementById('pyramid-1').textContent = levels.level1?.count || 0;
-                document.getElementById('pyramid-2').textContent = levels.level2?.count || 0;
-                document.getElementById('pyramid-3').textContent = levels.level3?.count || 0;
-                document.getElementById('pyramid-4').textContent = levels.level4?.count || 0;
-                document.getElementById('pyramid-5').textContent = levels.level5?.count || 0;
-            }
-        })
-        .catch(() => {});
 }
 
 function renderHeader() {
@@ -1900,54 +1601,6 @@ function render() {
     renderRoom();
     renderProfile();
     renderFriends();
-}
-
-// ============================================================
-// ====== ЗАГРУЗКА ======
-// ============================================================
-async function load() {
-    try {
-        const raw = localStorage.getItem('grow_sim_v3_' + userId);
-        if (raw) {
-            const l = JSON.parse(raw);
-            state = { ...state, ...l };
-        }
-    } catch(e) {}
-    
-    const serverLoaded = await loadFromServer();
-    if (!serverLoaded) {
-        saveToServer();
-    }
-    
-    if (state.pots.length === 0) {
-        state.pots.push({
-            id: state.nextPotId++,
-            strain: null,
-            plantedAt: null,
-            water: 100,
-            health: 100,
-            stage: 0,
-            disease: false,
-            lamp: null,
-            fert: null,
-            speedMult: 1,
-            yieldMult: 1,
-            lastTick: Date.now(),
-            _lastWarning: null,
-            potLevel: 1
-        });
-    }
-    
-    if (!state.registerDate) state.registerDate = new Date().toISOString();
-    if (!state.totalHarvests) state.totalHarvests = 0;
-    if (!state.potUpgrades) state.potUpgrades = {};
-    if (!state.marketPrices) state.marketPrices = {};
-    if (!state.marketUpdateTime) state.marketUpdateTime = 0;
-    if (!state.snoopCooldown) state.snoopCooldown = 0;
-    if (!state.snoopActive) state.snoopActive = false;
-    if (!state.consumedCount) state.consumedCount = 0;
-    
-    updateMarketPrices();
 }
 
 // ============================================================
@@ -1988,7 +1641,6 @@ setInterval(() => {
 // ============================================================
 load();
 handleReferral();
-updateServerStats();
 render();
 setTimeout(() => loadLeaderboard('monthly'), 1000);
 
@@ -2018,10 +1670,6 @@ window.copyReferral = copyReferral;
 window.loadLeaderboard = loadLeaderboard;
 window.acceptSnoop = acceptSnoop;
 window.rejectSnoop = rejectSnoop;
-window.exportSave = exportSave;
-window.importSave = importSave;
-window.toggleAdminPanel = toggleAdminPanel;
-window.manualAddReferral = manualAddReferral;
 </script>
 </body>
 </html>
