@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>🌿 Weed Grow Simulator</title>
+<title>🌿 Weed Grow Simulator 2.0</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{--bg:#0d1a0d;--text:#e0e8e0;--hint:#6a8a6a;--button:#2e7d32;--button-text:#fff;--secondary:#1a2e1a;--accent:#4caf50;--danger:#e53935;--warning:#ffb300;--purple:#7b1fa2;--blue:#1e88e5;--gold:#ffd700}
+:root{--bg:#0d1a0d;--text:#e0e8e0;--hint:#6a8a6a;--button:#2e7d32;--button-text:#fff;--secondary:#1a2e1a;--accent:#4caf50;--danger:#e53935;--warning:#ffb300;--purple:#7b1fa2;--blue:#1e88e5;--gold:#ffd700;--pink:#e91e63;--orange:#ff6f00}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:20px;overflow-x:hidden;background:linear-gradient(180deg,#0a1a0a,#0d1a0d 40%,#1a2a1a)}
 .snoop-high{animation:snoopShake 0.08s ease-in-out infinite alternate,snoopFlash 0.15s ease-in-out infinite alternate}
@@ -28,33 +28,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .stat{display:flex;align-items:center;gap:3px;background:rgba(255,255,255,0.05);padding:3px 10px;border-radius:16px}
 .stat span{color:var(--accent);font-size:13px}
 .level-badge{background:var(--purple);color:#fff;font-size:10px;padding:3px 10px;border-radius:10px;font-weight:700;white-space:nowrap}
+.weather-display{background:rgba(255,255,255,0.05);padding:2px 10px;border-radius:10px;font-size:9px;color:var(--hint);display:flex;align-items:center;gap:4px}
 .time-display{background:rgba(255,255,255,0.05);padding:2px 8px;border-radius:10px;font-size:9px;color:var(--hint);display:flex;align-items:center;gap:4px}
 .tabs{display:flex;background:rgba(13,26,13,0.9);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.04);overflow-x:auto;padding:5px 0;justify-content:center}
-.tab{flex:0 0 auto;padding:6px 12px;text-align:center;font-size:10px;font-weight:600;cursor:pointer;opacity:0.5;transition:all 0.3s;border-bottom:3px solid transparent;min-width:40px;white-space:nowrap}
+.tab{flex:0 0 auto;padding:6px 10px;text-align:center;font-size:9px;font-weight:600;cursor:pointer;opacity:0.5;transition:all 0.3s;border-bottom:3px solid transparent;min-width:36px;white-space:nowrap}
 .tab.active{opacity:1;border-bottom-color:var(--accent);color:var(--accent)}
 .content{padding:8px}
 .section{display:none}
 .section.active{display:block}
 .farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.pot{background:linear-gradient(145deg,#1a2a1a,#0d1a0d);border-radius:14px;padding:10px 6px 8px;text-align:center;border:2px solid rgba(255,255,255,0.05);min-height:210px;display:flex;flex-direction:column;align-items:center}
-.pot .pot-emoji{font-size:28px;line-height:1;margin-bottom:2px;position:relative;z-index:2}
-.pot .pot-name{font-size:12px;font-weight:700;z-index:1;position:relative}
-.pot .pot-status{font-size:10px;color:var(--hint);margin:2px 0 4px;z-index:1;position:relative}
+.pot{background:linear-gradient(145deg,#1a2a1a,#0d1a0d);border-radius:14px;padding:10px 6px 8px;text-align:center;border:2px solid rgba(255,255,255,0.05);min-height:220px;display:flex;flex-direction:column;align-items:center}
+.pot .pot-emoji{font-size:28px;line-height:1;margin-bottom:2px}
+.pot .pot-name{font-size:12px;font-weight:700}
+.pot .pot-status{font-size:10px;color:var(--hint);margin:2px 0 4px}
 .pot .thc-indicator{font-size:9px;color:var(--gold);font-weight:700;margin:2px 0}
 .pot.ready{border-color:var(--accent);box-shadow:0 0 25px rgba(76,175,80,0.12)}
 .pot.needs-water{border-color:var(--blue);animation:waterAlert 0.5s ease-in-out infinite alternate}
 @keyframes waterAlert{0%{border-color:var(--blue)}100%{border-color:var(--danger)}}
 .pot.sick{border-color:var(--danger);animation:shake 0.4s ease-in-out infinite alternate}
 .pot.pests{border-color:var(--warning);animation:pestShake 0.6s ease-in-out infinite alternate}
-.pot.dry{opacity:0.6;border-color:#795548}
 @keyframes shake{0%{transform:translateX(-2px)}100%{transform:translateX(2px)}}
 @keyframes pestShake{0%{transform:translateX(-3px) rotate(-1deg)}100%{transform:translateX(3px) rotate(1deg)}}
-.plant-container{position:relative;z-index:1;width:100%;height:90px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px}
+.plant-container{width:100%;height:90px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px}
 .plant-container svg{width:80px;height:85px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));transition:transform 0.5s}
 .plant-container svg.ready{animation:sway 2s ease-in-out infinite,glowPlant 1.5s ease-in-out infinite}
 @keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 @keyframes glowPlant{0%,100%{filter:drop-shadow(0 2px 8px rgba(255,215,0,0.1))}50%{filter:drop-shadow(0 2px 25px rgba(255,215,0,0.3))}}
-.bars{width:100%;display:flex;flex-direction:column;gap:2px;margin:3px 0;z-index:1;position:relative}
+.bars{width:100%;display:flex;flex-direction:column;gap:2px;margin:3px 0}
 .bar-row{display:flex;align-items:center;gap:4px;font-size:8px}
 .bar-row span{width:14px;font-size:9px}
 .bar{flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
@@ -64,7 +64,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .bar-fill.growth{background:linear-gradient(90deg,#f57f17,#ffb300)}
 .bar-fill.pests{background:linear-gradient(90deg,#f9a825,#ff6f00)}
 .bar-fill.thc{background:linear-gradient(90deg,#7b1fa2,#ce93d8)}
-.pot-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;z-index:1;position:relative;width:100%}
+.pot-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;width:100%}
 .btn{background:var(--button);color:var(--button-text);border:none;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 6px rgba(46,125,50,0.15);min-height:36px;display:inline-flex;align-items:center;gap:4px;justify-content:center;touch-action:manipulation}
 .btn:active{transform:scale(0.95)}
 .btn-secondary{background:rgba(255,255,255,0.06);color:var(--text);box-shadow:none}
@@ -72,10 +72,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .btn-warning{background:var(--warning);color:#111;box-shadow:0 2px 6px rgba(255,179,0,0.15)}
 .btn-purple{background:var(--purple);box-shadow:0 2px 6px rgba(123,31,162,0.15)}
 .btn-gold{background:var(--gold);color:#111;box-shadow:0 2px 6px rgba(255,215,0,0.15)}
+.btn-pink{background:var(--pink);color:#fff;box-shadow:0 2px 6px rgba(233,30,99,0.15)}
+.btn-orange{background:var(--orange);color:#fff;box-shadow:0 2px 6px rgba(255,111,0,0.15)}
 .btn-small{padding:4px 8px;font-size:9px;min-height:28px}
 .btn-full{width:100%}
-.btn-smoke{background:linear-gradient(135deg,#795548,#4e342e);color:#fff}
-.btn-taste{background:linear-gradient(135deg,#ff6f00,#ff8f00);color:#fff}
 .btn-police{background:linear-gradient(135deg,#1a237e,#283593);color:#fff}
 .btn-register{background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;font-weight:700;animation:registerPulse 2s ease-in-out infinite}
 @keyframes registerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
@@ -96,25 +96,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .toast.error{background:var(--danger)}
 .empty{text-align:center;padding:16px 10px;color:var(--hint)}
 .empty-emoji{font-size:32px;margin-bottom:2px}
-.room-info{background:rgba(16,30,16,0.85);border-radius:10px;padding:10px;margin-bottom:6px;font-size:11px;border:1px solid rgba(255,255,255,0.04)}
-.room-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
-.room-item{background:rgba(255,255,255,0.03);padding:6px;border-radius:8px;text-align:center;font-size:10px}
-.room-item .big{font-size:20px;display:block}
-.room-item .label{color:var(--hint);font-size:8px}
-.profile-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:12px;padding:14px;text-align:center}
-.profile-stat{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px}
-.profile-stat:last-child{border-bottom:none}
-.profile-stat .label{color:var(--hint)}
-.profile-stat .value{color:var(--text);font-weight:600}
-.ref-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:12px;padding:12px;text-align:center}
-.market-panel{background:rgba(10,20,10,0.8);border-radius:10px;padding:8px;margin-bottom:8px;border:1px solid rgba(255,215,0,0.05)}
-.market-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.market-item{background:rgba(255,255,255,0.02);border-radius:6px;padding:4px 6px;display:flex;justify-content:space-between;align-items:center;font-size:10px}
-.market-item .price{color:var(--gold);font-weight:700}
-.market-item .change{font-size:8px}
-.market-item .change.up{color:#4caf50}
-.market-item .change.down{color:#e53935}
-.market-timer{text-align:center;font-size:9px;color:var(--hint);margin-top:4px}
 .rank-card{background:rgba(16,30,16,0.85);border-radius:8px;padding:4px 8px;margin-bottom:3px;display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,0.04);font-size:10px}
 .rank-card.top1{border-color:var(--gold);background:rgba(255,215,0,0.06)}
 .rank-card.top2{border-color:#c0c0c0;background:rgba(192,192,192,0.04)}
@@ -123,48 +104,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .rank-card .rank-name{flex:1;font-weight:600;font-size:11px}
 .rank-card .rank-money{font-size:11px;color:var(--gold)}
 .my-rank{background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(255,215,0,0.02));border:1px solid var(--gold);border-radius:8px;padding:8px;margin-top:6px;text-align:center;font-size:11px}
-.friend-item{background:rgba(16,30,16,0.85);border-radius:12px;padding:10px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.04);margin-bottom:6px}
-.friend-item .online{color:#4caf50;font-size:8px;display:flex;align-items:center;gap:3px}
-.friend-item .online.offline{color:#666}
-.online-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
-.online-dot.online{background:#4caf50}
-.online-dot.offline{background:#666}
-.social-input{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 10px;color:var(--text);font-size:11px;width:100%;outline:none}
-.social-input:focus{border-color:var(--accent)}
-.request-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px}
-.bonus-timer{background:rgba(255,215,0,0.08);border:1px solid var(--gold);border-radius:8px;padding:6px 10px;text-align:center;margin:6px 0;font-size:11px}
-.bonus-timer .countdown{color:var(--gold);font-weight:700;font-size:13px}
-.chat-window{background:rgba(16,30,16,0.95);border-radius:12px;padding:10px;margin-top:8px;max-height:200px;overflow-y:auto;border:1px solid rgba(255,255,255,0.05)}
-.chat-message{padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px}
-.chat-message .sender{font-weight:600;color:var(--accent)}
-.chat-message .time{font-size:8px;color:var(--hint);float:right}
-.chat-input-row{display:flex;gap:6px;margin-top:6px}
-.chat-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 10px;color:var(--text);font-size:11px;outline:none}
-.chat-input:focus{border-color:var(--accent)}
-.police-alert{background:rgba(229,57,53,0.15);border:1px solid var(--danger);border-radius:8px;padding:8px 12px;margin:6px 0;text-align:center;color:var(--danger);font-size:11px;animation:policeFlash 1s ease-in-out infinite alternate}
-@keyframes policeFlash{0%{opacity:0.6}100%{opacity:1}}
-.police-modal .modal{max-width:400px}
-.police-options{display:flex;flex-direction:column;gap:8px;margin:10px 0}
-.police-options .btn{width:100%;justify-content:center}
-.sell-modal .modal{max-width:400px}
-.sell-options{display:flex;flex-direction:column;gap:8px;margin:10px 0}
-.sell-options .btn{width:100%;justify-content:center}
-.sell-controls{display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0}
-.sell-controls .btn{min-width:40px;justify-content:center;font-size:16px}
-.sell-controls .qty-display{font-size:20px;font-weight:700;color:var(--gold);min-width:40px;text-align:center}
-.pest-notification{position:fixed;top:100px;left:50%;transform:translateX(-50%);background:rgba(255,179,0,0.15);border:2px solid var(--warning);border-radius:12px;padding:10px 18px;z-index:300;display:none;align-items:center;gap:8px;color:var(--warning);font-size:13px;font-weight:600;backdrop-filter:blur(8px);animation:pestAlert 0.5s ease-in-out infinite alternate}
-@keyframes pestAlert{0%{transform:translateX(-50%) scale(1)}100%{transform:translateX(-50%) scale(1.05)}}
-.register-banner{background:linear-gradient(135deg,rgba(46,125,50,0.15),rgba(27,94,32,0.05));border:2px solid var(--accent);border-radius:12px;padding:12px;text-align:center;margin-bottom:8px;animation:registerPulse 2s ease-in-out infinite}
-.register-banner .title{font-size:14px;font-weight:700;color:var(--accent)}
-.register-banner .desc{font-size:10px;color:var(--hint);margin:4px 0}
-.water-notification{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(30,136,229,0.15);border:2px solid var(--blue);border-radius:12px;padding:8px 16px;z-index:300;display:none;align-items:center;gap:8px;color:var(--blue);font-size:12px;font-weight:600;backdrop-filter:blur(8px)}
+.achievement-badge{display:inline-block;background:rgba(255,215,0,0.1);border:1px solid var(--gold);border-radius:6px;padding:2px 8px;font-size:8px;color:var(--gold);margin:2px}
+.achievement-unlocked{background:rgba(255,215,0,0.2);border-color:var(--gold);animation:achievePulse 1s ease-in-out infinite alternate}
+@keyframes achievePulse{0%{transform:scale(1)}100%{transform:scale(1.05)}}
 @media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:9px;gap:4px}.stat{padding:2px 6px}.plant-container{height:70px}.plant-container svg{width:60px;height:65px}.tab{font-size:8px;padding:4px 6px;min-width:28px}.btn{font-size:9px;padding:4px 8px;min-height:30px}}
 </style>
 </head>
 <body>
 
-<div class="water-notification" id="waterNotification">💧 Низкий уровень воды!</div>
-<div class="pest-notification" id="pestNotification">🐛 ВНИМАНИЕ! Вредители на кусте!</div>
+<!-- ===== УВЕДОМЛЕНИЯ ===== -->
+<div class="water-notification" id="waterNotification" style="position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(30,136,229,0.15);border:2px solid var(--blue);border-radius:12px;padding:8px 16px;z-index:300;display:none;align-items:center;gap:8px;color:var(--blue);font-size:12px;font-weight:600;backdrop-filter:blur(8px)">💧 Низкий уровень воды!</div>
+<div class="pest-notification" id="pestNotification" style="position:fixed;top:100px;left:50%;transform:translateX(-50%);background:rgba(255,179,0,0.15);border:2px solid var(--warning);border-radius:12px;padding:10px 18px;z-index:300;display:none;align-items:center;gap:8px;color:var(--warning);font-size:13px;font-weight:600;backdrop-filter:blur(8px);animation:pestAlert 0.5s ease-in-out infinite alternate">🐛 ВНИМАНИЕ! Вредители на кусте!</div>
+@keyframes pestAlert{0%{transform:translateX(-50%) scale(1)}100%{transform:translateX(-50%) scale(1.05)}}
 
 <div class="snoop-overlay" id="snoopOverlay"></div>
 <div class="snoop-popup" id="snoopPopup">
@@ -177,6 +128,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
 </div>
 
+<!-- ===== ПОЛИЦИЯ ===== -->
 <div class="modal-overlay police-modal" id="policeModal">
     <div class="modal">
         <div class="modal-title">👮 ПОЛИЦИЯ!</div>
@@ -186,14 +138,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
 </div>
 
+<!-- ===== ПРОДАЖА ===== -->
 <div class="modal-overlay sell-modal" id="sellModal">
     <div class="modal">
         <div class="modal-title" id="sellTitle">💰 Продажа</div>
         <div id="sellInfo" style="text-align:center;font-size:13px;margin-bottom:6px;"></div>
-        <div class="sell-controls">
+        <div class="sell-controls" style="display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0">
             <button class="btn btn-secondary btn-small" onclick="changeSellQty(-10)">-10</button>
             <button class="btn btn-secondary btn-small" onclick="changeSellQty(-1)">-1</button>
-            <span class="qty-display" id="sellQtyDisplay">1</span>
+            <span class="qty-display" id="sellQtyDisplay" style="font-size:20px;font-weight:700;color:var(--gold);min-width:40px;text-align:center">1</span>
             <button class="btn btn-secondary btn-small" onclick="changeSellQty(1)">+1</button>
             <button class="btn btn-secondary btn-small" onclick="changeSellQty(10)">+10</button>
         </div>
@@ -201,13 +154,53 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <button class="btn btn-small btn-secondary" onclick="setSellQty('max')">Макс</button>
             <button class="btn btn-small btn-secondary" onclick="setSellQty('half')">Половина</button>
         </div>
-        <div class="sell-options">
+        <div class="sell-options" style="display:flex;flex-direction:column;gap:8px;margin:10px 0">
             <button class="btn btn-gold" onclick="confirmSell()">💰 Продать</button>
             <button class="btn btn-secondary" onclick="closeSellModal()">Отмена</button>
         </div>
     </div>
 </div>
 
+<!-- ===== СЕЛЕКЦИЯ ===== -->
+<div class="modal-overlay" id="modal-cross">
+    <div class="modal">
+        <div class="modal-title">🧬 Скрещивание</div>
+        <div id="crossInfo" style="text-align:center;font-size:12px;margin-bottom:8px;color:var(--hint)">Выбери два готовых растения для скрещивания</div>
+        <div id="crossList" style="margin-bottom:8px;"></div>
+        <button class="btn btn-secondary btn-full" onclick="closeModal('modal-cross')">Отмена</button>
+    </div>
+</div>
+
+<!-- ===== ИНВЕСТИЦИИ ===== -->
+<div class="modal-overlay" id="modal-invest">
+    <div class="modal">
+        <div class="modal-title">📈 Инвестиции</div>
+        <div id="investInfo" style="text-align:center;font-size:12px;margin-bottom:8px;color:var(--hint)">Вложи деньги в бизнес и получай доход!</div>
+        <div id="investList"></div>
+        <button class="btn btn-secondary btn-full" onclick="closeModal('modal-invest')">Закрыть</button>
+    </div>
+</div>
+
+<!-- ===== ОБМЕН С ДРУЗЬЯМИ ===== -->
+<div class="modal-overlay" id="modal-trade">
+    <div class="modal">
+        <div class="modal-title">🔄 Обмен с друзьями</div>
+        <div id="tradeInfo" style="text-align:center;font-size:12px;margin-bottom:8px;color:var(--hint)">Выбери друга и товар для обмена</div>
+        <div id="tradeList"></div>
+        <button class="btn btn-secondary btn-full" onclick="closeModal('modal-trade')">Закрыть</button>
+    </div>
+</div>
+
+<!-- ===== ДОСТИЖЕНИЯ ===== -->
+<div class="modal-overlay" id="modal-achievements">
+    <div class="modal">
+        <div class="modal-title">🏆 Достижения</div>
+        <div id="achievementsList"></div>
+        <button class="btn btn-secondary btn-full" onclick="closeModal('modal-achievements')">Закрыть</button>
+    </div>
+</div>
+
+<!-- ===== HEADER ===== -->
 <div class="header">
   <div class="stats">
     <div class="stat">💰 <span id="money">0</span>$</div>
@@ -215,11 +208,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="stat">🏆 <span id="level">1</span></div>
     <div class="stat">⭐ <span id="rep">0</span></div>
     <div class="stat">👮 <span id="heat">0</span>%</div>
+    <div class="weather-display">🌤 <span id="weatherDisplay">Солнечно</span></div>
     <div class="time-display">🕐 <span id="gameTime">12:00</span> <span id="dayPhase">☀️</span></div>
   </div>
   <div class="level-badge" id="xp-badge">0 XP</div>
 </div>
 
+<!-- ===== TABS ===== -->
 <div class="tabs">
   <div class="tab active" data-tab="farm">🌱 Ферма</div>
   <div class="tab" data-tab="market">📊 Рынок</div>
@@ -232,9 +227,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="tab" data-tab="friends">👥 Друзья</div>
 </div>
 
+<!-- ===== CONTENT ===== -->
 <div class="content">
   <div class="section active" id="section-farm">
-    <div id="police-warning" style="display:none;" class="police-alert">🚨 ВНИМАНИЕ! Высокий уровень палева! Полиция может нагрянуть!</div>
+    <div id="police-warning" style="display:none;" class="police-alert" style="background:rgba(229,57,53,0.15);border:1px solid var(--danger);border-radius:8px;padding:8px 12px;margin:6px 0;text-align:center;color:var(--danger);font-size:11px;animation:policeFlash 1s ease-in-out infinite alternate">🚨 ВНИМАНИЕ! Высокий уровень палева! Полиция может нагрянуть!</div>
+    <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+      <button class="btn btn-small btn-purple" onclick="openCrossModal()">🧬 Скрестить</button>
+      <button class="btn btn-small btn-gold" onclick="openAchievementsModal()">🏆 Достижения</button>
+      <button class="btn btn-small btn-pink" onclick="openInvestModal()">📈 Инвестиции</button>
+    </div>
     <div class="farm-grid" id="farm-grid"></div>
     <div style="margin-top:8px;text-align:center">
       <button class="btn btn-secondary btn-full" id="btn-buy-pot" onclick="buyPot()">➕ Купить горшок</button>
@@ -242,9 +243,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   </div>
 
   <div class="section" id="section-market">
-    <div class="market-panel">
-      <div class="market-grid" id="market-grid"></div>
-      <div class="market-timer" id="market-timer">🔄 Обновление через: 00:00</div>
+    <div class="market-panel" style="background:rgba(10,20,10,0.8);border-radius:10px;padding:8px;margin-bottom:8px;border:1px solid rgba(255,215,0,0.05)">
+      <div class="market-grid" id="market-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px"></div>
+      <div class="market-timer" id="market-timer" style="text-align:center;font-size:9px;color:var(--hint);margin-top:4px">🔄 Обновление через: 00:00</div>
     </div>
   </div>
 
@@ -265,16 +266,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   </div>
 
   <div class="section" id="section-room">
-    <div class="room-info" id="room-info"></div>
+    <div class="room-info" id="room-info" style="background:rgba(16,30,16,0.85);border-radius:10px;padding:10px;margin-bottom:6px;font-size:11px;border:1px solid rgba(255,255,255,0.04)"></div>
     <div class="card-list" id="room-list"></div>
   </div>
 
   <div class="section" id="section-profile">
-    <div class="profile-card">
+    <div class="profile-card" style="background:linear-gradient(135deg,#1a237e,#283593);border-radius:12px;padding:14px;text-align:center">
       <div style="font-size:40px;margin-bottom:2px;">👤</div>
       <div style="font-size:16px;font-weight:700;margin-bottom:2px;" id="profile-name">Игрок</div>
       <div style="font-size:10px;color:var(--hint);margin-bottom:6px;" id="profile-id">ID: загрузка...</div>
-      <div class="profile-stat"><span class="label">📅 Регистрация</span><span class="value" id="profile-regdate">--</span></div>
+      <div class="profile-stat" style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px"><span class="label">📅 Регистрация</span><span class="value" id="profile-regdate">--</span></div>
       <div class="profile-stat"><span class="label">🏆 Уровень</span><span class="value" id="profile-level">1</span></div>
       <div class="profile-stat"><span class="label">💰 Денег</span><span class="value" id="profile-money">0$</span></div>
       <div class="profile-stat"><span class="label">⚡ Энергии</span><span class="value" id="profile-energy">100</span></div>
@@ -284,13 +285,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div class="profile-stat"><span class="label">👮 Уровень палева</span><span class="value" id="profile-heat">0%</span></div>
       <div class="profile-stat"><span class="label">🕐 Время</span><span class="value" id="profile-time">12:00 ☀️</span></div>
       <div class="profile-stat"><span class="label">📊 На сервере</span><span class="value" id="profile-registered">❌ Нет</span></div>
+      <div class="profile-stat"><span class="label">🏆 Достижений</span><span class="value" id="profile-achievements">0</span></div>
+      <div class="profile-stat"><span class="label">📈 Инвестиций</span><span class="value" id="profile-investments">0</span></div>
     </div>
   </div>
 
   <div class="section" id="section-leaderboard">
-    <div class="register-banner" id="registerBanner">
-      <div class="title">📝 Зарегистрируйся в рейтинге!</div>
-      <div class="desc">Нажми кнопку ниже, чтобы твой профиль появился в таблице лидеров</div>
+    <div class="register-banner" id="registerBanner" style="background:linear-gradient(135deg,rgba(46,125,50,0.15),rgba(27,94,32,0.05));border:2px solid var(--accent);border-radius:12px;padding:12px;text-align:center;margin-bottom:8px;animation:registerPulse 2s ease-in-out infinite">
+      <div class="title" style="font-size:14px;font-weight:700;color:var(--accent)">📝 Зарегистрируйся в рейтинге!</div>
+      <div class="desc" style="font-size:10px;color:var(--hint);margin:4px 0">Нажми кнопку ниже, чтобы твой профиль появился в таблице лидеров</div>
       <button class="btn btn-register btn-full" onclick="registerProfileOnServer()">📝 Зарегистрироваться на сервере</button>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:6px;">
@@ -302,7 +305,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   </div>
 
   <div class="section" id="section-friends">
-    <div class="ref-card">
+    <div class="ref-card" style="background:linear-gradient(135deg,#1a237e,#283593);border-radius:12px;padding:12px;text-align:center">
       <div style="font-weight:700;margin-bottom:3px;">👥 Пригласи друзей</div>
       <div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:4px;">За каждого: <b>+150$</b> и <b>+20⚡</b></div>
       <div style="display:flex;justify-content:center;gap:10px;margin-bottom:4px;font-size:11px;">
@@ -313,43 +316,43 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <button class="btn btn-secondary btn-full" style="margin-top:3px;" onclick="copyReferral()">📋 Скопировать</button>
       <div id="friends-list" style="margin-top:6px;"></div>
     </div>
-
     <div style="margin-top:10px;">
       <div class="section-title">👫 Мои друзья</div>
       <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
-        <input class="social-input" id="friend-search" placeholder="👤 Имя игрока..." style="flex:1;min-width:100px;">
+        <input class="social-input" id="friend-search" placeholder="👤 Имя игрока..." style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 10px;color:var(--text);font-size:11px;width:100%;outline:none;flex:1;min-width:100px">
         <button class="btn btn-small" onclick="addFriend()">➕ Добавить</button>
       </div>
       <div id="friend-requests" style="margin-bottom:8px;"></div>
       <div id="friends-list-social"></div>
-      
+      <div style="margin-top:8px;">
+        <button class="btn btn-small btn-gold btn-full" onclick="openTradeModal()">🔄 Обмен с друзьями</button>
+      </div>
       <div class="section-title" style="margin-top:10px;">🎁 Ежедневный бонус</div>
-      <div class="bonus-timer" id="bonus-timer">
+      <div class="bonus-timer" id="bonus-timer" style="background:rgba(255,215,0,0.08);border:1px solid var(--gold);border-radius:8px;padding:6px 10px;text-align:center;margin:6px 0;font-size:11px">
         <div>Отправь бонус друзьям!</div>
-        <div class="countdown" id="bonus-countdown">Доступно!</div>
+        <div class="countdown" id="bonus-countdown" style="color:var(--gold);font-weight:700;font-size:13px">Доступно!</div>
         <button class="btn btn-small btn-gold" onclick="sendDailyBonus()" id="btn-bonus" style="margin-top:4px;">🎁 Отправить бонус всем друзьям</button>
       </div>
       <div id="bonus-log" style="margin-top:6px;font-size:10px;color:var(--hint);max-height:100px;overflow-y:auto;"></div>
     </div>
-
     <div style="margin-top:10px;">
       <div class="section-title">💬 Чат команды</div>
-      <div class="chat-window" id="chatWindow">
-        <div class="chat-message">
-          <span class="sender">🤖 Система:</span>
-          <span class="time">сейчас</span>
+      <div class="chat-window" id="chatWindow" style="background:rgba(16,30,16,0.95);border-radius:12px;padding:10px;margin-top:8px;max-height:200px;overflow-y:auto;border:1px solid rgba(255,255,255,0.05)">
+        <div class="chat-message" style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px">
+          <span class="sender" style="font-weight:600;color:var(--accent)">🤖 Система:</span>
+          <span class="time" style="font-size:8px;color:var(--hint);float:right">сейчас</span>
           <div>Добро пожаловать в чат!</div>
         </div>
       </div>
-      <div class="chat-input-row">
-        <input class="chat-input" id="chatInput" placeholder="💬 Напиши сообщение...">
+      <div class="chat-input-row" style="display:flex;gap:6px;margin-top:6px">
+        <input class="chat-input" id="chatInput" placeholder="💬 Напиши сообщение..." style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 10px;color:var(--text);font-size:11px;outline:none">
         <button class="btn btn-small btn-blue" onclick="sendChatMessage()">📤</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- МОДАЛКИ -->
+<!-- ===== МОДАЛКИ СЕМЯ, УДОБРЕНИЯ, ЛАМПЫ ===== -->
 <div class="modal-overlay" id="modal-seed"><div class="modal"><div class="modal-title">🌱 Выбери семя</div><div class="card-list" id="seed-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-seed')">Отмена</button></div></div>
 <div class="modal-overlay" id="modal-fert"><div class="modal"><div class="modal-title">🧪 Удобрения</div><div class="card-list" id="fert-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-fert')">Отмена</button></div></div>
 <div class="modal-overlay" id="modal-lamp"><div class="modal"><div class="modal-title">💡 Лампы</div><div class="card-list" id="lamp-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-lamp')">Отмена</button></div></div>
@@ -433,6 +436,35 @@ const PRODUCTS = {
 const STAGE_NAMES = ['','🌱 Семя','🌿 Росток','🌳 Вегетация','🌸 Цветение','✨ Готово'];
 const STAGE_EMOJI = ['','🌱','🌿','🌳','🌸','✨'];
 
+const ACHIEVEMENTS = [
+    {id:'first_harvest', name:'Первый урожай', desc:'Собери первое растение', icon:'🌿', check:()=>state.totalHarvests>=1, reward:50},
+    {id:'thc_master', name:'Мастер ТГК', desc:'Вырасти растение с ТГК > 80%', icon:'💎', check:()=>state.pots.some(p=>p.thc>=80), reward:200},
+    {id:'rich', name:'Богатей', desc:'Накопи 10000$', icon:'💰', check:()=>state.money>=10000, reward:500},
+    {id:'breeder', name:'Селекционер', desc:'Создай 3 гибрида', icon:'🧬', check:()=>state.hybrids?.length>=3, reward:300},
+    {id:'cleaner', name:'Теневик', desc:'Снизь палево до 0%', icon:'👤', check:()=>state.heat===0, reward:100},
+    {id:'investor', name:'Инвестор', desc:'Сделай 5 инвестиций', icon:'📈', check:()=>state.investments?.length>=5, reward:400},
+    {id:'pest_killer', name:'Борец с вредителями', desc:'Уничтожь 10 вредителей', icon:'🐛', check:()=>state.pestsKilled>=10, reward:150},
+    {id:'farmer', name:'Фермер', desc:'Собери 50 урожаев', icon:'🌾', check:()=>state.totalHarvests>=50, reward:350},
+    {id:'light_master', name:'Мастер света', desc:'Установи 5 ламп', icon:'💡', check:()=>state.pots.filter(p=>p.lamp).length>=5, reward:200},
+    {id:'hybrid_master', name:'Гибридолог', desc:'Создай гибрид с качеством > 2.0', icon:'🧬', check:()=>state.hybrids?.some(h=>h.quality>=2.0), reward:250}
+];
+
+const WEATHERS = [
+    {id:'sunny', emoji:'☀️', name:'Солнечно', speedMult:1.2, waterMult:1.5},
+    {id:'cloudy', emoji:'⛅', name:'Облачно', speedMult:1.0, waterMult:1.0},
+    {id:'rainy', emoji:'🌧', name:'Дождь', speedMult:0.8, waterMult:0.2},
+    {id:'storm', emoji:'⛈', name:'Гроза', speedMult:0.6, waterMult:0.5, damage:0.1},
+    {id:'hot', emoji:'🔥', name:'Жара', speedMult:0.9, waterMult:2.0}
+];
+
+const INVESTMENTS = [
+    {id:'shop', name:'Магазин', price:1000, income:50, desc:'Приносит 50$/игровой день'},
+    {id:'lab', name:'Лаборатория', price:2000, income:120, desc:'Приносит 120$/игровой день'},
+    {id:'delivery', name:'Доставка', price:3000, income:200, desc:'Приносит 200$/игровой день'},
+    {id:'factory', name:'Фабрика', price:5000, income:400, desc:'Приносит 400$/игровой день'},
+    {id:'empire', name:'Империя', price:10000, income:1000, desc:'Приносит 1000$/игровой день'}
+];
+
 // ============================================================
 // ====== СОСТОЯНИЕ ======
 // ============================================================
@@ -474,9 +506,18 @@ let state = {
     gameTime: 12 * 60,
     policeActive: false,
     registered: false,
-    waterReservoir: 100
+    waterReservoir: 100,
+    weather: 'sunny',
+    weatherTimer: 0,
+    hybrids: [],
+    achievements: [],
+    investments: [],
+    pestsKilled: 0,
+    tradeRequests: []
 };
 let selectedPotId = null;
+let selectedCrossId = null;
+let selectedCrossList = [];
 let snoopTimer = null;
 let highTimer = null;
 let highElements = [];
@@ -484,6 +525,7 @@ let toastTimeout = null;
 let chatMessages = [];
 let sellTarget = null;
 let sellQty = 1;
+let crossStep = 0;
 
 // ============================================================
 // ====== БАЗОВЫЕ ФУНКЦИИ ======
@@ -589,7 +631,9 @@ function load() {
             lastTick: Date.now(),
             _lastWarning: null,
             potLevel: 1,
-            isActive: true
+            isActive: true,
+            isHybrid: false,
+            hybridParents: []
         }];
         state.nextPotId = 2;
     }
@@ -599,6 +643,8 @@ function load() {
         if (pot.pestLevel === undefined) pot.pestLevel = 0;
         if (pot.thc === undefined) pot.thc = 0;
         if (pot.water === undefined) pot.water = 80;
+        if (pot.isHybrid === undefined) pot.isHybrid = false;
+        if (pot.hybridParents === undefined) pot.hybridParents = [];
     });
     
     if (!state.totalEarned) state.totalEarned = 0;
@@ -624,12 +670,339 @@ function load() {
     if (!state.policeActive) state.policeActive = false;
     if (state.registered === undefined) state.registered = false;
     if (state.waterReservoir === undefined) state.waterReservoir = 100;
+    if (!state.weather) state.weather = 'sunny';
+    if (!state.weatherTimer) state.weatherTimer = 0;
+    if (!state.hybrids) state.hybrids = [];
+    if (!state.achievements) state.achievements = [];
+    if (!state.investments) state.investments = [];
+    if (!state.pestsKilled) state.pestsKilled = 0;
+    if (!state.tradeRequests) state.tradeRequests = [];
     
     updateMarketPrices();
     updateBonusTimer();
     loadChat();
     updateGameTime();
     updateRegisterBanner();
+    updateWeather();
+    checkAchievements();
+}
+
+// ============================================================
+// ====== ПОГОДА ======
+// ============================================================
+function updateWeather() {
+    const now = Date.now();
+    const dt = (now - state.weatherTimer) / 1000;
+    state.weatherTimer = now;
+    
+    if (state.weatherTimer > 1800) { // Меняем погоду каждые 30 минут
+        const currentIndex = WEATHERS.findIndex(w => w.id === state.weather);
+        let newIndex;
+        do {
+            newIndex = Math.floor(Math.random() * WEATHERS.length);
+        } while (newIndex === currentIndex && WEATHERS.length > 1);
+        state.weather = WEATHERS[newIndex].id;
+        state.weatherTimer = 0;
+        showToast(`${WEATHERS[newIndex].emoji} Погода: ${WEATHERS[newIndex].name}`);
+        save();
+        render();
+    }
+    
+    const w = WEATHERS.find(w => w.id === state.weather);
+    if (w) {
+        document.getElementById('weatherDisplay').textContent = w.emoji + ' ' + w.name;
+    }
+}
+
+function getWeatherMult() {
+    const w = WEATHERS.find(w => w.id === state.weather);
+    return w || WEATHERS[0];
+}
+
+// ============================================================
+// ====== ДОСТИЖЕНИЯ ======
+// ============================================================
+function checkAchievements() {
+    let newAchievements = 0;
+    ACHIEVEMENTS.forEach(a => {
+        if (!state.achievements.includes(a.id) && a.check()) {
+            state.achievements.push(a.id);
+            newAchievements++;
+            showToast(`🏆 ${a.icon} Достижение: ${a.name}! (+${a.reward}$)`);
+            state.money += a.reward;
+            haptic('success');
+        }
+    });
+    if (newAchievements > 0) {
+        save();
+        render();
+    }
+}
+
+function openAchievementsModal() {
+    const list = document.getElementById('achievementsList');
+    list.innerHTML = '';
+    ACHIEVEMENTS.forEach(a => {
+        const unlocked = state.achievements.includes(a.id);
+        const div = document.createElement('div');
+        div.className = 'card' + (unlocked ? ' achievement-unlocked' : '');
+        div.innerHTML = `
+            <div class="card-emoji">${a.icon}</div>
+            <div class="card-info">
+                <div class="card-title">${a.name} ${unlocked ? '✅' : '🔒'}</div>
+                <div class="card-desc">${a.desc} ${unlocked ? '+'+a.reward+'$' : ''}</div>
+            </div>
+            ${unlocked ? '<span style="font-size:10px;color:var(--gold);">🏆</span>' : '<span style="font-size:10px;color:var(--hint);">❌</span>'}
+        `;
+        list.appendChild(div);
+    });
+    document.getElementById('modal-achievements').classList.add('show');
+}
+
+// ============================================================
+// ====== СЕЛЕКЦИЯ ======
+// ============================================================
+function openCrossModal() {
+    const readyPots = state.pots.filter(p => p.isActive && p.strain && getProgress(p) >= 1);
+    if (readyPots.length < 2) {
+        showToast('Нужно минимум 2 готовых растения для скрещивания', true);
+        return;
+    }
+    crossStep = 0;
+    selectedCrossList = [];
+    renderCrossModal();
+    document.getElementById('modal-cross').classList.add('show');
+}
+
+function renderCrossModal() {
+    const list = document.getElementById('crossList');
+    const info = document.getElementById('crossInfo');
+    
+    if (crossStep === 0) {
+        info.textContent = 'Выбери ПЕРВОЕ растение для скрещивания';
+        const readyPots = state.pots.filter(p => p.isActive && p.strain && getProgress(p) >= 1);
+        list.innerHTML = '';
+        readyPots.forEach(pot => {
+            const s = getStrain(pot.strain);
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.style.cursor = 'pointer';
+            div.innerHTML = `
+                <div class="card-emoji">${s?.emoji || '🌿'}</div>
+                <div class="card-info">
+                    <div class="card-title">${s?.name || 'Неизвестно'} ${pot.isHybrid ? '🧬' : ''}</div>
+                    <div class="card-desc">ТГК: ${Math.round(pot.thc)}%</div>
+                </div>
+                <span style="font-size:10px;color:var(--accent);">Выбрать</span>
+            `;
+            div.onclick = () => {
+                selectedCrossList[0] = pot;
+                crossStep = 1;
+                renderCrossModal();
+            };
+            list.appendChild(div);
+        });
+    } else if (crossStep === 1) {
+        info.textContent = `Выбрано: ${getStrain(selectedCrossList[0].strain)?.name || ''}. Выбери ВТОРОЕ растение`;
+        const readyPots = state.pots.filter(p => p.isActive && p.strain && getProgress(p) >= 1 && p.id !== selectedCrossList[0].id);
+        list.innerHTML = '';
+        readyPots.forEach(pot => {
+            const s = getStrain(pot.strain);
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.style.cursor = 'pointer';
+            div.innerHTML = `
+                <div class="card-emoji">${s?.emoji || '🌿'}</div>
+                <div class="card-info">
+                    <div class="card-title">${s?.name || 'Неизвестно'} ${pot.isHybrid ? '🧬' : ''}</div>
+                    <div class="card-desc">ТГК: ${Math.round(pot.thc)}%</div>
+                </div>
+                <span style="font-size:10px;color:var(--accent);">Выбрать</span>
+            `;
+            div.onclick = () => {
+                selectedCrossList[1] = pot;
+                crossStep = 2;
+                renderCrossModal();
+            };
+            list.appendChild(div);
+        });
+    } else if (crossStep === 2) {
+        const p1 = selectedCrossList[0];
+        const p2 = selectedCrossList[1];
+        const s1 = getStrain(p1.strain);
+        const s2 = getStrain(p2.strain);
+        info.textContent = `Скрещивание: ${s1?.name || ''} × ${s2?.name || ''}`;
+        list.innerHTML = `
+            <div class="card">
+                <div class="card-emoji">🧬</div>
+                <div class="card-info">
+                    <div class="card-title">Новый гибрид!</div>
+                    <div class="card-desc">ТГК: ~${Math.round((p1.thc + p2.thc) / 2)}%</div>
+                </div>
+                <button class="btn btn-small btn-purple" onclick="doCross()">🧬 Создать</button>
+            </div>
+            <div class="card" style="margin-top:4px;">
+                <div class="card-emoji">${s1?.emoji}</div>
+                <div class="card-info">
+                    <div class="card-title">${s1?.name}</div>
+                    <div class="card-desc">ТГК: ${Math.round(p1.thc)}%</div>
+                </div>
+                <div class="card-emoji">×</div>
+                <div class="card-emoji">${s2?.emoji}</div>
+                <div class="card-info">
+                    <div class="card-title">${s2?.name}</div>
+                    <div class="card-desc">ТГК: ${Math.round(p2.thc)}%</div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function doCross() {
+    const p1 = selectedCrossList[0];
+    const p2 = selectedCrossList[1];
+    const s1 = getStrain(p1.strain);
+    const s2 = getStrain(p2.strain);
+    
+    // Создаём гибрид
+    const hybridName = `${s1.name} × ${s2.name}`;
+    const hybridQuality = (s1.quality + s2.quality) / 2 + Math.random() * 0.3;
+    const hybridTHC = Math.round((p1.thc + p2.thc) / 2 + Math.random() * 10);
+    
+    state.hybrids.push({
+        id: Date.now().toString(36),
+        name: hybridName,
+        emoji: '🧬',
+        quality: hybridQuality,
+        thc: hybridTHC,
+        parents: [s1.id, s2.id],
+        created: new Date().toISOString()
+    });
+    
+    // Удаляем родительские растения
+    p1.strain = null;
+    p1.plantedAt = null;
+    p1.stage = 0;
+    p1.thc = 0;
+    p1.isHybrid = false;
+    p2.strain = null;
+    p2.plantedAt = null;
+    p2.stage = 0;
+    p2.thc = 0;
+    p2.isHybrid = false;
+    
+    showToast(`🧬 Создан гибрид: ${hybridName}! ТГК: ${hybridTHC}%`);
+    haptic('success');
+    addXp(20);
+    closeModal('modal-cross');
+    checkAchievements();
+    save();
+    render();
+}
+
+// ============================================================
+// ====== ИНВЕСТИЦИИ ======
+// ============================================================
+function openInvestModal() {
+    const list = document.getElementById('investList');
+    list.innerHTML = '';
+    INVESTMENTS.forEach(inv => {
+        const owned = state.investments.filter(i => i === inv.id).length;
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+            <div class="card-emoji">📈</div>
+            <div class="card-info">
+                <div class="card-title">${inv.name} ${owned > 0 ? '×'+owned : ''}</div>
+                <div class="card-desc">${inv.desc}</div>
+            </div>
+            <button class="btn btn-small btn-pink" onclick="buyInvestment('${inv.id}')">${inv.price}$</button>
+        `;
+        list.appendChild(div);
+    });
+    document.getElementById('modal-invest').classList.add('show');
+}
+
+function buyInvestment(id) {
+    const inv = INVESTMENTS.find(i => i.id === id);
+    if (!inv) return;
+    if (state.money < inv.price) {
+        showToast('Не хватает денег', true);
+        return;
+    }
+    state.money -= inv.price;
+    state.investments.push(id);
+    showToast(`📈 Куплено: ${inv.name}!`);
+    haptic('success');
+    checkAchievements();
+    save();
+    render();
+    openInvestModal();
+}
+
+function processInvestments() {
+    const income = state.investments.reduce((sum, id) => {
+        const inv = INVESTMENTS.find(i => i.id === id);
+        return sum + (inv?.income || 0);
+    }, 0);
+    if (income > 0) {
+        addMoney(income);
+        // showToast(`📈 Доход от инвестиций: +${income}$`);
+    }
+}
+
+// ============================================================
+// ====== ТОРГОВЛЯ С ДРУЗЬЯМИ ======
+// ============================================================
+function openTradeModal() {
+    const list = document.getElementById('tradeList');
+    list.innerHTML = '';
+    if (state.friends.length === 0) {
+        list.innerHTML = '<div class="empty">👤 Нет друзей для обмена</div>';
+    } else {
+        state.friends.forEach(friend => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.innerHTML = `
+                <div class="card-emoji">👤</div>
+                <div class="card-info">
+                    <div class="card-title">${friend.name}</div>
+                    <div class="card-desc">Отправь запрос на обмен</div>
+                </div>
+                <button class="btn btn-small btn-gold" onclick="sendTradeRequest('${friend.id}')">📤</button>
+            `;
+            list.appendChild(div);
+        });
+    }
+    document.getElementById('modal-trade').classList.add('show');
+}
+
+function sendTradeRequest(friendId) {
+    const items = Object.keys(state.inventory).filter(k => state.inventory[k] > 0);
+    if (items.length === 0) {
+        showToast('Нет товара для обмена', true);
+        return;
+    }
+    const item = items[Math.floor(Math.random() * items.length)];
+    const qty = Math.min(state.inventory[item] || 0, 1);
+    if (qty <= 0) return;
+    
+    state.inventory[item] -= qty;
+    if (state.inventory[item] <= 0) delete state.inventory[item];
+    
+    state.tradeRequests.push({
+        from: userId,
+        to: friendId,
+        item: item,
+        qty: qty,
+        status: 'pending',
+        date: new Date().toISOString()
+    });
+    showToast(`📤 Запрос на обмен отправлен!`);
+    haptic('medium');
+    save();
+    render();
+    closeModal('modal-trade');
 }
 
 // ============================================================
@@ -750,7 +1123,7 @@ function updateRegisterBanner() {
 }
 
 // ============================================================
-// ====== РАСТЕНИЯ С ТГК И ЛИСТЬЯМИ ======
+// ====== РАСТЕНИЯ ======
 // ============================================================
 function getPlantSVG(strainId, stage, health, disease, ready, pests, thc, water) {
     const colors = {
@@ -788,82 +1161,15 @@ function getPlantSVG(strainId, stage, health, disease, ready, pests, thc, water)
     let thcText = thcLevel > 0 ? `<text x="50" y="20" font-size="8" text-anchor="middle" fill="#ce93d8">${Math.round(thcLevel)}%</text>` : '';
     
     if (s === 1) {
-        svg = `<svg viewBox="0 0 100 100">
-            <ellipse cx="50" cy="85" rx="20" ry="5" fill="#3e2723" opacity="0.3"/>
-            <ellipse cx="50" cy="78" rx="6" ry="8" fill="#2e7d32" opacity="${hf*0.8}"/>
-            <path d="M50 78 L48 68 L52 68 Z" fill="#1b5e20" opacity="0.5"/>
-            ${pestEmoji}
-        </svg>`;
-    }
-    else if (s === 2) {
-        svg = `<svg viewBox="0 0 100 100">
-            <ellipse cx="50" cy="90" rx="25" ry="5" fill="#3e2723" opacity="0.3"/>
-            <line x1="50" y1="85" x2="50" y2="60" stroke="${c.dark}" stroke-width="2.5" opacity="${hf}"/>
-            <path d="M50 65 Q38 60 32 70 Q40 66 50 65" fill="${leafColor}" opacity="${hf*0.7}"/>
-            <path d="M50 65 Q62 60 68 70 Q60 66 50 65" fill="${leafColor}" opacity="${hf*0.7}"/>
-            ${isSick ? `<circle cx="50" cy="70" r="8" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="6" to="10" dur="0.8s" repeatCount="indefinite"/></circle>` : ''}
-            ${pestEmoji}
-        </svg>`;
-    }
-    else if (s === 3) {
-        svg = `<svg viewBox="0 0 100 100">
-            <ellipse cx="50" cy="92" rx="28" ry="5" fill="#3e2723" opacity="0.3"/>
-            <line x1="50" y1="88" x2="50" y2="45" stroke="${c.dark}" stroke-width="3" opacity="${hf}"/>
-            <path d="M50 55 Q32 45 22 60 Q35 55 50 55" fill="${leafColor}" opacity="${hf*0.8}"/>
-            <path d="M50 55 Q68 45 78 60 Q65 55 50 55" fill="${leafColor}" opacity="${hf*0.8}"/>
-            <path d="M50 50 Q35 40 28 52 Q40 48 50 50" fill="${leafColor}" opacity="${hf*0.7}"/>
-            <path d="M50 50 Q65 40 72 52 Q60 48 50 50" fill="${leafColor}" opacity="${hf*0.7}"/>
-            <path d="M50 45 Q44 35 50 30 Q56 35 50 45" fill="${leafColor}" opacity="${hf*0.9}"/>
-            <path d="M50 48 Q40 38 35 45 Q42 42 50 48" fill="${leafColor}" opacity="${hf*0.6}"/>
-            <path d="M50 48 Q60 38 65 45 Q58 42 50 48" fill="${leafColor}" opacity="${hf*0.6}"/>
-            ${isSick ? `<circle cx="50" cy="60" r="12" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="10" to="14" dur="0.8s" repeatCount="indefinite"/></circle>` : ''}
-            ${hasPests ? `<circle cx="50" cy="65" r="14" fill="none" stroke="#ffb300" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="12" to="16" dur="0.6s" repeatCount="indefinite"/></circle>` : ''}
-            ${pestEmoji}
-            ${thcText}
-        </svg>`;
-    }
-    else if (s === 4) {
-        svg = `<svg viewBox="0 0 100 100">
-            <ellipse cx="50" cy="94" rx="30" ry="5" fill="#3e2723" opacity="0.3"/>
-            <line x1="50" y1="90" x2="50" y2="35" stroke="${c.dark}" stroke-width="3.5" opacity="${hf}"/>
-            <path d="M50 50 Q28 38 18 55 Q32 48 50 50" fill="${leafColor}" opacity="${hf*0.8}"/>
-            <path d="M50 50 Q72 38 82 55 Q68 48 50 50" fill="${leafColor}" opacity="${hf*0.8}"/>
-            <path d="M50 45 Q30 32 22 48 Q36 40 50 45" fill="${leafColor}" opacity="${hf*0.7}"/>
-            <path d="M50 45 Q70 32 78 48 Q64 40 50 45" fill="${leafColor}" opacity="${hf*0.7}"/>
-            <path d="M50 38 Q42 28 50 22 Q58 28 50 38" fill="${leafColor}" opacity="${hf*0.9}"/>
-            <path d="M50 42 Q36 30 30 40 Q40 36 50 42" fill="${leafColor}" opacity="${hf*0.6}"/>
-            <path d="M50 42 Q64 30 70 40 Q60 36 50 42" fill="${leafColor}" opacity="${hf*0.6}"/>
-            <circle cx="50" cy="32" r="8" fill="${c.flower}" opacity="${hf*0.6}"/>
-            <circle cx="36" cy="40" r="5" fill="${c.flower}" opacity="${hf*0.5}"/>
-            <circle cx="64" cy="40" r="5" fill="${c.flower}" opacity="${hf*0.5}"/>
-            ${isSick ? `<circle cx="50" cy="55" r="16" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="14" to="18" dur="0.8s" repeatCount="indefinite"/></circle>` : ''}
-            ${hasPests ? `<circle cx="50" cy="60" r="18" fill="none" stroke="#ffb300" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="16" to="20" dur="0.6s" repeatCount="indefinite"/></circle>` : ''}
-            ${pestEmoji}
-            ${thcText}
-        </svg>`;
-    }
-    else if (s === 5) {
-        svg = `<svg viewBox="0 0 100 100">
-            <ellipse cx="50" cy="94" rx="32" ry="5" fill="#3e2723" opacity="0.3"/>
-            <line x1="50" y1="90" x2="50" y2="28" stroke="${c.dark}" stroke-width="4" opacity="${hf}"/>
-            <path d="M50 45 Q22 30 12 50 Q28 40 50 45" fill="${leafColor}" opacity="${hf*0.8}"/>
-            <path d="M50 45 Q78 30 88 50 Q72 40 50 45" fill="${leafColor}" opacity="${hf*0.8}"/>
-            <path d="M50 40 Q25 25 16 45 Q30 35 50 40" fill="${leafColor}" opacity="${hf*0.7}"/>
-            <path d="M50 40 Q75 25 84 45 Q70 35 50 40" fill="${leafColor}" opacity="${hf*0.7}"/>
-            <path d="M50 32 Q40 20 50 15 Q60 20 50 32" fill="${leafColor}" opacity="${hf*0.9}"/>
-            <path d="M50 36 Q32 22 26 34 Q38 28 50 36" fill="${leafColor}" opacity="${hf*0.6}"/>
-            <path d="M50 36 Q68 22 74 34 Q62 28 50 36" fill="${leafColor}" opacity="${hf*0.6}"/>
-            <circle cx="50" cy="25" r="12" fill="${c.flower}" opacity="${hf*0.7}"/>
-            <circle cx="34" cy="35" r="7" fill="${c.flower}" opacity="${hf*0.6}"/>
-            <circle cx="66" cy="35" r="7" fill="${c.flower}" opacity="${hf*0.6}"/>
-            <circle cx="42" cy="40" r="5" fill="${c.flower}" opacity="${hf*0.5}"/>
-            <circle cx="58" cy="40" r="5" fill="${c.flower}" opacity="${hf*0.5}"/>
-            ${ready ? `<text x="50" y="12" font-size="14" text-anchor="middle" fill="#ffd700">✨</text>` : ''}
-            ${isSick ? `<circle cx="50" cy="55" r="20" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.4"><animate attributeName="r" from="18" to="22" dur="0.8s" repeatCount="indefinite"/></circle>` : ''}
-            ${hasPests ? `<circle cx="50" cy="60" r="22" fill="none" stroke="#ffb300" stroke-width="1.5" opacity="0.4"><animate attributeName="r" from="20" to="24" dur="0.6s" repeatCount="indefinite"/></circle>` : ''}
-            ${pestEmoji}
-            ${thcText}
-        </svg>`;
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="85" rx="20" ry="5" fill="#3e2723" opacity="0.3"/><ellipse cx="50" cy="78" rx="6" ry="8" fill="#2e7d32" opacity="${hf*0.8}"/><path d="M50 78 L48 68 L52 68 Z" fill="#1b5e20" opacity="0.5"/>${pestEmoji}</svg>`;
+    } else if (s === 2) {
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="90" rx="25" ry="5" fill="#3e2723" opacity="0.3"/><line x1="50" y1="85" x2="50" y2="60" stroke="${c.dark}" stroke-width="2.5" opacity="${hf}"/><path d="M50 65 Q38 60 32 70 Q40 66 50 65" fill="${leafColor}" opacity="${hf*0.7}"/><path d="M50 65 Q62 60 68 70 Q60 66 50 65" fill="${leafColor}" opacity="${hf*0.7}"/>${isSick ? `<circle cx="50" cy="70" r="8" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="6" to="10" dur="0.8s" repeatCount="indefinite"/></circle>` : ''}${pestEmoji}</svg>`;
+    } else if (s === 3) {
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="92" rx="28" ry="5" fill="#3e2723" opacity="0.3"/><line x1="50" y1="88" x2="50" y2="45" stroke="${c.dark}" stroke-width="3" opacity="${hf}"/><path d="M50 55 Q32 45 22 60 Q35 55 50 55" fill="${leafColor}" opacity="${hf*0.8}"/><path d="M50 55 Q68 45 78 60 Q65 55 50 55" fill="${leafColor}" opacity="${hf*0.8}"/><path d="M50 50 Q35 40 28 52 Q40 48 50 50" fill="${leafColor}" opacity="${hf*0.7}"/><path d="M50 50 Q65 40 72 52 Q60 48 50 50" fill="${leafColor}" opacity="${hf*0.7}"/><path d="M50 45 Q44 35 50 30 Q56 35 50 45" fill="${leafColor}" opacity="${hf*0.9}"/><path d="M50 48 Q40 38 35 45 Q42 42 50 48" fill="${leafColor}" opacity="${hf*0.6}"/><path d="M50 48 Q60 38 65 45 Q58 42 50 48" fill="${leafColor}" opacity="${hf*0.6}"/>${isSick ? `<circle cx="50" cy="60" r="12" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="10" to="14" dur="0.8s" repeatCount="indefinite"/></circle>` : ''}${hasPests ? `<circle cx="50" cy="65" r="14" fill="none" stroke="#ffb300" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="12" to="16" dur="0.6s" repeatCount="indefinite"/></circle>` : ''}${pestEmoji}${thcText}</svg>`;
+    } else if (s === 4) {
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="94" rx="30" ry="5" fill="#3e2723" opacity="0.3"/><line x1="50" y1="90" x2="50" y2="35" stroke="${c.dark}" stroke-width="3.5" opacity="${hf}"/><path d="M50 50 Q28 38 18 55 Q32 48 50 50" fill="${leafColor}" opacity="${hf*0.8}"/><path d="M50 50 Q72 38 82 55 Q68 48 50 50" fill="${leafColor}" opacity="${hf*0.8}"/><path d="M50 45 Q30 32 22 48 Q36 40 50 45" fill="${leafColor}" opacity="${hf*0.7}"/><path d="M50 45 Q70 32 78 48 Q64 40 50 45" fill="${leafColor}" opacity="${hf*0.7}"/><path d="M50 38 Q42 28 50 22 Q58 28 50 38" fill="${leafColor}" opacity="${hf*0.9}"/><path d="M50 42 Q36 30 30 40 Q40 36 50 42" fill="${leafColor}" opacity="${hf*0.6}"/><path d="M50 42 Q64 30 70 40 Q60 36 50 42" fill="${leafColor}" opacity="${hf*0.6}"/><circle cx="50" cy="32" r="8" fill="${c.flower}" opacity="${hf*0.6}"/><circle cx="36" cy="40" r="5" fill="${c.flower}" opacity="${hf*0.5}"/><circle cx="64" cy="40" r="5" fill="${c.flower}" opacity="${hf*0.5}"/>${isSick ? `<circle cx="50" cy="55" r="16" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="14" to="18" dur="0.8s" repeatCount="indefinite"/></circle>` : ''}${hasPests ? `<circle cx="50" cy="60" r="18" fill="none" stroke="#ffb300" stroke-width="1.5" opacity="0.5"><animate attributeName="r" from="16" to="20" dur="0.6s" repeatCount="indefinite"/></circle>` : ''}${pestEmoji}${thcText}</svg>`;
+    } else if (s === 5) {
+        svg = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="94" rx="32" ry="5" fill="#3e2723" opacity="0.3"/><line x1="50" y1="90" x2="50" y2="28" stroke="${c.dark}" stroke-width="4" opacity="${hf}"/><path d="M50 45 Q22 30 12 50 Q28 40 50 45" fill="${leafColor}" opacity="${hf*0.8}"/><path d="M50 45 Q78 30 88 50 Q72 40 50 45" fill="${leafColor}" opacity="${hf*0.8}"/><path d="M50 40 Q25 25 16 45 Q30 35 50 40" fill="${leafColor}" opacity="${hf*0.7}"/><path d="M50 40 Q75 25 84 45 Q70 35 50 40" fill="${leafColor}" opacity="${hf*0.7}"/><path d="M50 32 Q40 20 50 15 Q60 20 50 32" fill="${leafColor}" opacity="${hf*0.9}"/><path d="M50 36 Q32 22 26 34 Q38 28 50 36" fill="${leafColor}" opacity="${hf*0.6}"/><path d="M50 36 Q68 22 74 34 Q62 28 50 36" fill="${leafColor}" opacity="${hf*0.6}"/><circle cx="50" cy="25" r="12" fill="${c.flower}" opacity="${hf*0.7}"/><circle cx="34" cy="35" r="7" fill="${c.flower}" opacity="${hf*0.6}"/><circle cx="66" cy="35" r="7" fill="${c.flower}" opacity="${hf*0.6}"/><circle cx="42" cy="40" r="5" fill="${c.flower}" opacity="${hf*0.5}"/><circle cx="58" cy="40" r="5" fill="${c.flower}" opacity="${hf*0.5}"/>${ready ? `<text x="50" y="12" font-size="14" text-anchor="middle" fill="#ffd700">✨</text>` : ''}${isSick ? `<circle cx="50" cy="55" r="20" fill="none" stroke="#e53935" stroke-width="1.5" opacity="0.4"><animate attributeName="r" from="18" to="22" dur="0.8s" repeatCount="indefinite"/></circle>` : ''}${hasPests ? `<circle cx="50" cy="60" r="22" fill="none" stroke="#ffb300" stroke-width="1.5" opacity="0.4"><animate attributeName="r" from="20" to="24" dur="0.6s" repeatCount="indefinite"/></circle>` : ''}${pestEmoji}${thcText}</svg>`;
     }
     return svg;
 }
@@ -873,14 +1179,23 @@ function tickPots() {
     const dt = (now - (state.lastTick || now)) / 1000;
     state.lastTick = now;
     
+    const weather = getWeatherMult();
+    const isNight = (Math.floor(state.gameTime / 60) % 24) >= 22 || (Math.floor(state.gameTime / 60) % 24) < 6;
+    
     state.pots.forEach(pot => {
         if (!pot.isActive) return;
         if (!pot.strain) return;
         
-        let waterDrain = 0.3;
-        if (pot.stage >= 4) waterDrain = 0.6;
-        else if (pot.stage >= 3) waterDrain = 0.5;
-        else if (pot.stage >= 2) waterDrain = 0.35;
+        // Ночью растения спят
+        if (isNight && pot.stage >= 2 && pot.stage < 5) {
+            // Растения не растут ночью, но и не расходуют воду
+            return;
+        }
+        
+        let waterDrain = 0.3 * weather.waterMult;
+        if (pot.stage >= 4) waterDrain = 0.6 * weather.waterMult;
+        else if (pot.stage >= 3) waterDrain = 0.5 * weather.waterMult;
+        else if (pot.stage >= 2) waterDrain = 0.35 * weather.waterMult;
         
         if (state.room.auto && state.waterReservoir > 0) {
             const autoAmount = 0.2 * dt;
@@ -909,6 +1224,12 @@ function tickPots() {
         
         if (pot.water > 25) {
             pot.health = Math.min(100, pot.health + healthRegen * dt);
+        }
+        
+        // Урон от грозы
+        if (weather.id === 'storm' && Math.random() < 0.01) {
+            pot.health = Math.max(0, pot.health - 10);
+            showToast('⛈ Гроза повредила растение!', true);
         }
         
         if (pot.pests) {
@@ -970,6 +1291,8 @@ function tickPots() {
         updatePotStage(pot);
         updateTHC(pot);
     });
+    // Инвестиции каждый тик
+    processInvestments();
 }
 
 function updateTHC(pot) {
@@ -1012,6 +1335,9 @@ function getEffectiveTime(pot) {
     const s = getStrain(pot.strain);
     if (!s) return 9999;
     let mult = (pot.speedMult || 1);
+    const weather = getWeatherMult();
+    mult *= weather.speedMult;
+    
     if (pot.lamp && state.energy > 2) {
         const l = getLamp(pot.lamp);
         if (l) {
@@ -1142,6 +1468,7 @@ function harvest(id) {
     pot.yieldMult = 1;
     pot.thc = 0;
     
+    checkAchievements();
     save();
     render();
 }
@@ -1197,15 +1524,15 @@ function treatPests(potId) {
     pot.pests = false;
     pot.pestLevel = 0;
     pot.health = Math.min(100, pot.health + 20);
+    state.pestsKilled = (state.pestsKilled || 0) + 1;
     showToast('💊 Вредители уничтожены! Растение здорово!');
     haptic('success');
+    checkAchievements();
     save();
     render();
 }
 
-function treatPestsAction(id) {
-    treatPests(id);
-}
+function treatPestsAction(id) { treatPests(id); }
 
 function openSeedModal(id) {
     const pot = state.pots.find(p => p.id === id);
@@ -1215,6 +1542,31 @@ function openSeedModal(id) {
     selectedPotId = id;
     const list = document.getElementById('seed-list');
     list.innerHTML = '';
+    // Гибриды в отдельной секции
+    if (state.hybrids && state.hybrids.length > 0) {
+        const title = document.createElement('div');
+        title.className = 'section-title';
+        title.textContent = '🧬 ГИБРИДЫ';
+        list.appendChild(title);
+        state.hybrids.forEach(h => {
+            const c = document.createElement('div');
+            c.className = 'card';
+            c.innerHTML = `
+                <div class="card-emoji">🧬</div>
+                <div class="card-info">
+                    <div class="card-title">${h.name}</div>
+                    <div class="card-desc">ТГК: ${h.thc}% · Качество: ${h.quality.toFixed(1)}</div>
+                </div>
+                <button class="btn btn-small btn-purple" onclick="plantHybrid('${h.id}')">🌱 Посадить</button>
+            `;
+            list.appendChild(c);
+        });
+    }
+    // Обычные сорта
+    const title2 = document.createElement('div');
+    title2.className = 'section-title';
+    title2.textContent = '🌿 СОРТА';
+    list.appendChild(title2);
     STRAINS.forEach(s => {
         const unlocked = state.level >= s.unlock;
         const can = state.money >= s.seedPrice && state.energy >= s.energyCost;
@@ -1238,6 +1590,42 @@ function openSeedModal(id) {
         list.appendChild(c);
     });
     document.getElementById('modal-seed').classList.add('show');
+}
+
+function plantHybrid(hybridId) {
+    const h = state.hybrids.find(h => h.id === hybridId);
+    if (!h) return;
+    const pot = state.pots.find(p => p.id === selectedPotId);
+    if (!pot || !pot.isActive || pot.strain) {
+        showToast('Горшок занят или неактивен', true);
+        return;
+    }
+    // Платим за гибрид
+    if (state.money < 100) {
+        showToast('Нужно 100$ для посадки гибрида', true);
+        return;
+    }
+    state.money -= 100;
+    pot.strain = h.parents[0]; // используем первый родительский сорт как основу
+    pot.plantedAt = Date.now();
+    pot.water = 80;
+    pot.health = 100;
+    pot.stage = 1;
+    pot.disease = false;
+    pot.pests = false;
+    pot.pestLevel = 0;
+    pot.speedMult = 1 + (h.quality - 1) * 0.2;
+    pot.yieldMult = 1 + (h.quality - 1) * 0.15;
+    pot.lastTick = Date.now();
+    pot.thc = h.thc * 0.5;
+    pot.isHybrid = true;
+    pot.hybridParents = h.parents;
+    closeModal('modal-seed');
+    showToast('🧬 Посажен гибрид: ' + h.name);
+    haptic('medium');
+    addXp(10);
+    save();
+    render();
 }
 
 function plantSeed(sid) {
@@ -1266,6 +1654,8 @@ function plantSeed(sid) {
     pot.yieldMult = 1;
     pot.lastTick = Date.now();
     pot.thc = 0;
+    pot.isHybrid = false;
+    pot.hybridParents = [];
     closeModal('modal-seed');
     showToast('🌱 Посажено: ' + s.emoji + ' ' + s.name);
     haptic('medium');
@@ -1303,7 +1693,9 @@ function buyPot() {
         lastTick: Date.now(),
         _lastWarning: null,
         potLevel: maxLevel,
-        isActive: true
+        isActive: true,
+        isHybrid: false,
+        hybridParents: []
     });
     showToast('🪴 Новый горшок!');
     haptic('success');
@@ -1947,6 +2339,7 @@ function renderFarm() {
                 if (l) tags += ` ${l.emoji}`;
             }
             if (pot.fert) tags += ' 🧪';
+            if (pot.isHybrid) tags += ' 🧬';
             const thcDisplay = pot.thc > 0 ? `<div class="thc-indicator">💎 ТГК: ${Math.round(pot.thc)}%</div>` : '';
             let actions = '';
             if (ready && pot.isActive) {
@@ -1970,7 +2363,7 @@ function renderFarm() {
             }
             div.innerHTML += `
                 <div class="pot-emoji">${pot.isActive ? (STAGE_EMOJI[pot.stage] || '🌱') : '🔒'}</div>
-                <div class="pot-name">${pot.isActive ? (s.emoji + ' ' + s.name + tags) : '🔒 Закрыт'}</div>
+                <div class="pot-name">${pot.isActive ? (s?.emoji + ' ' + s?.name + tags) : '🔒 Закрыт'}</div>
                 ${pot.isActive ? thcDisplay : ''}
                 <div class="pot-status">${pot.isActive ? (ready ? '✅ Готово!' : STAGE_NAMES[pot.stage] + ' · ' + formatTime(left)) : 'Недоступен'}</div>
                 ${pot.isActive ? `<div class="plant-container">${getPlantSVG(pot.strain, pot.stage, pot.health, pot.disease, ready, pot.pests, pot.thc, pot.water)}</div>` : ''}
@@ -2193,9 +2586,9 @@ function renderRoom() {
     const info = document.getElementById('room-info');
     if (!info) return;
     info.innerHTML = `
-        <div class="room-grid">
-            <div class="room-item"><span class="big">🪴</span><div>${state.pots.length}</div><div class="label">Горшков</div></div>
-            <div class="room-item"><span class="big">${state.room.vent ? '✅' : '❌'}</span><div>${state.room.vent ? 'Вкл' : 'Выкл'}</div><div class="label">Вентиляция (снижает палево)</div></div>
+        <div class="room-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+            <div class="room-item" style="background:rgba(255,255,255,0.03);padding:6px;border-radius:8px;text-align:center;font-size:10px"><span class="big" style="font-size:20px;display:block">🪴</span><div>${state.pots.length}</div><div class="label" style="color:var(--hint);font-size:8px">Горшков</div></div>
+            <div class="room-item"><span class="big">${state.room.vent ? '✅' : '❌'}</span><div>${state.room.vent ? 'Вкл' : 'Выкл'}</div><div class="label">Вентиляция</div></div>
             <div class="room-item"><span class="big">${state.room.auto ? '✅' : '❌'}</span><div>${state.room.auto ? 'Вкл' : 'Выкл'}</div><div class="label">Автополив</div></div>
             <div class="room-item" style="grid-column:span 3;"><span class="big">${state.room.heater ? '✅' : '❌'}</span><div>${state.room.heater ? 'Вкл' : 'Выкл'}</div><div class="label">Обогреватель</div></div>
         </div>
@@ -2259,6 +2652,8 @@ function renderProfile() {
     const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
     const phase = hours >= 6 && hours < 18 ? '☀️ День' : '🌙 Ночь';
     document.getElementById('profile-time').textContent = timeStr + ' ' + phase;
+    document.getElementById('profile-achievements').textContent = state.achievements.length || 0;
+    document.getElementById('profile-investments').textContent = state.investments.length || 0;
 }
 
 function renderFriends() {
@@ -2297,7 +2692,7 @@ function renderSocial() {
         let html = '<div class="section-title">📩 Заявки в друзья</div>';
         state.friendRequests.forEach((req, i) => {
             html += `
-                <div class="request-item">
+                <div class="request-item" style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px">
                     <span>${req.name}</span>
                     <div>
                         <button class="btn btn-small" onclick="acceptFriend(${i})">✅</button>
@@ -2328,8 +2723,8 @@ function renderSocial() {
             const dotClass = isOnline ? 'online' : 'offline';
             const statusText = isOnline ? '🟢 онлайн' : '⚪ офлайн';
             html += `
-                <div class="friend-item">
-                    <span class="online-dot ${dotClass}"></span>
+                <div class="friend-item" style="background:rgba(16,30,16,0.85);border-radius:12px;padding:10px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.04);margin-bottom:6px">
+                    <span class="online-dot ${dotClass}" style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px"></span>
                     <span style="flex:1;font-weight:600;">${friend.name}</span>
                     <span style="font-size:10px;color:var(--hint);">💰${money} • 🏆${level}</span>
                     <span style="font-size:8px;color:var(--hint);">${statusText}</span>
@@ -2366,6 +2761,8 @@ function renderHeader() {
     document.getElementById('rep').textContent = state.rep;
     document.getElementById('heat').textContent = Math.floor(state.heat);
     document.getElementById('xp-badge').textContent = `${state.xp}/${xpFor(state.level)} XP`;
+    const w = getWeatherMult();
+    document.getElementById('weatherDisplay').textContent = w.emoji + ' ' + w.name;
 }
 
 function render() {
@@ -2381,6 +2778,7 @@ function render() {
     renderSocial();
     updateBonusTimer();
     updateGameTime();
+    checkAchievements();
 }
 
 // ============================================================
@@ -2544,8 +2942,8 @@ function renderChat() {
     const msgs = chatMessages.slice(-20);
     if (msgs.length === 0) {
         el.innerHTML = `
-            <div class="chat-message">
-                <span class="sender">💬</span>
+            <div class="chat-message" style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px">
+                <span class="sender" style="font-weight:600;color:var(--accent)">💬</span>
                 <div>Нет сообщений. Напиши первое!</div>
             </div>
         `;
@@ -2554,7 +2952,7 @@ function renderChat() {
     el.innerHTML = msgs.map(msg => `
         <div class="chat-message">
             <span class="sender">${msg.from === userId ? '👤' : ''} ${msg.name}</span>
-            <span class="time">${new Date(msg.time).toLocaleTimeString()}</span>
+            <span class="time" style="font-size:8px;color:var(--hint);float:right">${new Date(msg.time).toLocaleTimeString()}</span>
             <div>${msg.text}</div>
         </div>
     `).join('');
@@ -2724,6 +3122,7 @@ setInterval(() => {
     renderMarket();
     updateBonusTimer();
     updateGameTime();
+    updateWeather();
     save();
     syncWithServer();
 }, 1500);
@@ -2739,6 +3138,10 @@ setInterval(() => {
 setInterval(() => {
     updateGameTime();
 }, 1000);
+
+setInterval(() => {
+    updateWeather();
+}, 5000);
 
 load();
 handleReferral();
@@ -2787,11 +3190,16 @@ window.sendDailyBonus = sendDailyBonus;
 window.sendChatMessage = sendChatMessage;
 window.handlePoliceChoice = handlePoliceChoice;
 window.closePoliceModal = closePoliceModal;
+window.openCrossModal = openCrossModal;
+window.openAchievementsModal = openAchievementsModal;
+window.openInvestModal = openInvestModal;
+window.openTradeModal = openTradeModal;
 
-console.log('🌿 Игра загружена!');
-console.log('📝 Регистрация на сервере:', state.registered ? '✅ Да' : '❌ Нет');
+console.log('🌿 Weed Grow Simulator 2.0 загружена!');
+console.log('🧬 Гибридов:', state.hybrids?.length || 0);
+console.log('🏆 Достижений:', state.achievements?.length || 0);
+console.log('📈 Инвестиций:', state.investments?.length || 0);
 console.log('👥 Друзей:', state.friends?.length || 0);
-console.log('💧 Вода в резервуаре:', state.waterReservoir || 0);
 </script>
 </body>
 </html>
