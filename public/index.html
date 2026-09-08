@@ -6,151 +6,129 @@
 <title>🌿 Weed Grow Simulator</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-/* ============================================================
-   БАЗОВЫЕ СТИЛИ
-   ============================================================ */
-:root{--bg:#0a0f0a;--text:#e0e8e0;--hint:#6a8a6a;--button:#2e7d32;--button-text:#fff;--secondary:#0d1a0d;--accent:#4caf50;--danger:#e53935;--warning:#ffb300;--purple:#7b1fa2;--blue:#1e88e5;--gold:#ffd700;--soil:#3e2723;--sky:#1a2a1a}
+:root{--bg:#0a0f0a;--text:#e0e8e0;--hint:#6a8a6a;--button:#2e7d32;--button-text:#fff;--secondary:#0d1a0d;--accent:#4caf50;--danger:#e53935;--warning:#ffb300;--purple:#7b1fa2;--blue:#1e88e5;--gold:#ffd700;--soil:#3e2723}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:20px;overflow-x:hidden;background-image:linear-gradient(180deg,#0a1a0a 0%,#0d1a0d 40%,#1a2a1a 100%)}
-
-/* ============================================================
-   ХЕДЕР
-   ============================================================ */
-.header{position:sticky;top:0;z-index:100;background:rgba(10,20,10,0.95);backdrop-filter:blur(12px);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(76,175,80,0.15)}
-.stats{display:flex;gap:4px;font-size:10px;font-weight:600;flex-wrap:wrap}
-.stat{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,0.04);padding:2px 8px;border-radius:14px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:20px;overflow-x:hidden;background:linear-gradient(180deg,#0a1a0a,#0d1a0d 40%,#1a2a1a)}
+.snoop-high{animation:snoopShake 0.08s ease-in-out infinite alternate,snoopFlash 0.15s ease-in-out infinite alternate}
+@keyframes snoopShake{0%{transform:translateX(-4px) rotate(-0.5deg)}100%{transform:translateX(4px) rotate(0.5deg)}}
+@keyframes snoopFlash{0%{opacity:1}50%{opacity:0.3}100%{opacity:1}}
+.snoop-overlay{position:fixed;inset:0;background:rgba(139,69,19,0.15);pointer-events:none;z-index:999;display:none}
+.snoop-overlay.active{display:block;animation:snoopFlash 0.15s ease-in-out infinite alternate}
+.snoop-popup{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) scale(0.8);background:linear-gradient(145deg,#1a0d0a,#2d1a10);border:2px solid #d7a86e;border-radius:20px;padding:16px 20px;z-index:1000;display:none;max-width:340px;width:90%;text-align:center;box-shadow:0 10px 50px rgba(0,0,0,0.9);opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+.snoop-popup.show{display:block;opacity:1;transform:translateX(-50%) scale(1)}
+.snoop-popup .snoop-avatar{font-size:64px;display:block;margin-bottom:4px;animation:snoopFloat 2s ease-in-out infinite}
+@keyframes snoopFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.snoop-popup .snoop-text{font-size:16px;font-weight:700;color:#d7a86e;margin-bottom:4px;text-shadow:0 0 20px rgba(215,168,110,0.2)}
+.snoop-popup .snoop-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:8px}
+.snoop-popup .snoop-btn{background:linear-gradient(135deg,#d7a86e,#a67c52);border:none;border-radius:12px;padding:10px 28px;font-size:15px;font-weight:700;color:#1a100d;cursor:pointer;box-shadow:0 4px 20px rgba(215,168,110,0.25);transition:transform 0.2s;margin:4px 6px}
+.snoop-popup .snoop-btn:active{transform:scale(0.94)}
+.snoop-popup .snoop-btn-secondary{background:rgba(255,255,255,0.08);color:#fff;font-size:12px;padding:6px 16px;box-shadow:none}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,20,10,0.95);backdrop-filter:blur(12px);padding:6px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(76,175,80,0.1)}
+.stats{display:flex;gap:4px;font-size:9px;font-weight:600;flex-wrap:wrap}
+.stat{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,0.04);padding:2px 6px;border-radius:12px}
 .stat span{color:var(--accent)}
-.level-badge{background:var(--purple);color:#fff;font-size:9px;padding:2px 8px;border-radius:10px;font-weight:700;white-space:nowrap}
-
-/* ============================================================
-   ТАБЫ
-   ============================================================ */
-.tabs{display:flex;background:rgba(10,20,10,0.9);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.04);overflow-x:auto;padding:4px 0;justify-content:center}
-.tab{flex:0 0 auto;padding:5px 8px;text-align:center;font-size:8px;font-weight:600;cursor:pointer;opacity:0.5;transition:all 0.3s;border-bottom:2px solid transparent;min-width:32px;white-space:nowrap}
+.level-badge{background:var(--purple);color:#fff;font-size:8px;padding:2px 8px;border-radius:8px;font-weight:700;white-space:nowrap}
+.tabs{display:flex;background:rgba(10,20,10,0.9);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.04);overflow-x:auto;padding:3px 0;justify-content:center}
+.tab{flex:0 0 auto;padding:4px 6px;text-align:center;font-size:7px;font-weight:600;cursor:pointer;opacity:0.5;transition:all 0.3s;border-bottom:2px solid transparent;min-width:28px;white-space:nowrap}
 .tab.active{opacity:1;border-bottom-color:var(--accent);color:var(--accent)}
-.content{padding:8px}.section{display:none}.section.active{display:block}
-
-/* ============================================================
-   ФЕРМА
-   ============================================================ */
-.farm-scene{background:linear-gradient(180deg,#1a3a1a 0%,#0d1a0d 60%,#1a2a1a 100%);border-radius:16px;padding:12px;margin-bottom:10px;border:1px solid rgba(76,175,80,0.1);position:relative;overflow:hidden;min-height:300px}
-.farm-scene::before{content:'🌿';position:absolute;bottom:10px;left:10px;font-size:80px;opacity:0.1}
-.farm-scene::after{content:'🌱';position:absolute;bottom:10px;right:10px;font-size:60px;opacity:0.08}
-.farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.pot{background:linear-gradient(145deg,#1a2a1a,#0d1a0d);border-radius:14px;padding:10px 6px 8px;text-align:center;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.04);transition:all 0.3s ease;min-height:180px;display:flex;flex-direction:column;align-items:center}
-.pot:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,0.4)}
-.pot .soil{position:absolute;bottom:0;left:0;right:0;height:30%;background:linear-gradient(to top,#3e2723,#5d4037);border-radius:0 0 14px 14px;opacity:0.4}
-.pot .pot-emoji{font-size:24px;line-height:1;margin-bottom:2px;position:relative;z-index:2}
-.pot .pot-name{font-size:10px;font-weight:600;z-index:1;position:relative}
-.pot .pot-status{font-size:9px;color:var(--hint);margin:2px 0 4px;z-index:1;position:relative}
-.pot.ready{border-color:var(--accent);box-shadow:0 0 25px rgba(76,175,80,0.1)}
-.pot.needs-water{border-color:var(--blue);box-shadow:0 0 20px rgba(30,136,229,0.05)}
+.content{padding:6px}.section{display:none}.section.active{display:block}
+.farm-scene{background:linear-gradient(180deg,#1a3a1a,#0d1a0d 60%,#1a2a1a);border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid rgba(76,175,80,0.08);position:relative;overflow:hidden;min-height:200px}
+.farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.pot{background:linear-gradient(145deg,#1a2a1a,#0d1a0d);border-radius:12px;padding:8px 4px 6px;text-align:center;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.04);min-height:160px;display:flex;flex-direction:column;align-items:center}
+.pot .soil{position:absolute;bottom:0;left:0;right:0;height:25%;background:linear-gradient(to top,#3e2723,#5d4037);border-radius:0 0 12px 12px;opacity:0.3}
+.pot .pot-emoji{font-size:20px;line-height:1;margin-bottom:2px;position:relative;z-index:2}
+.pot .pot-name{font-size:9px;font-weight:600;z-index:1;position:relative}
+.pot .pot-status{font-size:8px;color:var(--hint);margin:1px 0 3px;z-index:1;position:relative}
+.pot.ready{border-color:var(--accent);box-shadow:0 0 20px rgba(76,175,80,0.1)}
+.pot.needs-water{border-color:var(--blue)}
 .pot.sick{border-color:var(--danger);animation:shake 0.4s ease-in-out infinite alternate}
 @keyframes shake{0%{transform:translateX(-1px)}100%{transform:translateX(1px)}}
-
-/* РАСТЕНИЯ В SVG */
-.plant-container{position:relative;z-index:1;width:100%;height:80px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px}
-.plant-container svg{width:70px;height:80px;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.3));transition:transform 0.5s}
+.plant-container{position:relative;z-index:1;width:100%;height:70px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px}
+.plant-container svg{width:60px;height:70px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));transition:transform 0.5s}
 .plant-container svg.ready{animation:sway 2s ease-in-out infinite,glowPlant 1.5s ease-in-out infinite}
 @keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
-@keyframes glowPlant{0%,100%{filter:drop-shadow(0 4px 10px rgba(255,215,0,0.1))}50%{filter:drop-shadow(0 4px 25px rgba(255,215,0,0.3))}}
-
-/* БАРЫ */
-.bars{width:100%;display:flex;flex-direction:column;gap:2px;margin:3px 0;z-index:1;position:relative}
-.bar-row{display:flex;align-items:center;gap:3px;font-size:7px}
-.bar-row span{width:10px;font-size:8px}
-.bar{flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+@keyframes glowPlant{0%,100%{filter:drop-shadow(0 2px 8px rgba(255,215,0,0.1))}50%{filter:drop-shadow(0 2px 20px rgba(255,215,0,0.3))}}
+.bars{width:100%;display:flex;flex-direction:column;gap:1px;margin:2px 0;z-index:1;position:relative}
+.bar-row{display:flex;align-items:center;gap:2px;font-size:6px}
+.bar-row span{width:8px;font-size:7px}
+.bar{flex:1;height:2px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
 .bar-fill{height:100%;border-radius:2px;transition:width 0.5s}
 .bar-fill.water{background:linear-gradient(90deg,#1565c0,#42a5f5)}
 .bar-fill.health{background:linear-gradient(90deg,#2e7d32,#66bb6a)}
 .bar-fill.growth{background:linear-gradient(90deg,#f57f17,#ffb300)}
-
-/* КНОПКИ */
-.pot-actions{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;z-index:1;position:relative;width:100%}
-.btn{background:var(--button);color:var(--button-text);border:none;border-radius:8px;padding:4px 8px;font-size:9px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 6px rgba(46,125,50,0.2)}
+.pot-actions{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;z-index:1;position:relative;width:100%}
+.btn{background:var(--button);color:var(--button-text);border:none;border-radius:6px;padding:3px 6px;font-size:8px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 1px 4px rgba(46,125,50,0.15)}
 .btn:active{transform:scale(0.95)}
-.btn-secondary{background:rgba(255,255,255,0.06);color:var(--text);box-shadow:none}
-.btn-blue{background:var(--blue);box-shadow:0 2px 6px rgba(30,136,229,0.2)}
-.btn-warning{background:var(--warning);color:#111;box-shadow:0 2px 6px rgba(255,179,0,0.2)}
-.btn-purple{background:var(--purple);box-shadow:0 2px 6px rgba(123,31,162,0.2)}
-.btn-gold{background:var(--gold);color:#111;box-shadow:0 2px 8px rgba(255,215,0,0.2)}
-.btn-smoke{background:linear-gradient(135deg,#795548,#4e342e);color:#fff}
-.btn-taste{background:linear-gradient(135deg,#ff6f00,#ff8f00);color:#fff}
-.btn-small{padding:2px 5px;font-size:8px}
+.btn-secondary{background:rgba(255,255,255,0.05);color:var(--text);box-shadow:none}
+.btn-blue{background:var(--blue)}
+.btn-warning{background:var(--warning);color:#111}
+.btn-purple{background:var(--purple)}
+.btn-gold{background:var(--gold);color:#111}
+.btn-small{padding:2px 4px;font-size:7px}
 .btn-full{width:100%}
-
-/* ТЕГИ */
-.boost-tag{display:inline-block;background:rgba(33,150,243,0.15);color:#64b5f6;font-size:6px;padding:1px 4px;border-radius:4px;margin-left:2px}
-.boost-tag.fert{background:rgba(255,179,0,0.15);color:#ffb300}
-.boost-tag.sick{background:rgba(229,57,53,0.2);color:#ef5350;animation:blink 0.8s infinite}
-.boost-tag.gold{background:rgba(255,215,0,0.15);color:#ffd700}
-.boost-tag.market{background:rgba(76,175,80,0.15);color:#4caf50}
+.boost-tag{display:inline-block;background:rgba(33,150,243,0.12);color:#64b5f6;font-size:5px;padding:1px 3px;border-radius:3px;margin-left:1px}
+.boost-tag.fert{background:rgba(255,179,0,0.12);color:#ffb300}
+.boost-tag.sick{background:rgba(229,57,53,0.15);color:#ef5350;animation:blink 0.8s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
-
-/* ============================================================
-   РЫНОК
-   ============================================================ */
-.market-panel{background:rgba(10,20,10,0.8);border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid rgba(255,215,0,0.1)}
-.market-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.market-item{background:rgba(255,255,255,0.03);border-radius:8px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;font-size:10px}
-.market-item .price{color:var(--gold);font-weight:700}
-.market-item .change{font-size:8px}
-.market-item .change.up{color:#4caf50}
-.market-item .change.down{color:#e53935}
-.market-timer{text-align:center;font-size:9px;color:var(--hint);margin-top:6px}
-
-/* ============================================================
-   КАРТОЧКИ
-   ============================================================ */
-.card{background:rgba(16,30,16,0.8);backdrop-filter:blur(4px);border-radius:10px;padding:8px;display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,0.04)}
-.card-emoji{font-size:20px;width:28px;text-align:center}
+.card{background:rgba(16,30,16,0.8);backdrop-filter:blur(4px);border-radius:8px;padding:6px;display:flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,0.04)}
+.card-emoji{font-size:18px;width:24px;text-align:center}
 .card-info{flex:1;min-width:0}
-.card-title{font-weight:600;font-size:11px}
-.card-desc{font-size:9px;color:var(--hint)}
+.card-title{font-weight:600;font-size:10px}
+.card-desc{font-size:8px;color:var(--hint)}
 .card-locked{opacity:0.4;filter:grayscale(0.6)}
-.inv-count{background:var(--accent);color:#fff;font-size:7px;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:3px}
-.section-title{font-size:9px;font-weight:600;color:var(--hint);margin:8px 0 4px;text-transform:uppercase;letter-spacing:0.3px}
-
-/* ============================================================
-   МОДАЛКИ
-   ============================================================ */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:flex-end;justify-content:center;z-index:200;padding:10px}
+.inv-count{background:var(--accent);color:#fff;font-size:6px;font-weight:700;padding:1px 4px;border-radius:4px;margin-left:2px}
+.section-title{font-size:8px;font-weight:600;color:var(--hint);margin:6px 0 3px;text-transform:uppercase;letter-spacing:0.3px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:flex-end;justify-content:center;z-index:200;padding:8px}
 .modal-overlay.show{display:flex}
-.modal{background:var(--secondary);border-radius:16px 16px 0 0;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;padding:14px;border-top:1px solid rgba(76,175,80,0.1)}
-.modal-title{font-size:14px;font-weight:700;margin-bottom:10px;text-align:center}
-
-/* ============================================================
-   ТОСТЫ
-   ============================================================ */
-.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--accent);color:#fff;padding:6px 14px;border-radius:30px;font-size:11px;font-weight:600;opacity:0;transition:all 0.3s;z-index:300;pointer-events:none;max-width:90%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+.modal{background:var(--secondary);border-radius:14px 14px 0 0;width:100%;max-width:480px;max-height:75vh;overflow-y:auto;padding:12px;border-top:1px solid rgba(76,175,80,0.08)}
+.modal-title{font-size:13px;font-weight:700;margin-bottom:8px;text-align:center}
+.toast{position:fixed;top:50px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--accent);color:#fff;padding:5px 12px;border-radius:30px;font-size:10px;font-weight:600;opacity:0;transition:all 0.3s;z-index:300;pointer-events:none;max-width:90%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.error{background:var(--danger)}
-.toast.event{background:linear-gradient(135deg,#ff6f00,#ff8f00)}
-
-/* ============================================================
-   ПРОЧЕЕ
-   ============================================================ */
-.empty{text-align:center;padding:20px 12px;color:var(--hint)}
-.empty-emoji{font-size:32px;margin-bottom:4px}
-.room-info{background:rgba(16,30,16,0.8);border-radius:10px;padding:10px;margin-bottom:8px;font-size:11px;border:1px solid rgba(255,255,255,0.04)}
-.ref-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:12px;padding:12px;text-align:center}
-.profile-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:12px;padding:14px;text-align:center;border:1px solid rgba(255,255,255,0.05)}
-.profile-stat{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px}
+.empty{text-align:center;padding:16px 10px;color:var(--hint)}
+.empty-emoji{font-size:28px;margin-bottom:2px}
+.room-info{background:rgba(16,30,16,0.8);border-radius:8px;padding:8px;margin-bottom:6px;font-size:10px;border:1px solid rgba(255,255,255,0.04)}
+.ref-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:10px;padding:10px;text-align:center}
+.profile-card{background:linear-gradient(135deg,#1a237e,#283593);border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,0.04)}
+.profile-stat{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10px}
 .profile-stat:last-child{border-bottom:none}
 .profile-stat .label{color:var(--hint)}
 .profile-stat .value{color:var(--text);font-weight:600}
-
-/* ============================================================
-   АДАПТИВ
-   ============================================================ */
-@media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:8px;gap:3px}.stat{padding:1px 5px}.plant-container{height:70px}.plant-container svg{width:60px;height:70px}.tab{font-size:7px;padding:3px 4px;min-width:24px}.market-grid{grid-template-columns:1fr}}
+.market-panel{background:rgba(10,20,10,0.8);border-radius:10px;padding:8px;margin-bottom:8px;border:1px solid rgba(255,215,0,0.06)}
+.market-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.market-item{background:rgba(255,255,255,0.02);border-radius:6px;padding:4px 6px;display:flex;justify-content:space-between;align-items:center;font-size:9px}
+.market-item .price{color:var(--gold);font-weight:700}
+.market-item .change{font-size:7px}
+.market-item .change.up{color:#4caf50}
+.market-item .change.down{color:#e53935}
+.market-timer{text-align:center;font-size:8px;color:var(--hint);margin-top:4px}
+.rank-card{background:rgba(16,30,16,0.8);border-radius:8px;padding:4px 8px;margin-bottom:3px;display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,0.04);font-size:9px}
+.rank-card.top1{border-color:var(--gold);background:rgba(255,215,0,0.05)}
+.rank-card.top2{border-color:#c0c0c0;background:rgba(192,192,192,0.04)}
+.rank-card.top3{border-color:#cd7f32;background:rgba(205,127,50,0.04)}
+.rank-card .rank-pos{font-weight:700;font-size:11px;min-width:20px;color:var(--hint)}
+.rank-card .rank-name{flex:1;font-weight:600;font-size:10px}
+.rank-card .rank-money{font-size:10px;color:var(--gold)}
+.rank-card .rank-level{font-size:8px;color:var(--hint);margin-left:4px}
+.rank-card .rank-badge{font-size:12px}
+.my-rank{background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(255,215,0,0.02));border:1px solid var(--gold);border-radius:8px;padding:8px;margin-top:6px;text-align:center;font-size:11px}
+@media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:7px;gap:2px}.stat{padding:1px 4px}.plant-container{height:60px}.plant-container svg{width:50px;height:60px}.tab{font-size:6px;padding:2px 3px;min-width:20px}.market-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- ============================================================
-   ХЕДЕР
-   ============================================================ -->
+<!-- СНУП ДОГГ -->
+<div class="snoop-overlay" id="snoopOverlay"></div>
+<div class="snoop-popup" id="snoopPopup">
+    <span class="snoop-avatar">🐶</span>
+    <div class="snoop-text">🍁 Снуп Догг тут!</div>
+    <div class="snoop-sub">"Эй, братан! Попробуй мою убойную травку — экран будет трястись 30 секунд! И 50$ твои!"</div>
+    <div>
+        <button class="snoop-btn" onclick="acceptSnoop()">🔥 ДАВАЙ!</button>
+        <button class="snoop-btn snoop-btn-secondary" onclick="rejectSnoop()">Не сегодня</button>
+    </div>
+</div>
+
 <div class="header">
   <div class="stats">
     <div class="stat">💰 <span id="money">0</span>$</div>
@@ -161,35 +139,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="level-badge" id="xp-badge">0 XP</div>
 </div>
 
-<!-- ============================================================
-   ТАБЫ
-   ============================================================ -->
 <div class="tabs">
-  <div class="tab active" data-tab="farm">🌱 Ферма</div>
-  <div class="tab" data-tab="market">📊 Рынок</div>
-  <div class="tab" data-tab="shop">🛒 Магазин</div>
-  <div class="tab" data-tab="inventory">📦 Склад</div>
-  <div class="tab" data-tab="room">🏠 Комната</div>
-  <div class="tab" data-tab="profile">👤 Профиль</div>
-  <div class="tab" data-tab="friends">👥 Друзья</div>
+  <div class="tab active" data-tab="farm">🌱</div>
+  <div class="tab" data-tab="market">📊</div>
+  <div class="tab" data-tab="shop">🛒</div>
+  <div class="tab" data-tab="inventory">📦</div>
+  <div class="tab" data-tab="room">🏠</div>
+  <div class="tab" data-tab="profile">👤</div>
+  <div class="tab" data-tab="leaderboard">🏆</div>
+  <div class="tab" data-tab="friends">👥</div>
 </div>
 
-<!-- ============================================================
-   КОНТЕНТ
-   ============================================================ -->
 <div class="content">
-
-  <!-- ФЕРМА -->
   <div class="section active" id="section-farm">
     <div class="farm-scene">
       <div class="farm-grid" id="farm-grid"></div>
     </div>
-    <div style="margin-top:8px;text-align:center">
+    <div style="margin-top:6px;text-align:center">
       <button class="btn btn-secondary btn-full" id="btn-buy-pot" onclick="buyPot()">➕ Купить горшок</button>
     </div>
   </div>
 
-  <!-- РЫНОК -->
   <div class="section" id="section-market">
     <div class="market-panel">
       <div class="market-grid" id="market-grid"></div>
@@ -197,85 +167,67 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
   </div>
 
-  <!-- МАГАЗИН -->
   <div class="section" id="section-shop">
     <div class="card-list" id="shop-list"></div>
   </div>
 
-  <!-- СКЛАД -->
   <div class="section" id="section-inventory">
     <div class="card-list" id="inventory-list"></div>
-    <div style="margin-top:8px"><button class="btn btn-full" onclick="sellAll()" id="btn-sell-all">💰 Продать всё</button></div>
+    <div style="margin-top:6px"><button class="btn btn-full" onclick="sellAll()" id="btn-sell-all">💰 Продать всё</button></div>
   </div>
 
-  <!-- КОМНАТА -->
   <div class="section" id="section-room">
     <div class="room-info" id="room-info"></div>
     <div class="card-list" id="room-list"></div>
   </div>
 
-  <!-- ПРОФИЛЬ -->
   <div class="section" id="section-profile">
-    <div class="profile-card" id="profile-card">
-      <div style="font-size:40px;margin-bottom:4px;">👤</div>
-      <div style="font-size:16px;font-weight:700;margin-bottom:2px;" id="profile-name">Игрок</div>
-      <div style="font-size:10px;color:var(--hint);margin-bottom:8px;" id="profile-id">ID: загрузка...</div>
+    <div class="profile-card">
+      <div style="font-size:36px;margin-bottom:2px;">👤</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:2px;" id="profile-name">Игрок</div>
+      <div style="font-size:9px;color:var(--hint);margin-bottom:6px;" id="profile-id">ID: загрузка...</div>
       <div class="profile-stat"><span class="label">📅 Дата регистрации</span><span class="value" id="profile-regdate">--</span></div>
       <div class="profile-stat"><span class="label">🏆 Уровень</span><span class="value" id="profile-level">1</span></div>
       <div class="profile-stat"><span class="label">💰 Денег</span><span class="value" id="profile-money">0$</span></div>
       <div class="profile-stat"><span class="label">⚡ Энергии</span><span class="value" id="profile-energy">100</span></div>
-      <div class="profile-stat"><span class="label">🌿 Собрано урожаев</span><span class="value" id="profile-harvests">0</span></div>
+      <div class="profile-stat"><span class="label">🌿 Собрано</span><span class="value" id="profile-harvests">0</span></div>
       <div class="profile-stat"><span class="label">🪴 Горшков</span><span class="value" id="profile-pots">0</span></div>
-      <div class="profile-stat"><span class="label">⏱ Время в игре</span><span class="value" id="profile-time">0м</span></div>
+      <div class="profile-stat"><span class="label">⏱ Время</span><span class="value" id="profile-time">0м</span></div>
+      <div class="profile-stat"><span class="label">🌀 Состояние</span><span class="value" id="profile-state">🧠 Норма</span></div>
     </div>
   </div>
 
-  <!-- ДРУЗЬЯ -->
+  <div class="section" id="section-leaderboard">
+    <div style="display:flex;gap:4px;margin-bottom:6px;">
+      <button class="btn btn-small" id="lb-monthly" onclick="loadLeaderboard('monthly')" style="flex:1;">📅 Месяц</button>
+      <button class="btn btn-small" id="lb-yearly" onclick="loadLeaderboard('yearly')" style="flex:1;">📅 Год</button>
+    </div>
+    <div id="leaderboard-list"><div class="empty">📊 Загрузка...</div></div>
+    <div id="my-rank" style="display:none;"></div>
+  </div>
+
   <div class="section" id="section-friends">
     <div class="ref-card">
-      <div style="font-weight:700;margin-bottom:4px;">👥 Пригласи друзей</div>
-      <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-bottom:6px;">За каждого: <b>+150$</b> и <b>+20⚡</b></div>
-      <div style="display:flex;justify-content:center;gap:12px;margin-bottom:6px;font-size:11px;">
+      <div style="font-weight:700;margin-bottom:3px;">👥 Пригласи друзей</div>
+      <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:4px;">За каждого: <b>+150$</b> и <b>+20⚡</b></div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-bottom:4px;font-size:10px;">
         <div>Приглашено: <b id="ref-count">0</b></div>
         <div>Заработано: <b id="ref-earned">0</b>$</div>
       </div>
       <button class="btn btn-full" onclick="shareReferral()">📤 Поделиться</button>
-      <button class="btn btn-secondary btn-full" style="margin-top:4px;" onclick="copyReferral()">📋 Скопировать</button>
-      <div id="friends-list" style="margin-top:8px;"></div>
+      <button class="btn btn-secondary btn-full" style="margin-top:3px;" onclick="copyReferral()">📋 Скопировать</button>
+      <div id="friends-list" style="margin-top:6px;"></div>
     </div>
   </div>
 </div>
 
-<!-- ============================================================
-   МОДАЛКИ
-   ============================================================ -->
-<div class="modal-overlay" id="modal-seed">
-  <div class="modal">
-    <div class="modal-title">🌱 Выбери семя</div>
-    <div class="card-list" id="seed-list"></div>
-    <button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="closeModal('modal-seed')">Отмена</button>
-  </div>
-</div>
-<div class="modal-overlay" id="modal-fert">
-  <div class="modal">
-    <div class="modal-title">🧪 Удобрения / Лечение</div>
-    <div class="card-list" id="fert-list"></div>
-    <button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="closeModal('modal-fert')">Отмена</button>
-  </div>
-</div>
-<div class="modal-overlay" id="modal-lamp">
-  <div class="modal">
-    <div class="modal-title">💡 Выбери лампу</div>
-    <div class="card-list" id="lamp-list"></div>
-    <button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="closeModal('modal-lamp')">Отмена</button>
-  </div>
-</div>
+<!-- МОДАЛКИ -->
+<div class="modal-overlay" id="modal-seed"><div class="modal"><div class="modal-title">🌱 Выбери семя</div><div class="card-list" id="seed-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-seed')">Отмена</button></div></div>
+<div class="modal-overlay" id="modal-fert"><div class="modal"><div class="modal-title">🧪 Удобрения</div><div class="card-list" id="fert-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-fert')">Отмена</button></div></div>
+<div class="modal-overlay" id="modal-lamp"><div class="modal"><div class="modal-title">💡 Лампы</div><div class="card-list" id="lamp-list"></div><button class="btn btn-secondary btn-full" style="margin-top:6px;" onclick="closeModal('modal-lamp')">Отмена</button></div></div>
 
 <div class="toast" id="toast"></div>
 
-<!-- ============================================================
-   JAVASCRIPT
-   ============================================================ -->
 <script>
 // ============================================================
 // ====== НАСТРОЙКИ ======
@@ -315,18 +267,18 @@ const STRAINS = [
 ];
 
 const POT_LEVELS = [
-    {id:1,name:'🪴 Базовый',price:0,class:'',desc:'Стандартный горшок'},
-    {id:2,name:'🪣 Железный',price:1000,class:'',desc:'Прочный железный горшок'},
-    {id:3,name:'🏺 Глиняный',price:2500,class:'',desc:'Дышит, корням комфортно'},
-    {id:4,name:'🎒 Мешок-горшок',price:5000,class:'',desc:'Специальный тканевый мешок'},
-    {id:5,name:'💎 Космический',price:10000,class:'',desc:'Инопланетная технология'}
+    {id:1,name:'🪴 Базовый',price:0,desc:'Стандартный горшок'},
+    {id:2,name:'🪣 Железный',price:1000,desc:'Прочный железный горшок'},
+    {id:3,name:'🏺 Глиняный',price:2500,desc:'Дышит, корням комфортно'},
+    {id:4,name:'🎒 Мешок-горшок',price:5000,desc:'Специальный тканевый мешок'},
+    {id:5,name:'💎 Космический',price:10000,desc:'Инопланетная технология'}
 ];
 
 const LAMPS = [
-    {id:'lamp1',name:'CFL',emoji:'💡',price:150,power:1.15,desc:'+15% скорость'},
-    {id:'lamp2',name:'LED',emoji:'✨',price:400,power:1.35,desc:'+35% скорость'},
-    {id:'lamp3',name:'HPS',emoji:'🔆',price:900,power:1.6,desc:'+60% скорость'},
-    {id:'lamp4',name:'Квантовая',emoji:'💎',price:2000,power:2.0,desc:'+100% скорость'}
+    {id:'lamp1',name:'CFL',emoji:'💡',price:150,power:1.15,desc:'+15%'},
+    {id:'lamp2',name:'LED',emoji:'✨',price:400,power:1.35,desc:'+35%'},
+    {id:'lamp3',name:'HPS',emoji:'🔆',price:900,power:1.6,desc:'+60%'},
+    {id:'lamp4',name:'Квантовая',emoji:'💎',price:2000,power:2.0,desc:'+100%'}
 ];
 const LAMP_ENERGY_COST = {lamp1:0.2,lamp2:0.4,lamp3:0.8,lamp4:1.2};
 
@@ -343,23 +295,8 @@ const ROOM_UPGRADES = [
     {id:'heater',name:'Обогреватель',emoji:'🔥',price:800,type:'heater',desc:'Скорость роста +15%'}
 ];
 
-const CUSTOMERS = [
-    {name:'Вася',emoji:'🧑🦰',prefer:null,mult:1.1,smoke:15,rep:1},
-    {name:'Марина',emoji:'👩',prefer:'haze',mult:1.35,smoke:20,rep:2},
-    {name:'Колян',emoji:'🧔',prefer:'skunk',mult:1.2,smoke:12,rep:1},
-    {name:'DJ Max',emoji:'🎧',prefer:'og',mult:1.55,smoke:25,rep:3},
-    {name:'Аня',emoji:'👱♀️',prefer:'widow',mult:1.3,smoke:18,rep:2},
-    {name:'Инопланетянин',emoji:'👽',prefer:'alien',mult:1.9,smoke:30,rep:4}
-];
-
 const STAGE_NAMES = ['','Семя','Росток','Вегетация','Цветение','Готово'];
 const STAGE_EMOJI = ['','🌱','🌿','🌳','🌸','✨'];
-const PRODUCTS = {
-    dried:{name:'Сушка',emoji:'🍂',mult:1.4,energy:3,from:'raw'},
-    joint:{name:'Косяк',emoji:'🚬',mult:1.9,energy:5,from:'dried',need:1},
-    oil:{name:'Масло',emoji:'🧴',mult:2.4,energy:8,from:'dried',need:2},
-    edible:{name:'Еда',emoji:'🍪',mult:2.8,energy:10,from:'dried',need:2}
-};
 
 // ============================================================
 // ====== СОСТОЯНИЕ ИГРЫ ======
@@ -389,9 +326,12 @@ let state = {
     potUpgrades: {},
     marketPrices: {},
     marketUpdateTime: 0,
-    lastTick: Date.now()
+    lastTick: Date.now(),
+    snoopCooldown: 0,
+    snoopActive: false
 };
 let selectedPotId = null;
+let snoopTimer = null;
 
 // ============================================================
 // ====== БАЗОВЫЕ ФУНКЦИИ ======
@@ -432,6 +372,8 @@ function load() {
     if (!state.potUpgrades) state.potUpgrades = {};
     if (!state.marketPrices) state.marketPrices = {};
     if (!state.marketUpdateTime) state.marketUpdateTime = 0;
+    if (!state.snoopCooldown) state.snoopCooldown = 0;
+    if (!state.snoopActive) state.snoopActive = false;
     updateMarketPrices();
 }
 
@@ -486,11 +428,60 @@ function addXp(a) {
 }
 
 // ============================================================
+// ====== СНУП ДОГГ ======
+// ============================================================
+function trySpawnSnoop() {
+    if (state.snoopActive) return;
+    if (Date.now() - state.snoopCooldown < 240000) return;
+    if (Math.random() > 0.08) return;
+    
+    document.getElementById('snoopPopup').classList.add('show');
+    document.getElementById('snoopOverlay').classList.add('active');
+    state.snoopActive = true;
+    haptic('warning');
+}
+
+function acceptSnoop() {
+    document.getElementById('snoopPopup').classList.remove('show');
+    document.getElementById('snoopOverlay').classList.remove('active');
+    
+    state.money += 50;
+    state.energy = Math.min(state.maxEnergy, state.energy + 20);
+    showToast('🔥 Сильный накур! +50$ +20⚡', false, 'event');
+    haptic('success');
+    
+    document.body.classList.add('snoop-high');
+    document.getElementById('snoopOverlay').classList.add('active');
+    document.getElementById('profile-state').textContent = '🔥 Убойная трава!';
+    
+    clearTimeout(snoopTimer);
+    snoopTimer = setTimeout(() => {
+        document.body.classList.remove('snoop-high');
+        document.getElementById('snoopOverlay').classList.remove('active');
+        document.getElementById('profile-state').textContent = '🧠 Норма';
+        showToast('🌀 Эффект убойной травы прошёл...');
+    }, 30000);
+    
+    state.snoopActive = false;
+    state.snoopCooldown = Date.now();
+    save();
+    render();
+}
+
+function rejectSnoop() {
+    document.getElementById('snoopPopup').classList.remove('show');
+    document.getElementById('snoopOverlay').classList.remove('active');
+    state.snoopActive = false;
+    state.snoopCooldown = Date.now();
+    showToast('Снуп Догг ушёл...');
+}
+
+// ============================================================
 // ====== РЫНОК ======
 // ============================================================
 function updateMarketPrices() {
     const now = Date.now();
-    if (now - state.marketUpdateTime < 3600000) return; // 1 час
+    if (now - state.marketUpdateTime < 3600000) return;
     state.marketUpdateTime = now;
     STRAINS.forEach(s => {
         const basePrice = s.sellPrice;
@@ -510,8 +501,7 @@ function getMarketPrice(strainId) {
 function getPriceChange(strainId) {
     const current = getMarketPrice(strainId);
     const base = STRAINS.find(s => s.id === strainId)?.sellPrice || 50;
-    const diff = ((current - base) / base * 100);
-    return diff;
+    return ((current - base) / base * 100);
 }
 
 // ============================================================
@@ -525,7 +515,6 @@ function tickPots() {
     state.pots.forEach(pot => {
         if (!pot.strain) return;
         
-        // Вода
         let waterDrain = 0.3;
         if (state.room.auto) waterDrain *= 0.3;
         pot.water = Math.max(0, pot.water - waterDrain * dt);
@@ -533,22 +522,15 @@ function tickPots() {
             pot.water = Math.min(100, pot.water + 0.15 * dt);
         }
         
-        // Энергия для лампы
         if (pot.lamp && pot.stage > 0 && pot.stage < 5) {
             const cost = LAMP_ENERGY_COST[pot.lamp] || 0;
             state.energy = Math.max(0, state.energy - cost * dt * 0.3);
         }
         
-        // Здоровье
         let healthRegen = 0.12;
         let diseaseChance = 0.006;
-        if (state.room.vent) {
-            diseaseChance *= 0.3;
-            healthRegen *= 1.4;
-        }
-        if (state.room.heater) {
-            healthRegen *= 1.15;
-        }
+        if (state.room.vent) { diseaseChance *= 0.3; healthRegen *= 1.4; }
+        if (state.room.heater) healthRegen *= 1.15;
         
         if (pot.water < 20) {
             pot.health = Math.max(0, pot.health - 0.4 * dt);
@@ -556,17 +538,15 @@ function tickPots() {
             pot.health = Math.min(100, pot.health + healthRegen * dt);
         }
         
-        // Болезни
         if (!pot.disease && pot.health < 35 && Math.random() < diseaseChance) {
             pot.disease = true;
-            showToast('🦠 Вредители атаковали растение!', true);
+            showToast('🦠 Вредители!', true);
             haptic('error');
         }
         if (pot.disease) {
             pot.health = Math.max(0, pot.health - 0.3 * dt);
         }
         
-        // Смерть
         if (pot.health <= 0) {
             showToast('💀 Растение погибло!', true);
             if (pot.strain) {
@@ -574,7 +554,6 @@ function tickPots() {
                 if (s) {
                     const refund = Math.floor(s.seedPrice * 0.2);
                     state.money += refund;
-                    showToast('💰 Возврат ' + refund + '$', false);
                 }
             }
             pot.strain = null;
@@ -653,6 +632,52 @@ function qualityName(q) {
 }
 
 // ============================================================
+// ====== СБОР УРОЖАЯ ======
+// ============================================================
+function harvest(id) {
+    const pot = state.pots.find(p => p.id === id);
+    if (!pot) { showToast('Горшок не найден', true); return; }
+    if (!pot.strain) { showToast('Нет растения', true); return; }
+    
+    const prog = getProgress(pot);
+    if (prog < 1) { showToast('Растение ещё не выросло!', true); return; }
+    if (pot.health < 20) { showToast('Растение слишком слабое!', true); return; }
+    
+    const s = getStrain(pot.strain);
+    if (!s) { showToast('Ошибка: сорт не найден', true); return; }
+    
+    const q = getQuality(pot);
+    const qInfo = qualityName(q);
+    let amount = Math.floor(s.yield * (pot.yieldMult || 1) * (pot.health / 100) * (q >= 1.5 ? 1.2 : 1));
+    if (amount < 1) amount = 1;
+    
+    const marketPrice = getMarketPrice(s.id);
+    const totalPrice = amount * marketPrice;
+    state.money += totalPrice;
+    state.totalHarvests = (state.totalHarvests || 0) + 1;
+    
+    state.inventory[s.id] = (state.inventory[s.id] || 0) + amount;
+    
+    showToast(`🌿 ${qInfo.emoji} ${qInfo.name}! +${amount} ${s.name} (${totalPrice}$)`);
+    haptic('success');
+    addXp(amount * 2 + Math.floor(q * 3));
+    
+    pot.strain = null;
+    pot.plantedAt = null;
+    pot.stage = 0;
+    pot.disease = false;
+    pot.water = 100;
+    pot.health = 100;
+    pot.fert = null;
+    pot.lamp = null;
+    pot.speedMult = 1;
+    pot.yieldMult = 1;
+    
+    save();
+    render();
+}
+
+// ============================================================
 // ====== ДЕЙСТВИЯ ======
 // ============================================================
 function waterPot(id) {
@@ -684,8 +709,8 @@ function openSeedModal(id) {
                 <div class="card-desc">⏱ ${Math.floor(s.baseTime/60)}м · ${s.yield} шт · 💰${s.sellPrice}$</div>
             </div>
             <div style="text-align:right">
-                <div class="card-price" style="color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${s.seedPrice}$</div>
-                <div style="font-size:8px;color:var(--hint)">⚡${s.energyCost}</div>
+                <div style="color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${s.seedPrice}$</div>
+                <div style="font-size:7px;color:var(--hint)">⚡${s.energyCost}</div>
             </div>
         `;
         if (unlocked && can) {
@@ -721,42 +746,6 @@ function plantSeed(sid) {
     showToast('🌱 Посажено: ' + s.name);
     haptic('medium');
     addXp(3);
-    save();
-    render();
-}
-
-function harvest(id) {
-    const pot = state.pots.find(p => p.id === id);
-    if (!pot || !pot.strain || getProgress(pot) < 1) return;
-    if (pot.health < 20) { showToast('Растение слишком слабое', true); return; }
-    const s = getStrain(pot.strain);
-    const q = getQuality(pot);
-    const qInfo = qualityName(q);
-    let amount = Math.floor(s.yield * (pot.yieldMult || 1) * (pot.health / 100) * (q >= 1.5 ? 1.2 : 1));
-    if (amount < 1) amount = 1;
-    
-    const marketPrice = getMarketPrice(s.id);
-    const totalPrice = amount * marketPrice;
-    state.money += totalPrice;
-    state.totalHarvests = (state.totalHarvests || 0) + 1;
-    
-    // Добавляем в инвентарь сырьё
-    state.inventory[s.id] = (state.inventory[s.id] || 0) + amount;
-    
-    showToast(`🌿 ${qInfo.emoji} ${qInfo.name}! ${amount}× ${s.name} продано за ${totalPrice}$`);
-    haptic('success');
-    addXp(amount * 2 + Math.floor(q * 3));
-    
-    pot.strain = null;
-    pot.plantedAt = null;
-    pot.stage = 0;
-    pot.disease = false;
-    pot.water = 100;
-    pot.health = 100;
-    pot.fert = null;
-    pot.lamp = null;
-    pot.speedMult = 1;
-    pot.yieldMult = 1;
     save();
     render();
 }
@@ -875,7 +864,7 @@ function applyFert(fid) {
     if (f.effect === 'heal') {
         pot.disease = false;
         pot.health = Math.min(100, pot.health + 40);
-        showToast('💊 Растение вылечено!');
+        showToast('💊 Вылечено!');
     } else {
         if (f.effect === 'speed' || f.effect === 'both') {
             pot.speedMult = (pot.speedMult || 1) * (1 + f.value);
@@ -884,7 +873,7 @@ function applyFert(fid) {
             pot.yieldMult = (pot.yieldMult || 1) * (1 + f.value);
         }
         pot.fert = fid;
-        showToast(f.emoji + ' ' + f.name + ' применено');
+        showToast(f.emoji + ' ' + f.name);
     }
     closeModal('modal-fert');
     haptic('success');
@@ -973,6 +962,103 @@ function closeModal(id) {
     document.getElementById(id).classList.remove('show');
 }
 
+// ============================================================
+// ====== СЕРВЕР ======
+// ============================================================
+async function updateServerStats() {
+    try {
+        await fetch(SERVER_URL + '/api/update-stats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: userId,
+                userName: tg?.initDataUnsafe?.user?.first_name || 'Игрок',
+                stats: {
+                    money: state.money,
+                    level: state.level,
+                    harvests: state.totalHarvests || 0,
+                    friends: state.referrals || 0
+                }
+            })
+        });
+    } catch(e) {}
+}
+
+async function loadLeaderboard(period) {
+    const list = document.getElementById('leaderboard-list');
+    const myRank = document.getElementById('my-rank');
+    list.innerHTML = '<div class="empty">📊 Загрузка...</div>';
+    myRank.style.display = 'none';
+    
+    document.querySelectorAll('#lb-monthly, #lb-yearly').forEach(b => b.style.opacity = '0.5');
+    document.getElementById('lb-' + period).style.opacity = '1';
+    
+    try {
+        const response = await fetch(SERVER_URL + '/api/leaderboard/' + period);
+        const data = await response.json();
+        
+        if (!data.players || data.players.length === 0) {
+            list.innerHTML = '<div class="empty">📊 Пока нет игроков</div>';
+            return;
+        }
+        
+        let html = '';
+        const top = data.players.slice(0, 50);
+        let myPosition = -1;
+        
+        top.forEach((player, index) => {
+            const pos = index + 1;
+            let rankClass = 'rank-card';
+            if (pos === 1) rankClass += ' top1';
+            else if (pos === 2) rankClass += ' top2';
+            else if (pos === 3) rankClass += ' top3';
+            
+            let badge = '';
+            if (pos === 1) badge = '🥇';
+            else if (pos === 2) badge = '🥈';
+            else if (pos === 3) badge = '🥉';
+            
+            if (player.id === userId) myPosition = pos;
+            
+            html += `
+                <div class="${rankClass}">
+                    <span class="rank-pos">${pos}</span>
+                    <span class="rank-badge">${badge}</span>
+                    <span class="rank-name">${player.name || 'Игрок'}</span>
+                    <span class="rank-level">Lv.${player.level}</span>
+                    <span class="rank-money">💰${player.money}</span>
+                </div>
+            `;
+        });
+        
+        list.innerHTML = html;
+        
+        if (myPosition > 0) {
+            myRank.innerHTML = `
+                <div class="my-rank">
+                    <div style="font-size:10px;color:var(--hint);">👑 Ваше место</div>
+                    <div style="font-size:18px;font-weight:700;color:var(--gold);">#${myPosition}</div>
+                    <div style="font-size:9px;color:var(--hint);">из ${data.players.length}</div>
+                </div>
+            `;
+            myRank.style.display = 'block';
+        } else {
+            myRank.innerHTML = `
+                <div class="my-rank">
+                    <div style="font-size:10px;color:var(--hint);">👤 Вы пока не в рейтинге</div>
+                    <div style="font-size:9px;color:var(--hint);">Зарабатывайте больше денег!</div>
+                </div>
+            `;
+            myRank.style.display = 'block';
+        }
+    } catch (e) {
+        list.innerHTML = '<div class="empty">❌ Ошибка загрузки</div>';
+    }
+}
+
+// ============================================================
+// ====== РЕФЕРАЛЫ ======
+// ============================================================
 function getRefLink() {
     return `https://t.me/${BOT_USERNAME}/growsimulator?startapp=ref_${userId}`;
 }
@@ -989,6 +1075,23 @@ function shareReferral() {
 function copyReferral() {
     const link = getRefLink();
     navigator.clipboard?.writeText(link).then(() => showToast('📋 Ссылка скопирована'));
+}
+
+function handleReferral() {
+    if (tg?.initDataUnsafe?.start_param) {
+        const param = tg.initDataUnsafe.start_param;
+        if (param.startsWith('ref_')) {
+            const refId = param.replace('ref_', '');
+            if (refId !== userId && !state.referredBy) {
+                state.referredBy = refId;
+                state.money += 100;
+                state.energy = Math.min(state.maxEnergy, state.energy + 30);
+                showToast('🎁 Бонус новичка! +100$ +30⚡');
+                save();
+                render();
+            }
+        }
+    }
 }
 
 // ============================================================
@@ -1035,15 +1138,13 @@ function renderFarm() {
     const grid = document.getElementById('farm-grid');
     grid.innerHTML = '';
     if (state.pots.length === 0) {
-        grid.innerHTML = '<div class="empty"><div class="empty-emoji">🪴</div>Нет горшков<br><small>Нажми "Купить горшок"</small></div>';
+        grid.innerHTML = '<div class="empty"><div class="empty-emoji">🪴</div>Нет горшков</div>';
         document.getElementById('btn-buy-pot').textContent = '➕ Купить горшок';
         return;
     }
     state.pots.forEach(pot => {
         const div = document.createElement('div');
         div.className = 'pot';
-        
-        // Почва
         const soil = document.createElement('div');
         soil.className = 'soil';
         div.appendChild(soil);
@@ -1126,7 +1227,6 @@ function renderMarket() {
         `;
         grid.appendChild(div);
     });
-    // Таймер до обновления
     const now = Date.now();
     const nextUpdate = state.marketUpdateTime + 3600000;
     const remaining = Math.max(0, Math.floor((nextUpdate - now) / 1000));
@@ -1199,9 +1299,9 @@ function renderInventory() {
             <div class="card-emoji">${s.emoji}</div>
             <div class="card-info">
                 <div class="card-title">${s.name} <span class="inv-count">×${amt}</span></div>
-                <div class="card-desc">💰${price}$ · Итого ${amt * price}$</div>
+                <div class="card-desc">💰${price}$ · ${amt * price}$</div>
             </div>
-            <button class="btn btn-small" onclick="sellProduct('${id}')">💰 Продать</button>
+            <button class="btn btn-small" onclick="sellProduct('${id}')">💰</button>
         `;
         list.appendChild(c);
     });
@@ -1210,28 +1310,28 @@ function renderInventory() {
 function renderRoom() {
     const info = document.getElementById('room-info');
     info.innerHTML = `
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-            <div style="background:rgba(255,255,255,0.03);padding:6px;border-radius:8px;text-align:center;">
-                <div style="font-size:16px;">🪴</div>
-                <div style="font-size:10px;">Горшков: <b>${state.pots.length}</b></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;">
+            <div style="background:rgba(255,255,255,0.03);padding:4px;border-radius:6px;text-align:center;font-size:8px;">
+                <div>🪴 ${state.pots.length}</div>
+                <div style="color:var(--hint);font-size:7px;">Горшков</div>
             </div>
-            <div style="background:rgba(255,255,255,0.03);padding:6px;border-radius:8px;text-align:center;">
-                <div style="font-size:16px;">${state.room.vent ? '✅' : '❌'}</div>
-                <div style="font-size:10px;">Вентиляция</div>
+            <div style="background:rgba(255,255,255,0.03);padding:4px;border-radius:6px;text-align:center;font-size:8px;">
+                <div>${state.room.vent ? '✅' : '❌'}</div>
+                <div style="color:var(--hint);font-size:7px;">Вентиляция</div>
             </div>
-            <div style="background:rgba(255,255,255,0.03);padding:6px;border-radius:8px;text-align:center;">
-                <div style="font-size:16px;">${state.room.auto ? '✅' : '❌'}</div>
-                <div style="font-size:10px;">Автополив</div>
+            <div style="background:rgba(255,255,255,0.03);padding:4px;border-radius:6px;text-align:center;font-size:8px;">
+                <div>${state.room.auto ? '✅' : '❌'}</div>
+                <div style="color:var(--hint);font-size:7px;">Автополив</div>
             </div>
-            <div style="background:rgba(255,255,255,0.03);padding:6px;border-radius:8px;text-align:center;">
-                <div style="font-size:16px;">${state.room.heater ? '✅' : '❌'}</div>
-                <div style="font-size:10px;">Обогреватель</div>
+            <div style="background:rgba(255,255,255,0.03);padding:4px;border-radius:6px;text-align:center;font-size:8px;grid-column:span 3;">
+                <div>${state.room.heater ? '✅' : '❌'}</div>
+                <div style="color:var(--hint);font-size:7px;">Обогреватель</div>
             </div>
         </div>
     `;
     const list = document.getElementById('room-list');
     list.innerHTML = '';
-    list.innerHTML += '<div class="section-title">🪴 Уровни горшков</div>';
+    list.innerHTML += '<div class="section-title">🪴 Горшки</div>';
     POT_LEVELS.forEach(pl => {
         const unlocked = state.level >= pl.id * 2;
         const c = document.createElement('div');
@@ -1243,7 +1343,7 @@ function renderRoom() {
                 <div class="card-title">${pl.name} ${unlocked ? '✅' : '🔒'}</div>
                 <div class="card-desc">${pl.desc} · ${pl.price}$</div>
             </div>
-            <span style="font-size:10px;color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${unlocked ? 'Доступен' : 'Ур. ' + pl.id * 2}</span>
+            <span style="font-size:8px;color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${unlocked ? 'Доступен' : 'Ур. ' + pl.id * 2}</span>
         `;
         list.appendChild(c);
     });
@@ -1262,7 +1362,7 @@ function renderRoom() {
                 <div class="card-title">${u.name}</div>
                 <div class="card-desc">${u.desc}</div>
             </div>
-            ${bought ? '<span style="color:var(--hint)">✅ Куплено</span>' : `<button class="btn btn-small" onclick="buyRoomUpgrade('${u.id}')">${u.price}$</button>`}
+            ${bought ? '<span style="color:var(--hint);font-size:8px;">✅</span>' : `<button class="btn btn-small" onclick="buyRoomUpgrade('${u.id}')">${u.price}$</button>`}
         `;
         list.appendChild(c);
     });
@@ -1273,7 +1373,7 @@ function renderProfile() {
     document.getElementById('profile-name').textContent = name;
     document.getElementById('profile-id').textContent = 'ID: ' + userId;
     const regDate = new Date(state.registerDate);
-    document.getElementById('profile-regdate').textContent = regDate.toLocaleDateString() + ' ' + regDate.toLocaleTimeString();
+    document.getElementById('profile-regdate').textContent = regDate.toLocaleDateString();
     document.getElementById('profile-level').textContent = state.level;
     document.getElementById('profile-money').textContent = Math.floor(state.money) + '$';
     document.getElementById('profile-energy').textContent = Math.floor(state.energy) + '/' + state.maxEnergy;
@@ -1281,6 +1381,7 @@ function renderProfile() {
     document.getElementById('profile-pots').textContent = state.pots.length;
     const timeInGame = Math.floor((Date.now() - state.lastUpdate) / 60000);
     document.getElementById('profile-time').textContent = timeInGame + 'м';
+    document.getElementById('profile-state').textContent = document.body.classList.contains('snoop-high') ? '🔥 Убойная трава!' : '🧠 Норма';
 }
 
 function renderFriends() {
@@ -1289,12 +1390,12 @@ function renderFriends() {
     const container = document.getElementById('friends-list');
     const friends = state.referralsList || [];
     if (friends.length === 0) {
-        container.innerHTML = '<div style="color:var(--hint);font-size:10px;text-align:center;">👤 Пока нет друзей</div>';
+        container.innerHTML = '<div style="color:var(--hint);font-size:9px;text-align:center;">👤 Пока нет друзей</div>';
         return;
     }
-    let html = '<div style="font-size:10px;font-weight:600;color:var(--hint);margin-top:4px;">👥 Приглашённые друзья</div>';
+    let html = '<div style="font-size:9px;font-weight:600;color:var(--hint);margin-top:3px;">👥 Друзья</div>';
     friends.forEach(f => {
-        html += `<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10px;">${f.name || 'Друг'}</div>`;
+        html += `<div style="padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:9px;">${f.name || 'Друг'}</div>`;
     });
     container.innerHTML = html;
 }
@@ -1319,65 +1420,6 @@ function render() {
 }
 
 // ============================================================
-// ====== ЗАГРУЗКА И ЗАПУСК ======
-// ============================================================
-function loadReferrals() {
-    // Простая загрузка из localStorage
-    const raw = localStorage.getItem('refs_' + userId);
-    if (raw) {
-        try {
-            const data = JSON.parse(raw);
-            state.referrals = data.count || 0;
-            state.referralEarned = data.earned || 0;
-            state.referralsList = data.list || [];
-        } catch(e) {}
-    }
-}
-
-function saveReferrals() {
-    localStorage.setItem('refs_' + userId, JSON.stringify({
-        count: state.referrals,
-        earned: state.referralEarned,
-        list: state.referralsList
-    }));
-}
-
-// Обработка реферальной ссылки
-function handleReferral() {
-    if (tg?.initDataUnsafe?.start_param) {
-        const param = tg.initDataUnsafe.start_param;
-        if (param.startsWith('ref_')) {
-            const refId = param.replace('ref_', '');
-            if (refId !== userId && !state.referredBy) {
-                state.referredBy = refId;
-                state.money += 100;
-                state.energy = Math.min(state.maxEnergy, state.energy + 30);
-                showToast('🎁 Бонус новичка! +100$ +30⚡');
-                // Добавляем в список пригласившего
-                const refData = JSON.parse(localStorage.getItem('refs_' + refId) || '{"count":0,"earned":0,"list":[]}');
-                refData.count += 1;
-                refData.earned += 150;
-                refData.list.push({ name: tg?.initDataUnsafe?.user?.first_name || 'Игрок', date: new Date().toISOString() });
-                localStorage.setItem('refs_' + refId, JSON.stringify(refData));
-                // Если пригласивший — это мы
-                if (refId === userId) {
-                    state.referrals = refData.count;
-                    state.referralEarned = refData.earned;
-                    state.referralsList = refData.list;
-                    state.money += 150;
-                    state.energy = Math.min(state.maxEnergy, state.energy + 20);
-                    showToast('👥 +1 друг! +150$ +20⚡');
-                    saveReferrals();
-                }
-                save();
-                render();
-            }
-        }
-    }
-    loadReferrals();
-}
-
-// ============================================================
 // ====== ТАБЫ ======
 // ============================================================
 document.querySelectorAll('.tab').forEach(tab => {
@@ -1389,6 +1431,7 @@ document.querySelectorAll('.tab').forEach(tab => {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById('section-' + tabName).classList.add('active');
         if (tabName === 'market') renderMarket();
+        if (tabName === 'leaderboard') loadLeaderboard('monthly');
         haptic('light');
     });
 });
@@ -1402,6 +1445,7 @@ setInterval(() => {
     }
     tickPots();
     updateMarketPrices();
+    trySpawnSnoop();
     renderHeader();
     renderFarm();
     renderMarket();
@@ -1415,8 +1459,11 @@ load();
 handleReferral();
 updateServerStats();
 render();
+setTimeout(() => loadLeaderboard('monthly'), 1000);
 
-// Экспорт функций
+// ============================================================
+// ====== ЭКСПОРТ ======
+// ============================================================
 window.openSeedModal = openSeedModal;
 window.closeModal = closeModal;
 window.plantSeed = plantSeed;
@@ -1435,6 +1482,9 @@ window.sellAll = sellAll;
 window.sellProduct = sellProduct;
 window.shareReferral = shareReferral;
 window.copyReferral = copyReferral;
+window.loadLeaderboard = loadLeaderboard;
+window.acceptSnoop = acceptSnoop;
+window.rejectSnoop = rejectSnoop;
 </script>
 </body>
 </html>
