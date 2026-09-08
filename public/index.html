@@ -239,24 +239,24 @@ if (tg) {
 }
 
 // ============================================================
-// ====== ДАННЫЕ ======
+// ====== ДАННЫЕ (ИСПРАВЛЕНЫ) ======
 // ============================================================
 const STRAINS = [
-    {id:'skunk',name:'Skunk',emoji:'🦨',seedPrice:50,baseTime:120,yield:3,sellPrice:50,energyCost:5,unlock:1,quality:1},
-    {id:'haze',name:'Purple Haze',emoji:'💜',seedPrice:130,baseTime:160,yield:5,sellPrice:85,energyCost:8,unlock:3,quality:1.2},
-    {id:'widow',name:'White Widow',emoji:'⚪',seedPrice:280,baseTime:200,yield:7,sellPrice:140,energyCost:12,unlock:5,quality:1.4},
-    {id:'alien',name:'Alien Kush',emoji:'👽',seedPrice:550,baseTime:240,yield:12,sellPrice:220,energyCost:18,unlock:8,quality:1.6},
-    {id:'og',name:'OG Kush',emoji:'🔥',seedPrice:950,baseTime:280,yield:18,sellPrice:340,energyCost:25,unlock:10,quality:1.8},
-    {id:'cheese',name:'UK Cheese',emoji:'🧀',seedPrice:400,baseTime:180,yield:10,sellPrice:180,energyCost:15,unlock:6,quality:1.3},
-    {id:'lemon',name:'Lemon Haze',emoji:'🍋',seedPrice:350,baseTime:170,yield:8,sellPrice:160,energyCost:14,unlock:4,quality:1.2},
-    {id:'blue',name:'Blue Dream',emoji:'💎',seedPrice:600,baseTime:210,yield:14,sellPrice:250,energyCost:20,unlock:7,quality:1.5},
-    {id:'cookies',name:'Girl Scout Cookies',emoji:'🍪',seedPrice:750,baseTime:220,yield:16,sellPrice:290,energyCost:22,unlock:9,quality:1.7},
-    {id:'gelato',name:'Gelato',emoji:'🍦',seedPrice:900,baseTime:250,yield:20,sellPrice:380,energyCost:28,unlock:12,quality:1.9},
-    {id:'wedding',name:'Wedding Cake',emoji:'🎂',seedPrice:1100,baseTime:260,yield:22,sellPrice:420,energyCost:30,unlock:15,quality:2.0},
-    {id:'runtz',name:'Runtz',emoji:'🍬',seedPrice:1300,baseTime:270,yield:25,sellPrice:480,energyCost:32,unlock:18,quality:2.1},
-    {id:'zkittlez',name:'Zkittlez',emoji:'🌈',seedPrice:1500,baseTime:280,yield:28,sellPrice:520,energyCost:35,unlock:20,quality:2.2},
-    {id:'kush',name:'Master Kush',emoji:'👑',seedPrice:1800,baseTime:300,yield:32,sellPrice:580,energyCost:38,unlock:25,quality:2.4},
-    {id:'glue',name:'Gorilla Glue',emoji:'🦍',seedPrice:2200,baseTime:320,yield:35,sellPrice:650,energyCost:40,unlock:30,quality:2.5}
+    {id:'skunk',name:'🦨 Skunk',seedPrice:50,baseTime:120,yield:3,sellPrice:50,energyCost:5,unlock:1,quality:1},
+    {id:'haze',name:'💜 Purple Haze',seedPrice:130,baseTime:160,yield:5,sellPrice:85,energyCost:8,unlock:3,quality:1.2},
+    {id:'widow',name:'⚪ White Widow',seedPrice:280,baseTime:200,yield:7,sellPrice:140,energyCost:12,unlock:5,quality:1.4},
+    {id:'alien',name:'👽 Alien Kush',seedPrice:550,baseTime:240,yield:12,sellPrice:220,energyCost:18,unlock:8,quality:1.6},
+    {id:'og',name:'🔥 OG Kush',seedPrice:950,baseTime:280,yield:18,sellPrice:340,energyCost:25,unlock:10,quality:1.8},
+    {id:'cheese',name:'🧀 UK Cheese',seedPrice:400,baseTime:180,yield:10,sellPrice:180,energyCost:15,unlock:6,quality:1.3},
+    {id:'lemon',name:'🍋 Lemon Haze',seedPrice:350,baseTime:170,yield:8,sellPrice:160,energyCost:14,unlock:4,quality:1.2},
+    {id:'blue',name:'💎 Blue Dream',seedPrice:600,baseTime:210,yield:14,sellPrice:250,energyCost:20,unlock:7,quality:1.5},
+    {id:'cookies',name:'🍪 Girl Scout Cookies',seedPrice:750,baseTime:220,yield:16,sellPrice:290,energyCost:22,unlock:9,quality:1.7},
+    {id:'gelato',name:'🍦 Gelato',seedPrice:900,baseTime:250,yield:20,sellPrice:380,energyCost:28,unlock:12,quality:1.9},
+    {id:'wedding',name:'🎂 Wedding Cake',seedPrice:1100,baseTime:260,yield:22,sellPrice:420,energyCost:30,unlock:15,quality:2.0},
+    {id:'runtz',name:'🍬 Runtz',seedPrice:1300,baseTime:270,yield:25,sellPrice:480,energyCost:32,unlock:18,quality:2.1},
+    {id:'zkittlez',name:'🌈 Zkittlez',seedPrice:1500,baseTime:280,yield:28,sellPrice:520,energyCost:35,unlock:20,quality:2.2},
+    {id:'kush',name:'👑 Master Kush',seedPrice:1800,baseTime:300,yield:32,sellPrice:580,energyCost:38,unlock:25,quality:2.4},
+    {id:'glue',name:'🦍 Gorilla Glue',seedPrice:2200,baseTime:320,yield:35,sellPrice:650,energyCost:40,unlock:30,quality:2.5}
 ];
 
 const POT_LEVELS = [
@@ -267,6 +267,7 @@ const POT_LEVELS = [
     {id:5,name:'💎 Космический',price:10000,desc:'Инопланетная технология'}
 ];
 
+// ===== ИСПРАВЛЕНО: добавлены названия =====
 const LAMPS = [
     {id:'lamp1',name:'💡 CFL',price:150,power:1.15,desc:'+15% скорость'},
     {id:'lamp2',name:'✨ LED',price:400,power:1.35,desc:'+35% скорость'},
@@ -275,6 +276,7 @@ const LAMPS = [
 ];
 const LAMP_ENERGY_COST = {lamp1:0.2,lamp2:0.4,lamp3:0.8,lamp4:1.2};
 
+// ===== ИСПРАВЛЕНО: добавлены названия =====
 const FERTS = [
     {id:'water_boost',name:'💧 Супер-вода',price:40,effect:'speed',value:0.2,desc:'+20% скорость'},
     {id:'yield_boost',name:'🧪 Удобрение+',price:90,effect:'yield',value:0.4,desc:'+40% урожай'},
@@ -493,7 +495,7 @@ function getPriceChange(strainId) {
 }
 
 // ============================================================
-// ====== РОСТ РАСТЕНИЙ (ИСПРАВЛЕНО) ======
+// ====== РОСТ РАСТЕНИЙ ======
 // ============================================================
 function tickPots() {
     const now = Date.now();
@@ -503,23 +505,20 @@ function tickPots() {
     state.pots.forEach(pot => {
         if (!pot.strain) return;
         
-        // Вода — медленнее убывает
-        let waterDrain = 0.15; // было 0.3
+        let waterDrain = 0.15;
         if (state.room.auto) waterDrain *= 0.3;
         pot.water = Math.max(0, pot.water - waterDrain * dt);
         if (state.room.auto && pot.water < 60) {
             pot.water = Math.min(100, pot.water + 0.15 * dt);
         }
         
-        // Энергия для лампы
         if (pot.lamp && pot.stage > 0 && pot.stage < 5) {
             const cost = LAMP_ENERGY_COST[pot.lamp] || 0;
             state.energy = Math.max(0, state.energy - cost * dt * 0.2);
         }
         
-        // Здоровье — медленнее падает
         let healthRegen = 0.15;
-        let diseaseChance = 0.004; // было 0.006
+        let diseaseChance = 0.004;
         if (state.room.vent) { diseaseChance *= 0.3; healthRegen *= 1.4; }
         if (state.room.heater) healthRegen *= 1.15;
         
@@ -529,7 +528,6 @@ function tickPots() {
             pot.health = Math.min(100, pot.health + healthRegen * dt);
         }
         
-        // Болезни — реже
         if (!pot.disease && pot.health < 30 && Math.random() < diseaseChance) {
             pot.disease = true;
             showToast('🦠 Вредители!', true);
@@ -539,7 +537,6 @@ function tickPots() {
             pot.health = Math.max(0, pot.health - 0.2 * dt);
         }
         
-        // Смерть — только при health <= 0
         if (pot.health <= 0) {
             showToast('💀 Растение погибло!', true);
             if (pot.strain) {
@@ -628,7 +625,7 @@ function qualityName(q) {
 }
 
 // ============================================================
-// ====== СБОР УРОЖАЯ (ИСПРАВЛЕНО) ======
+// ====== СБОР УРОЖАЯ ======
 // ============================================================
 function harvest(id) {
     const pot = state.pots.find(p => p.id === id);
