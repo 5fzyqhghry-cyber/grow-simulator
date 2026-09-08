@@ -73,6 +73,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .btn-smoke{background:linear-gradient(135deg,#795548,#4e342e);color:#fff}
 .btn-taste{background:linear-gradient(135deg,#ff6f00,#ff8f00);color:#fff}
 .btn-police{background:linear-gradient(135deg,#1a237e,#283593);color:#fff}
+.btn-register{background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;font-weight:700;animation:registerPulse 2s ease-in-out infinite}
+@keyframes registerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
 .card{background:rgba(16,30,16,0.85);border-radius:12px;padding:10px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.04)}
 .card-emoji{font-size:24px;width:36px;text-align:center}
 .card-info{flex:1;min-width:0}
@@ -148,6 +150,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .sell-controls .qty-display{font-size:20px;font-weight:700;color:var(--gold);min-width:40px;text-align:center}
 .pest-notification{position:fixed;top:100px;left:50%;transform:translateX(-50%);background:rgba(255,179,0,0.15);border:2px solid var(--warning);border-radius:12px;padding:10px 18px;z-index:300;display:none;align-items:center;gap:8px;color:var(--warning);font-size:13px;font-weight:600;backdrop-filter:blur(8px);animation:pestAlert 0.5s ease-in-out infinite alternate}
 @keyframes pestAlert{0%{transform:translateX(-50%) scale(1)}100%{transform:translateX(-50%) scale(1.05)}}
+.register-banner{background:linear-gradient(135deg,rgba(46,125,50,0.15),rgba(27,94,32,0.05));border:2px solid var(--accent);border-radius:12px;padding:12px;text-align:center;margin-bottom:8px;animation:registerPulse 2s ease-in-out infinite}
+.register-banner .title{font-size:14px;font-weight:700;color:var(--accent)}
+.register-banner .desc{font-size:10px;color:var(--hint);margin:4px 0}
 @media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:9px;gap:4px}.stat{padding:2px 6px}.plant-container{height:65px}.plant-container svg{width:55px;height:60px}.tab{font-size:8px;padding:4px 6px;min-width:28px}.btn{font-size:9px;padding:4px 8px;min-height:30px}}
 </style>
 </head>
@@ -272,13 +277,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div class="profile-stat"><span class="label">🌀 Состояние</span><span class="value" id="profile-state">🧠 Норма</span></div>
       <div class="profile-stat"><span class="label">👮 Уровень палева</span><span class="value" id="profile-heat">0%</span></div>
       <div class="profile-stat"><span class="label">🕐 Время</span><span class="value" id="profile-time">12:00 ☀️</span></div>
+      <div class="profile-stat"><span class="label">📊 На сервере</span><span class="value" id="profile-registered">❌ Нет</span></div>
     </div>
   </div>
 
   <div class="section" id="section-leaderboard">
+    <div class="register-banner" id="registerBanner">
+      <div class="title">📝 Зарегистрируйся в рейтинге!</div>
+      <div class="desc">Нажми кнопку ниже, чтобы твой профиль появился в таблице лидеров</div>
+      <button class="btn btn-register btn-full" onclick="registerProfileOnServer()">📝 Зарегистрироваться на сервере</button>
+    </div>
     <div style="display:flex;gap:6px;margin-bottom:6px;">
-      <button class="btn btn-small" id="lb-monthly" onclick="loadLeaderboard('monthly')" style="flex:1;">📅 Месяц</button>
-      <button class="btn btn-small" id="lb-yearly" onclick="loadLeaderboard('yearly')" style="flex:1;">📅 Год</button>
+      <button class="btn btn-small" id="lb-monthly" onclick="loadLeaderboardFromServer()" style="flex:1;">📅 Месяц</button>
+      <button class="btn btn-small" id="lb-yearly" onclick="loadLeaderboardFromServer()" style="flex:1;">📅 Год</button>
     </div>
     <div id="leaderboard-list"><div class="empty">📊 Загрузка...</div></div>
     <div id="my-rank" style="display:none;"></div>
@@ -344,6 +355,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 // ====== НАСТРОЙКИ ======
 // ============================================================
 const BOT_USERNAME = 'Rastafaray420_bot';
+const SERVER_URL = 'https://grow-simulator-undernz.waw0.amvera.tech';
 const tg = window.Telegram?.WebApp;
 
 let userId = 'guest_' + Math.random().toString(36).slice(2,9);
@@ -395,7 +407,7 @@ const LAMP_ENERGY_COST = {lamp1:0.2, lamp2:0.4, lamp3:0.8, lamp4:1.2};
 const FERTS = [
     {id:'water_boost', emoji:'💧', name:'Супер-вода', price:40,  effect:'speed', value:0.2,  desc:'+20% скорость'},
     {id:'yield_boost', emoji:'🧪', name:'Удобрение+', price:90,  effect:'yield', value:0.4,  desc:'+40% урожай'},
-    {id:'heal',        emoji:'💊', name:'Лекарство',  price:60,  effect:'heal',  value:1,    desc:'Лечит болезнь и вредителей'},
+    {id:'heal',        emoji:'💊', name:'Лекарство',  price:60,  effect:'heal',  value:1,    desc:'Лечит болезни и вредителей'},
     {id:'mega',        emoji:'🚀', name:'Мега-буст',  price:350, effect:'both',  value:0.35, desc:'+35% всё'}
 ];
 
@@ -454,7 +466,8 @@ let state = {
     bonusLog: [],
     lastHeatCheck: Date.now(),
     gameTime: 12 * 60,
-    policeActive: false
+    policeActive: false,
+    registered: false
 };
 let selectedPotId = null;
 let snoopTimer = null;
@@ -526,16 +539,20 @@ function addXp(a) {
 function save() {
     state.lastUpdate = Date.now();
     try { localStorage.setItem('grow_sim_v3_' + userId, JSON.stringify(state)); } catch(e) {}
-    try {
-        const publicData = {
-            money: state.money,
-            level: state.level,
-            energy: state.energy,
-            heat: state.heat,
-            lastActive: Date.now()
-        };
-        localStorage.setItem('grow_sim_public_' + userId, JSON.stringify(publicData));
-    } catch(e) {}
+    
+    if (state.registered) {
+        try {
+            const publicData = {
+                money: state.money,
+                level: state.level,
+                energy: state.energy,
+                heat: state.heat,
+                username: getUserName(),
+                lastActive: Date.now()
+            };
+            localStorage.setItem('grow_sim_public_' + userId, JSON.stringify(publicData));
+        } catch(e) {}
+    }
 }
 
 function load() {
@@ -596,11 +613,145 @@ function load() {
     if (!state.referralsList) state.referralsList = [];
     if (!state.gameTime) state.gameTime = 12 * 60;
     if (!state.policeActive) state.policeActive = false;
+    if (state.registered === undefined) state.registered = false;
     
     updateMarketPrices();
     updateBonusTimer();
     loadChat();
     updateGameTime();
+    updateRegisterBanner();
+}
+
+// ============================================================
+// ====== РЕГИСТРАЦИЯ НА СЕРВЕРЕ ======
+// ============================================================
+async function registerProfileOnServer() {
+    if (state.registered) {
+        showToast('✅ Ты уже зарегистрирован на сервере!');
+        return;
+    }
+    
+    try {
+        showToast('📝 Регистрация...');
+        const response = await fetch(`${SERVER_URL}/api/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: userId,
+                userName: getUserName(),
+                money: Math.floor(state.money),
+                level: state.level,
+                energy: Math.floor(state.energy),
+                harvests: state.totalHarvests || 0
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            state.registered = true;
+            showToast('✅ Профиль зарегистрирован на сервере!');
+            haptic('success');
+            save();
+            render();
+            updateRegisterBanner();
+            loadLeaderboardFromServer();
+        } else {
+            showToast('❌ Ошибка регистрации: ' + (data.error || 'неизвестная ошибка'), true);
+        }
+    } catch (e) {
+        showToast('❌ Сервер недоступен! Проверь интернет.', true);
+        console.log('Ошибка регистрации:', e);
+    }
+}
+
+async function syncWithServer() {
+    if (!state.registered) return;
+    
+    try {
+        await fetch(`${SERVER_URL}/api/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: userId,
+                userName: getUserName(),
+                money: Math.floor(state.money),
+                level: state.level,
+                energy: Math.floor(state.energy),
+                harvests: state.totalHarvests || 0
+            })
+        });
+    } catch(e) {
+        console.log('Ошибка синхронизации:', e);
+    }
+}
+
+async function loadLeaderboardFromServer() {
+    const list = document.getElementById('leaderboard-list');
+    const myRank = document.getElementById('my-rank');
+    if (!list) return;
+    
+    list.innerHTML = '<div class="empty">📊 Загрузка с сервера...</div>';
+    if (myRank) myRank.style.display = 'none';
+    
+    try {
+        const response = await fetch(`${SERVER_URL}/api/leaderboard/monthly`);
+        const data = await response.json();
+        
+        if (data.players && data.players.length > 0) {
+            let html = '';
+            let myPosition = -1;
+            
+            data.players.forEach((player, index) => {
+                const pos = index + 1;
+                const isMe = player.id === userId;
+                const rankClass = pos === 1 ? 'rank-card top1' : pos === 2 ? 'rank-card top2' : pos === 3 ? 'rank-card top3' : 'rank-card';
+                const badge = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : '';
+                
+                if (isMe) myPosition = pos;
+                
+                html += `
+                    <div class="${rankClass}" style="${isMe ? 'border:2px solid var(--gold);' : ''}">
+                        <span class="rank-pos">${pos}</span>
+                        <span class="rank-badge">${badge}</span>
+                        <span class="rank-name">${player.name} ${isMe ? '⭐' : ''}</span>
+                        <span class="rank-level">Lv.${player.level}</span>
+                        <span class="rank-money">💰${player.money}</span>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+            
+            if (myRank && myPosition > 0) {
+                myRank.innerHTML = `
+                    <div class="my-rank">
+                        <div style="font-size:10px;color:var(--hint);">👑 Ваше место</div>
+                        <div style="font-size:20px;font-weight:700;color:var(--gold);">#${myPosition}</div>
+                        <div style="font-size:9px;color:var(--hint);">из ${data.players.length} игроков</div>
+                    </div>
+                `;
+                myRank.style.display = 'block';
+            }
+        } else {
+            list.innerHTML = '<div class="empty">📊 Пока нет зарегистрированных игроков</div>';
+        }
+    } catch (e) {
+        list.innerHTML = '<div class="empty">❌ Ошибка загрузки с сервера</div>';
+        console.log('Ошибка загрузки рейтинга:', e);
+    }
+}
+
+function updateRegisterBanner() {
+    const banner = document.getElementById('registerBanner');
+    if (!banner) return;
+    
+    if (state.registered) {
+        banner.style.display = 'none';
+        document.getElementById('profile-registered').textContent = '✅ Да';
+    } else {
+        banner.style.display = 'block';
+        document.getElementById('profile-registered').textContent = '❌ Нет';
+    }
 }
 
 // ============================================================
@@ -612,8 +763,7 @@ function checkPests() {
         if (pot.pests) return;
         if (pot.health < 40) return;
         
-        // Шанс появления вредителей
-        const chance = 0.0005; // 0.05% в секунду
+        const chance = 0.0005;
         if (Math.random() < chance) {
             pot.pests = true;
             pot.pestLevel = Math.floor(Math.random() * 30) + 10;
@@ -634,7 +784,6 @@ function treatPests(potId) {
     if (!pot || !pot.isActive) { showToast('Горшок неактивен', true); return; }
     if (!pot.pests) { showToast('Нет вредителей на этом кусте', true); return; }
     
-    // Проверяем наличие лекарства (удобрение heal)
     const healCount = state.ferts['heal'] || 0;
     if (healCount <= 0) {
         showToast('❌ Нет лекарства! Купи его в магазине (раздел удобрения)', true);
@@ -1010,7 +1159,6 @@ function tickPots() {
             pot.health = Math.min(100, pot.health + healthRegen * dt);
         }
         
-        // Вредители наносят урон
         if (pot.pests) {
             pot.health = Math.max(0, pot.health - 0.1 * dt);
             pot.pestLevel = Math.min(100, (pot.pestLevel || 0) + 0.5 * dt);
@@ -1705,123 +1853,6 @@ function sellAll() {
 
 function closeModal(id) {
     document.getElementById(id).classList.remove('show');
-}
-
-// ============================================================
-// ====== РЕЙТИНГ (ПОКАЗЫВАЕТ ВСЕХ ИГРОКОВ) ======
-// ============================================================
-function getFriendData(friendId) {
-    try {
-        const raw = localStorage.getItem('grow_sim_public_' + friendId);
-        if (raw) {
-            const data = JSON.parse(raw);
-            if (data && typeof data.money === 'number') {
-                return data;
-            }
-        }
-    } catch(e) {}
-    return null;
-}
-
-function loadLeaderboard(period) {
-    const list = document.getElementById('leaderboard-list');
-    const myRank = document.getElementById('my-rank');
-    if (!list) return;
-    
-    list.innerHTML = '<div class="empty">📊 Загрузка...</div>';
-    if (myRank) myRank.style.display = 'none';
-    
-    try {
-        const players = [];
-        const allKeys = Object.keys(localStorage);
-        
-        // Собираем ВСЕХ игроков из localStorage
-        allKeys.forEach(key => {
-            if (key.startsWith('grow_sim_public_')) {
-                try {
-                    const data = JSON.parse(localStorage.getItem(key));
-                    const id = key.replace('grow_sim_public_', '');
-                    if (data && typeof data.money === 'number') {
-                        players.push({
-                            id: id,
-                            name: data.username || data.name || 'Игрок',
-                            money: data.money || 0,
-                            level: data.level || 1,
-                            heat: data.heat || 0,
-                            isMe: id === userId
-                        });
-                    }
-                } catch(e) {}
-            }
-        });
-        
-        // Добавляем себя, если ещё нет
-        if (!players.find(p => p.id === userId)) {
-            players.push({
-                id: userId,
-                name: getUserName(),
-                money: Math.floor(state.money),
-                level: state.level,
-                heat: state.heat || 0,
-                isMe: true
-            });
-        }
-        
-        // Сортируем по деньгам
-        const sorted = players.sort((a, b) => b.money - a.money);
-        
-        if (sorted.length === 0) {
-            list.innerHTML = '<div class="empty">📊 Пока нет игроков</div>';
-            return;
-        }
-        
-        let html = '';
-        let myPosition = -1;
-        
-        sorted.forEach((player, index) => {
-            const pos = index + 1;
-            let rankClass = 'rank-card';
-            if (pos === 1) rankClass += ' top1';
-            else if (pos === 2) rankClass += ' top2';
-            else if (pos === 3) rankClass += ' top3';
-            
-            let badge = '';
-            if (pos === 1) badge = '🥇';
-            else if (pos === 2) badge = '🥈';
-            else if (pos === 3) badge = '🥉';
-            
-            if (player.id === userId) myPosition = pos;
-            
-            const isMe = player.id === userId;
-            const heatEmoji = player.heat > 50 ? '👮' : '';
-            html += `
-                <div class="${rankClass}" style="${isMe ? 'border:2px solid var(--gold);' : ''}">
-                    <span class="rank-pos">${pos}</span>
-                    <span class="rank-badge">${badge}</span>
-                    <span class="rank-name">${player.name} ${isMe ? '⭐' : ''}</span>
-                    <span class="rank-level">Lv.${player.level}</span>
-                    <span class="rank-money">💰${player.money}</span>
-                    <span style="font-size:8px;color:var(--hint);">${heatEmoji}</span>
-                </div>
-            `;
-        });
-        
-        list.innerHTML = html;
-        
-        if (myRank && myPosition > 0) {
-            myRank.innerHTML = `
-                <div class="my-rank">
-                    <div style="font-size:10px;color:var(--hint);">👑 Ваше место</div>
-                    <div style="font-size:20px;font-weight:700;color:var(--gold);">#${myPosition}</div>
-                    <div style="font-size:9px;color:var(--hint);">из ${sorted.length} игроков</div>
-                </div>
-            `;
-            myRank.style.display = 'block';
-        }
-    } catch (e) {
-        console.log('Ошибка рейтинга:', e);
-        list.innerHTML = '<div class="empty">❌ Ошибка загрузки</div>';
-    }
 }
 
 // ============================================================
@@ -2571,7 +2602,7 @@ document.querySelectorAll('.tab').forEach(tab => {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById('section-' + tabName).classList.add('active');
         if (tabName === 'market') renderMarket();
-        if (tabName === 'leaderboard') loadLeaderboard('monthly');
+        if (tabName === 'leaderboard') loadLeaderboardFromServer();
         if (tabName === 'friends') { renderSocial(); updateBonusTimer(); }
         haptic('light');
     });
@@ -2594,6 +2625,7 @@ setInterval(() => {
     updateBonusTimer();
     updateGameTime();
     save();
+    syncWithServer();
 }, 1500);
 
 setInterval(() => {
@@ -2614,7 +2646,8 @@ setInterval(() => {
 load();
 handleReferral();
 render();
-setTimeout(() => loadLeaderboard('monthly'), 1000);
+setTimeout(() => loadLeaderboardFromServer(), 1000);
+updateRegisterBanner();
 
 // ============================================================
 // ====== СНУП ДОГГ ======
@@ -2733,7 +2766,8 @@ window.processItem = processItem;
 window.consumeProduct = consumeProduct;
 window.shareReferral = shareReferral;
 window.copyReferral = copyReferral;
-window.loadLeaderboard = loadLeaderboard;
+window.loadLeaderboardFromServer = loadLeaderboardFromServer;
+window.registerProfileOnServer = registerProfileOnServer;
 window.acceptSnoop = acceptSnoop;
 window.rejectSnoop = rejectSnoop;
 window.addFriend = addFriend;
@@ -2746,8 +2780,8 @@ window.handlePoliceChoice = handlePoliceChoice;
 window.closePoliceModal = closePoliceModal;
 
 console.log('🌿 Игра загружена!');
+console.log('📝 Регистрация на сервере:', state.registered ? '✅ Да' : '❌ Нет');
 console.log('👥 Друзей:', state.friends?.length || 0);
-console.log('👮 Уровень палева:', state.heat || 0);
 console.log('🕐 Игровое время:', Math.floor(state.gameTime / 60) % 24 + ':' + String(Math.floor(state.gameTime % 60)).padStart(2, '0'));
 </script>
 </body>
