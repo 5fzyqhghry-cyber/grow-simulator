@@ -12,6 +12,7 @@ app.use(express.static('public'));
 
 const DATA_FILE = path.join(__dirname, 'data', 'referrals.json');
 const LEADERBOARD_FILE = path.join(__dirname, 'data', 'leaderboard.json');
+const GAME_DATA_FILE = path.join(__dirname, 'data', 'games.json');
 
 // ============================================================
 // ЗАГРУЗКА/СОХРАНЕНИЕ
@@ -40,6 +41,19 @@ function loadLeaderboard() {
 
 function saveLeaderboard(data) {
   fs.writeFileSync(LEADERBOARD_FILE, JSON.stringify(data, null, 2));
+}
+
+function loadGameData() {
+  try {
+    if (!fs.existsSync(GAME_DATA_FILE)) {
+      fs.writeFileSync(GAME_DATA_FILE, JSON.stringify({}, null, 2));
+    }
+    return JSON.parse(fs.readFileSync(GAME_DATA_FILE, 'utf8'));
+  } catch { return {}; }
+}
+
+function saveGameData(data) {
+  fs.writeFileSync(GAME_DATA_FILE, JSON.stringify(data, null, 2));
 }
 
 // ============================================================
@@ -75,24 +89,17 @@ function updateLeaderboard(userId, userName, stats) {
 }
 
 // ============================================================
-// API — РЕГИСТРАЦИЯ (СОХРАНЯЕТ РЕФЕРАЛОВ)
+// API — РЕГИСТРАЦИЯ
 // ============================================================
 app.post('/api/register', (req, res) => {
   const { userId, userName, referredBy } = req.body;
   if (!userId) return res.status(400).json({ error: 'userId обязателен' });
   
   const db = loadData();
-  
-  // Если пользователь уже есть — возвращаем его данные
   if (db.users[userId]) {
-    return res.json({ 
-      success: true, 
-      user: db.users[userId],
-      referredBy: db.users[userId].referredBy
-    });
+    return res.json({ success: true, user: db.users[userId] });
   }
   
-  // Регистрируем нового пользователя
   db.users[userId] = {
     id: userId,
     name: userName || 'Игрок',
@@ -105,16 +112,10 @@ app.post('/api/register', (req, res) => {
     money: 0
   };
   
-  // Если есть реферальный код — начисляем бонусы
   if (referredBy && db.users[referredBy]) {
-    // Начисляем бонус пригласившему
     db.users[referredBy].referrals += 1;
     db.users[referredBy].totalEarned += 150;
-    
-    // Сохраняем в историю рефералов
-    if (!db.referrals[referredBy]) {
-      db.referrals[referredBy] = [];
-    }
+    if (!db.referrals[referredBy]) db.referrals[referredBy] = [];
     db.referrals[referredBy].push({
       userId: userId,
       userName: userName || 'Игрок',
@@ -124,12 +125,7 @@ app.post('/api/register', (req, res) => {
   }
   
   saveData(db);
-  res.json({ 
-    success: true, 
-    user: db.users[userId], 
-    referrerBonus: referredBy ? 150 : 0,
-    referredBy: db.users[userId].referredBy
-  });
+  res.json({ success: true, user: db.users[userId], referrerBonus: referredBy ? 150 : 0 });
 });
 
 // ============================================================
@@ -172,23 +168,34 @@ app.post('/api/update-stats', (req, res) => {
 });
 
 // ============================================================
-// API — ПОЛУЧИТЬ РЕФЕРАЛОВ ПОЛЬЗОВАТЕЛЯ
+// API — СОХРАНЕНИЕ ИГРЫ (НОВОЕ!)
 // ============================================================
-app.get('/api/referrals/:userId', (req, res) => {
+app.post('/api/save-game', (req, res) => {
+  const { userId, gameState } = req.body;
+  if (!userId) return res.status(400).json({ error: 'userId обязателен' });
+  
+  const db = loadGameData();
+  db[userId] = {
+    ...gameState,
+    savedAt: new Date().toISOString()
+  };
+  saveGameData(db);
+  console.log('💾 Сохранено для пользователя:', userId);
+  res.json({ success: true });
+});
+
+// ============================================================
+// API — ЗАГРУЗКА ИГРЫ (НОВОЕ!)
+// ============================================================
+app.get('/api/load-game/:userId', (req, res) => {
   const { userId } = req.params;
-  const db = loadData();
-  
-  if (!db.users[userId]) {
-    return res.status(404).json({ error: 'Пользователь не найден' });
+  const db = loadGameData();
+  if (db[userId]) {
+    console.log('📥 Загружено сохранение для:', userId);
+    res.json({ success: true, gameState: db[userId] });
+  } else {
+    res.json({ success: false });
   }
-  
-  const referrals = db.referrals[userId] || [];
-  res.json({
-    userId: userId,
-    referrals: referrals,
-    count: referrals.length,
-    totalEarned: db.users[userId].totalEarned || 0
-  });
 });
 
 // ============================================================
