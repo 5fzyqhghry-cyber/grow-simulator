@@ -31,7 +31,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .tabs{display:flex;background:rgba(13,26,13,0.9);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.04);overflow-x:auto;padding:5px 0;justify-content:center}
 .tab{flex:0 0 auto;padding:6px 12px;text-align:center;font-size:10px;font-weight:600;cursor:pointer;opacity:0.5;transition:all 0.3s;border-bottom:3px solid transparent;min-width:40px;white-space:nowrap}
 .tab.active{opacity:1;border-bottom-color:var(--accent);color:var(--accent)}
-.content{padding:8px}.section{display:none}.section.active{display:block}
+.content{padding:8px}
+.section{display:none}
+.section.active{display:block}
 .farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .pot{background:linear-gradient(145deg,#1a2a1a,#0d1a0d);border-radius:14px;padding:10px 6px 8px;text-align:center;border:2px solid rgba(255,255,255,0.05);min-height:180px;display:flex;flex-direction:column;align-items:center}
 .pot .pot-emoji{font-size:28px;line-height:1;margin-bottom:2px;position:relative;z-index:2}
@@ -55,7 +57,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .bar-fill.health{background:linear-gradient(90deg,#2e7d32,#66bb6a)}
 .bar-fill.growth{background:linear-gradient(90deg,#f57f17,#ffb300)}
 .pot-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;z-index:1;position:relative;width:100%}
-.btn{background:var(--button);color:var(--button-text);border:none;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 6px rgba(46,125,50,0.15);min-height:36px;display:inline-flex;align-items:center;gap:4px;justify-content:center}
+.btn{background:var(--button);color:var(--button-text);border:none;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 6px rgba(46,125,50,0.15);min-height:36px;display:inline-flex;align-items:center;gap:4px;justify-content:center;touch-action:manipulation}
 .btn:active{transform:scale(0.95)}
 .btn-secondary{background:rgba(255,255,255,0.06);color:var(--text);box-shadow:none}
 .btn-blue{background:var(--blue);box-shadow:0 2px 6px rgba(30,136,229,0.15)}
@@ -110,6 +112,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .rank-card .rank-name{flex:1;font-weight:600;font-size:11px}
 .rank-card .rank-money{font-size:11px;color:var(--gold)}
 .my-rank{background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(255,215,0,0.02));border:1px solid var(--gold);border-radius:8px;padding:8px;margin-top:6px;text-align:center;font-size:11px}
+.friend-item{background:rgba(16,30,16,0.85);border-radius:12px;padding:10px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.04);margin-bottom:6px}
+.friend-item .online{color:#4caf50;font-size:8px;display:flex;align-items:center;gap:3px}
+.friend-item .online.offline{color:#666}
+.social-input{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 10px;color:var(--text);font-size:11px;width:100%;outline:none}
+.social-input:focus{border-color:var(--accent)}
+.request-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px}
+.bonus-timer{background:rgba(255,215,0,0.08);border:1px solid var(--gold);border-radius:8px;padding:6px 10px;text-align:center;margin:6px 0;font-size:11px}
+.bonus-timer .countdown{color:var(--gold);font-weight:700;font-size:13px}
 @media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:9px;gap:4px}.stat{padding:2px 6px}.plant-container{height:65px}.plant-container svg{width:55px;height:60px}.tab{font-size:8px;padding:4px 6px;min-width:28px}.btn{font-size:9px;padding:4px 8px;min-height:30px}}
 </style>
 </head>
@@ -220,6 +230,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <button class="btn btn-secondary btn-full" style="margin-top:3px;" onclick="copyReferral()">📋 Скопировать</button>
       <div id="friends-list" style="margin-top:6px;"></div>
     </div>
+
+    <!-- Друзья -->
+    <div style="margin-top:10px;">
+      <div class="section-title">👫 Мои друзья</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
+        <input class="social-input" id="friend-search" placeholder="👤 Имя игрока..." style="flex:1;min-width:100px;">
+        <button class="btn btn-small" onclick="addFriend()">➕ Добавить</button>
+      </div>
+      <div id="friend-requests" style="margin-bottom:8px;"></div>
+      <div id="friends-list-social"></div>
+      
+      <!-- Ежедневный бонус -->
+      <div class="section-title" style="margin-top:10px;">🎁 Ежедневный бонус</div>
+      <div class="bonus-timer" id="bonus-timer">
+        <div>Отправь бонус друзьям!</div>
+        <div class="countdown" id="bonus-countdown">Доступно!</div>
+        <button class="btn btn-small btn-gold" onclick="sendDailyBonus()" id="btn-bonus" style="margin-top:4px;">🎁 Отправить бонус всем друзьям</button>
+      </div>
+      <div id="bonus-log" style="margin-top:6px;font-size:10px;color:var(--hint);max-height:100px;overflow-y:auto;"></div>
+    </div>
   </div>
 </div>
 
@@ -327,8 +357,6 @@ let state = {
     referralEarned: 0,
     referralsList: [],
     referredBy: null,
-    lastCustomerAt: 0,
-    currentCustomer: null,
     lastUpdate: Date.now(),
     nextPotId: 1,
     totalHarvests: 0,
@@ -339,21 +367,28 @@ let state = {
     lastTick: Date.now(),
     snoopCooldown: 0,
     snoopActive: false,
-    consumedCount: 0
+    consumedCount: 0,
+    friends: [],
+    friendRequests: [],
+    lastBonusTime: 0,
+    bonusLog: []
 };
 let selectedPotId = null;
 let snoopTimer = null;
 let highTimer = null;
 let highElements = [];
+let toastTimeout = null;
+let bonusInterval = null;
 
 // ============================================================
 // ====== БАЗОВЫЕ ФУНКЦИИ ======
 // ============================================================
-function showToast(m, err=false, type='') {
+function showToast(m, err=false) {
     const t = document.getElementById('toast');
     t.textContent = m;
-    t.className = 'toast show' + (err ? ' error' : '') + (type ? ' ' + type : '');
-    setTimeout(() => t.classList.remove('show'), 2200);
+    t.className = 'toast show' + (err ? ' error' : '');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
 function haptic(t='light') {
@@ -411,9 +446,11 @@ function load() {
             state = { ...state, ...l };
         }
     } catch(e) {}
-    if (state.pots.length === 0) {
-        state.pots.push({
-            id: state.nextPotId++,
+    
+    // Инициализация полей если их нет
+    if (!state.pots || state.pots.length === 0) {
+        state.pots = [{
+            id: state.nextPotId || 1,
             strain: null,
             plantedAt: null,
             water: 100,
@@ -427,7 +464,8 @@ function load() {
             lastTick: Date.now(),
             _lastWarning: null,
             potLevel: 1
-        });
+        }];
+        state.nextPotId = 2;
     }
     if (!state.registerDate) state.registerDate = new Date().toISOString();
     if (!state.totalHarvests) state.totalHarvests = 0;
@@ -437,7 +475,16 @@ function load() {
     if (!state.snoopCooldown) state.snoopCooldown = 0;
     if (!state.snoopActive) state.snoopActive = false;
     if (!state.consumedCount) state.consumedCount = 0;
+    if (!state.friends) state.friends = [];
+    if (!state.friendRequests) state.friendRequests = [];
+    if (!state.lastBonusTime) state.lastBonusTime = 0;
+    if (!state.bonusLog) state.bonusLog = [];
+    if (!state.referrals) state.referrals = 0;
+    if (!state.referralEarned) state.referralEarned = 0;
+    if (!state.referralsList) state.referralsList = [];
+    
     updateMarketPrices();
+    updateBonusTimer();
 }
 
 // ============================================================
@@ -455,7 +502,6 @@ function updateMarketPrices() {
         state.marketPrices[s.id] = Math.floor(basePrice * volatility * randomFactor);
     });
     save();
-    renderMarket();
 }
 
 function getMarketPrice(strainId) {
@@ -478,7 +524,7 @@ function getRefLink() {
 function shareReferral() {
     const link = getRefLink();
     if (tg?.openTelegramLink) {
-        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('🌿 Присоединяйся!')}`);
+        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('🌿 Присоединяйся к Weed Grow Simulator!')}`);
     } else {
         navigator.clipboard?.writeText(link).then(() => showToast('📋 Ссылка скопирована'));
     }
@@ -786,7 +832,6 @@ function consumeProduct(key, type) {
     if (state.consumedCount >= 3) {
         applyHighEffect();
         state.consumedCount = 0;
-        document.getElementById('profile-state').textContent = '🌀 Накурило!';
     }
     save();
     render();
@@ -797,7 +842,7 @@ function consumeProduct(key, type) {
 // ============================================================
 function applyHighEffect() {
     if (highTimer) return;
-    showToast('🌀 Тебя накурило! Иконки дрожат 30 секунд!', false, 'high');
+    showToast('🌀 Тебя накурило! 30 секунд!', false);
     haptic('warning');
     document.querySelectorAll('.pot-emoji, .card-emoji, .plant-container svg, .btn').forEach(el => {
         el.classList.add('snoop-high');
@@ -831,7 +876,7 @@ function acceptSnoop() {
     document.getElementById('snoopOverlay').classList.remove('active');
     state.money += 50;
     state.energy = Math.min(state.maxEnergy, state.energy + 20);
-    showToast('🔥 Сильный накур! +50$ +20⚡', false, 'event');
+    showToast('🔥 Сильный накур! +50$ +20⚡');
     haptic('success');
     document.body.classList.add('snoop-high');
     document.getElementById('snoopOverlay').classList.add('active');
@@ -965,6 +1010,7 @@ function buyPot() {
 
 function buyLamp(lid) {
     const l = getLamp(lid);
+    if (!l) return;
     if (state.money < l.price) { showToast('Мало денег', true); return; }
     state.money -= l.price;
     state.lamps[lid] = (state.lamps[lid] || 0) + 1;
@@ -976,6 +1022,7 @@ function buyLamp(lid) {
 
 function buyFert(fid) {
     const f = getFert(fid);
+    if (!f) return;
     if (state.money < f.price) { showToast('Мало денег', true); return; }
     state.money -= f.price;
     state.ferts[fid] = (state.ferts[fid] || 0) + 1;
@@ -1198,6 +1245,131 @@ async function loadLeaderboard(period) {
     } catch (e) {
         list.innerHTML = '<div class="empty">❌ Ошибка загрузки</div>';
     }
+}
+
+// ============================================================
+// ====== СОЦИАЛЬНЫЕ ФУНКЦИИ ======
+// ============================================================
+function getUserName() {
+    return tg?.initDataUnsafe?.user?.first_name || 'Игрок';
+}
+
+function addFriend() {
+    const input = document.getElementById('friend-search');
+    const name = input.value.trim();
+    if (!name) { showToast('Введите имя игрока', true); return; }
+    if (name === getUserName()) { showToast('Это вы!', true); return; }
+    if (state.friends.find(f => f.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Уже в друзьях', true);
+        return;
+    }
+    if (state.friendRequests.find(r => r.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Заявка уже отправлена', true);
+        return;
+    }
+    
+    const request = { from: userId, name: name, date: new Date().toISOString() };
+    state.friendRequests.push(request);
+    showToast(`📨 Заявка отправлена ${name}`);
+    haptic('medium');
+    input.value = '';
+    save();
+    renderSocial();
+}
+
+function acceptFriend(index) {
+    const req = state.friendRequests[index];
+    if (!req) return;
+    state.friends.push({ id: req.from, name: req.name, addedAt: new Date().toISOString() });
+    state.friendRequests.splice(index, 1);
+    showToast(`👫 ${req.name} теперь в друзьях!`);
+    haptic('success');
+    state.money += 20;
+    save();
+    renderSocial();
+}
+
+function rejectFriend(index) {
+    state.friendRequests.splice(index, 1);
+    showToast('Заявка отклонена');
+    save();
+    renderSocial();
+}
+
+function removeFriend(index) {
+    const friend = state.friends[index];
+    if (!friend) return;
+    if (!confirm(`Удалить ${friend.name} из друзей?`)) return;
+    state.friends.splice(index, 1);
+    showToast(`👋 ${friend.name} удалён`);
+    save();
+    renderSocial();
+}
+
+// ============================================================
+// ====== ЕЖЕДНЕВНЫЙ БОНУС ======
+// ============================================================
+function updateBonusTimer() {
+    const now = Date.now();
+    const lastBonus = state.lastBonusTime || 0;
+    const cooldown = 24 * 60 * 60 * 1000; // 24 часа
+    const elapsed = now - lastBonus;
+    const remaining = Math.max(0, cooldown - elapsed);
+    
+    const timerEl = document.getElementById('bonus-countdown');
+    const btnEl = document.getElementById('btn-bonus');
+    
+    if (remaining <= 0) {
+        timerEl.textContent = '🎁 Бонус доступен!';
+        btnEl.disabled = false;
+        btnEl.style.opacity = '1';
+        return;
+    }
+    
+    const hours = Math.floor(remaining / (60 * 60 * 1000));
+    const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((remaining % (60 * 1000)) / 1000);
+    timerEl.textContent = `⏳ ${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+    btnEl.disabled = true;
+    btnEl.style.opacity = '0.5';
+}
+
+function sendDailyBonus() {
+    const now = Date.now();
+    const lastBonus = state.lastBonusTime || 0;
+    const cooldown = 24 * 60 * 60 * 1000;
+    
+    if (now - lastBonus < cooldown) {
+        showToast('Бонус ещё недоступен!', true);
+        return;
+    }
+    
+    if (state.friends.length === 0) {
+        showToast('Нет друзей для отправки бонуса', true);
+        return;
+    }
+    
+    const bonusAmount = 50 + state.friends.length * 10;
+    const energyBonus = 10 + state.friends.length * 2;
+    
+    state.money += bonusAmount;
+    state.energy = Math.min(state.maxEnergy, state.energy + energyBonus);
+    state.lastBonusTime = now;
+    
+    const logEntry = {
+        date: new Date().toISOString(),
+        amount: bonusAmount,
+        energy: energyBonus,
+        friends: state.friends.length
+    };
+    state.bonusLog.unshift(logEntry);
+    if (state.bonusLog.length > 50) state.bonusLog.pop();
+    
+    showToast(`🎁 Бонус отправлен всем друзьям! +${bonusAmount}$ +${energyBonus}⚡`);
+    haptic('success');
+    save();
+    renderSocial();
+    updateBonusTimer();
 }
 
 // ============================================================
@@ -1563,7 +1735,7 @@ function renderFriends() {
     if (friends.length === 0) {
         container.innerHTML = `
             <div style="color:var(--hint);font-size:10px;text-align:center;padding:8px;">
-                👤 Пока нет друзей<br>
+                👤 Пока нет друзей по реферальной ссылке<br>
                 <span style="font-size:8px;">Пригласи друзей и получай бонусы!</span>
             </div>
         `;
@@ -1581,6 +1753,68 @@ function renderFriends() {
         `;
     });
     container.innerHTML = html;
+}
+
+function renderSocial() {
+    // Заявки
+    const reqDiv = document.getElementById('friend-requests');
+    if (state.friendRequests.length === 0) {
+        reqDiv.innerHTML = '';
+    } else {
+        let html = '<div class="section-title">📩 Заявки в друзья</div>';
+        state.friendRequests.forEach((req, i) => {
+            html += `
+                <div class="request-item">
+                    <span>${req.name}</span>
+                    <div>
+                        <button class="btn btn-small" onclick="acceptFriend(${i})">✅</button>
+                        <button class="btn btn-small btn-secondary" onclick="rejectFriend(${i})">❌</button>
+                    </div>
+                </div>
+            `;
+        });
+        reqDiv.innerHTML = html;
+    }
+    
+    // Список друзей
+    const friendsDiv = document.getElementById('friends-list-social');
+    if (state.friends.length === 0) {
+        friendsDiv.innerHTML = '<div class="empty"><div class="empty-emoji">👤</div>Нет друзей. Добавь их!</div>';
+    } else {
+        let html = '';
+        state.friends.forEach((friend, i) => {
+            const online = Math.random() > 0.3 ? '🟢 онлайн' : '⚪ офлайн';
+            const onlineClass = Math.random() > 0.3 ? 'online' : 'online offline';
+            html += `
+                <div class="friend-item">
+                    <div>${friend.name}</div>
+                    <div class="${onlineClass}">${online}</div>
+                    <div style="margin-left:auto;display:flex;gap:4px;">
+                        <button class="btn btn-small btn-secondary" onclick="removeFriend(${i})">🗑</button>
+                    </div>
+                </div>
+            `;
+        });
+        friendsDiv.innerHTML = html;
+    }
+    
+    // Бонус лог
+    const logDiv = document.getElementById('bonus-log');
+    if (state.bonusLog.length === 0) {
+        logDiv.innerHTML = 'История бонусов пуста';
+    } else {
+        let html = '<div style="font-weight:600;font-size:9px;color:var(--hint);">📜 История бонусов</div>';
+        state.bonusLog.slice(0, 10).forEach(entry => {
+            const date = new Date(entry.date).toLocaleDateString();
+            html += `
+                <div style="padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:9px;display:flex;justify-content:space-between;">
+                    <span>${date}</span>
+                    <span style="color:var(--gold);">+${entry.amount}$ +${entry.energy}⚡ (${entry.friends} друзей)</span>
+                </div>
+            `;
+        });
+        logDiv.innerHTML = html;
+    }
 }
 
 function renderHeader() {
@@ -1601,6 +1835,8 @@ function render() {
     renderRoom();
     renderProfile();
     renderFriends();
+    renderSocial();
+    updateBonusTimer();
 }
 
 // ============================================================
@@ -1616,6 +1852,7 @@ document.querySelectorAll('.tab').forEach(tab => {
         document.getElementById('section-' + tabName).classList.add('active');
         if (tabName === 'market') renderMarket();
         if (tabName === 'leaderboard') loadLeaderboard('monthly');
+        if (tabName === 'friends') { renderSocial(); updateBonusTimer(); }
         haptic('light');
     });
 });
@@ -1633,6 +1870,7 @@ setInterval(() => {
     renderHeader();
     renderFarm();
     renderMarket();
+    updateBonusTimer();
     save();
 }, 1500);
 
@@ -1670,6 +1908,11 @@ window.copyReferral = copyReferral;
 window.loadLeaderboard = loadLeaderboard;
 window.acceptSnoop = acceptSnoop;
 window.rejectSnoop = rejectSnoop;
+window.addFriend = addFriend;
+window.acceptFriend = acceptFriend;
+window.rejectFriend = rejectFriend;
+window.removeFriend = removeFriend;
+window.sendDailyBonus = sendDailyBonus;
 </script>
 </body>
 </html>
