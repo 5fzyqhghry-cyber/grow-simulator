@@ -1,7 +1,7 @@
 {
-  "name": "grow-simulator",
-  "version": "2.0.0",
-  "description": "🌿 Grow Simulator",
+  "name": "grow-simulator-server",
+  "version": "1.0.0",
+  "description": "Сервер для Weed Grow Simulator",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
