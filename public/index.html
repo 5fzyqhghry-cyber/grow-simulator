@@ -64,6 +64,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .btn-gold{background:var(--gold);color:#111;box-shadow:0 2px 6px rgba(255,215,0,0.15)}
 .btn-small{padding:4px 8px;font-size:9px;min-height:28px}
 .btn-full{width:100%}
+.btn-smoke{background:linear-gradient(135deg,#795548,#4e342e);color:#fff}
+.btn-taste{background:linear-gradient(135deg,#ff6f00,#ff8f00);color:#fff}
 .card{background:rgba(16,30,16,0.85);border-radius:12px;padding:10px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.04)}
 .card-emoji{font-size:24px;width:36px;text-align:center}
 .card-info{flex:1;min-width:0}
@@ -140,6 +142,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="tab" data-tab="market">📊 Рынок</div>
   <div class="tab" data-tab="shop">🛒 Магазин</div>
   <div class="tab" data-tab="inventory">📦 Склад</div>
+  <div class="tab" data-tab="process">⚗️ Цех</div>
   <div class="tab" data-tab="room">🏠 Комната</div>
   <div class="tab" data-tab="profile">👤 Профиль</div>
   <div class="tab" data-tab="leaderboard">🏆 Рейтинг</div>
@@ -168,6 +171,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="section" id="section-inventory">
     <div class="card-list" id="inventory-list"></div>
     <div style="margin-top:8px"><button class="btn btn-full" onclick="sellAll()" id="btn-sell-all">💰 Продать всё</button></div>
+  </div>
+
+  <!-- ====== ЦЕХ (ПЕРЕРАБОТКА) ====== -->
+  <div class="section" id="section-process">
+    <div class="section-title">⚗️ Переработка сырья</div>
+    <div class="card-list" id="process-list"></div>
+    <div class="section-title" style="margin-top:10px;">🍃 Готовая продукция</div>
+    <div class="card-list" id="products-list"></div>
   </div>
 
   <div class="section" id="section-room">
@@ -239,7 +250,7 @@ if (tg) {
 }
 
 // ============================================================
-// ====== ДАННЫЕ (ИСПРАВЛЕНЫ) ======
+// ====== ДАННЫЕ ======
 // ============================================================
 
 // СОРТА
@@ -294,6 +305,14 @@ const ROOM_UPGRADES = [
     {id:'heater', emoji:'🔥', name:'Обогреватель', price:800,  type:'heater', desc:'Скорость роста +15%'}
 ];
 
+// ПРОДУКТЫ ДЛЯ ПЕРЕРАБОТКИ
+const PRODUCTS = {
+    dried: { name: 'Сушка', emoji: '🍂', mult: 1.4, energy: 3, from: 'raw' },
+    joint: { name: 'Косяк', emoji: '🚬', mult: 1.9, energy: 5, from: 'dried', need: 1 },
+    oil: { name: 'Масло', emoji: '🧴', mult: 2.4, energy: 8, from: 'dried', need: 2 },
+    edible: { name: 'Еда', emoji: '🍪', mult: 2.8, energy: 10, from: 'dried', need: 2 }
+};
+
 const STAGE_NAMES = ['','🌱 Семя','🌿 Росток','🌳 Вегетация','🌸 Цветение','✨ Готово'];
 const STAGE_EMOJI = ['','🌱','🌿','🌳','🌸','✨'];
 
@@ -327,7 +346,8 @@ let state = {
     marketUpdateTime: 0,
     lastTick: Date.now(),
     snoopCooldown: 0,
-    snoopActive: false
+    snoopActive: false,
+    consumedCount: 0
 };
 let selectedPotId = null;
 let snoopTimer = null;
@@ -373,6 +393,7 @@ function load() {
     if (!state.marketUpdateTime) state.marketUpdateTime = 0;
     if (!state.snoopCooldown) state.snoopCooldown = 0;
     if (!state.snoopActive) state.snoopActive = false;
+    if (!state.consumedCount) state.consumedCount = 0;
     updateMarketPrices();
 }
 
@@ -468,6 +489,33 @@ function rejectSnoop() {
     state.snoopActive = false;
     state.snoopCooldown = Date.now();
     showToast('Снуп Догг ушёл...');
+}
+
+// ============================================================
+// ====== ЭФФЕКТ "НАКУРИЛО" ======
+// ============================================================
+let highTimer = null;
+let highElements = [];
+
+function applyHighEffect() {
+    if (highTimer) return;
+    showToast('🌀 Тебя накурило! Иконки дрожат 30 секунд!', false, 'high');
+    haptic('warning');
+    
+    document.querySelectorAll('.pot-emoji, .card-emoji, .plant-container svg, .btn').forEach(el => {
+        el.classList.add('snoop-high');
+        highElements.push(el);
+    });
+    
+    document.getElementById('profile-state').textContent = '🌀 Накурило!';
+    
+    highTimer = setTimeout(() => {
+        highElements.forEach(el => el.classList.remove('snoop-high'));
+        highElements = [];
+        highTimer = null;
+        document.getElementById('profile-state').textContent = '🧠 Норма';
+        showToast('🌀 Эффект прошёл...');
+    }, 30000);
 }
 
 // ============================================================
@@ -673,6 +721,121 @@ function harvest(id) {
     pot.speedMult = 1;
     pot.yieldMult = 1;
     
+    save();
+    render();
+}
+
+// ============================================================
+// ====== ЦЕХ (ПЕРЕРАБОТКА) ======
+// ============================================================
+function getProductInfo(key) {
+    const s = getStrain(key);
+    if (s) {
+        return { name: s.emoji + ' ' + s.name + ' (сырец)', emoji: s.emoji, sellPrice: s.sellPrice, strain: key, type: 'raw' };
+    }
+    if (key.endsWith('_dried')) {
+        const sid = key.replace('_dried', '');
+        const s2 = getStrain(sid);
+        if (s2) {
+            return { name: s2.emoji + ' ' + s2.name + ' (сушка)', emoji: '🍂', sellPrice: Math.floor(s2.sellPrice * 1.4), strain: sid, type: 'dried' };
+        }
+    }
+    if (key.endsWith('_joint')) {
+        const sid = key.replace('_joint', '');
+        const s2 = getStrain(sid);
+        if (s2) {
+            return { name: s2.emoji + ' ' + s2.name + ' косяк', emoji: '🚬', sellPrice: Math.floor(s2.sellPrice * 1.9), strain: sid, type: 'joint' };
+        }
+    }
+    if (key.endsWith('_oil')) {
+        const sid = key.replace('_oil', '');
+        const s2 = getStrain(sid);
+        if (s2) {
+            return { name: s2.emoji + ' ' + s2.name + ' масло', emoji: '🧴', sellPrice: Math.floor(s2.sellPrice * 2.4), strain: sid, type: 'oil' };
+        }
+    }
+    if (key.endsWith('_edible')) {
+        const sid = key.replace('_edible', '');
+        const s2 = getStrain(sid);
+        if (s2) {
+            return { name: s2.emoji + ' ' + s2.name + ' еда', emoji: '🍪', sellPrice: Math.floor(s2.sellPrice * 2.8), strain: sid, type: 'edible' };
+        }
+    }
+    return null;
+}
+
+function processItem(strainId, productType) {
+    const p = PRODUCTS[productType];
+    if (!p) return;
+    const rawKey = strainId;
+    const driedKey = strainId + '_dried';
+    const outKey = strainId + '_' + productType;
+    
+    if (productType === 'dried') {
+        if ((state.inventory[rawKey] || 0) < 1) { showToast('Нет сырья', true); return; }
+        if (state.energy < p.energy) { showToast('Мало энергии', true); return; }
+        state.inventory[rawKey]--;
+        if (state.inventory[rawKey] <= 0) delete state.inventory[rawKey];
+        state.energy -= p.energy;
+        state.inventory[driedKey] = (state.inventory[driedKey] || 0) + 1;
+        showToast('🍂 Высушено!');
+    } else {
+        const need = p.need || 1;
+        if ((state.inventory[driedKey] || 0) < need) { showToast('Нужна сушка ×' + need, true); return; }
+        if (state.energy < p.energy) { showToast('Мало энергии', true); return; }
+        state.inventory[driedKey] -= need;
+        if (state.inventory[driedKey] <= 0) delete state.inventory[driedKey];
+        state.energy -= p.energy;
+        state.inventory[outKey] = (state.inventory[outKey] || 0) + 1;
+        showToast(p.emoji + ' ' + p.name + ' готов!');
+    }
+    haptic('success');
+    addXp(4);
+    save();
+    render();
+}
+
+function sellProduct(key) {
+    const amt = state.inventory[key] || 0;
+    if (amt <= 0) return;
+    const info = getProductInfo(key);
+    if (!info) return;
+    const total = amt * info.sellPrice;
+    state.money += total;
+    delete state.inventory[key];
+    showToast('💰 Продано за ' + total + '$');
+    haptic('success');
+    addXp(Math.floor(total / 10));
+    save();
+    render();
+}
+
+// ============================================================
+// ====== ПОТРЕБЛЕНИЕ ПРОДУКТОВ (ЭФФЕКТ "НАКУРИЛО") ======
+// ============================================================
+function consumeProduct(key, type) {
+    const amt = state.inventory[key] || 0;
+    if (amt <= 0) { showToast('Нет товара', true); return; }
+    if (state.consumedCount >= 3) { showToast('🌀 Ты уже накурился!', true); return; }
+    
+    state.inventory[key]--;
+    if (state.inventory[key] <= 0) delete state.inventory[key];
+    state.consumedCount = (state.consumedCount || 0) + 1;
+    
+    const names = {
+        'dried': 'сушку',
+        'joint': 'косяк',
+        'oil': 'масло',
+        'edible': 'еду'
+    };
+    showToast(`💨 Покурил ${names[type] || 'товар'} (${state.consumedCount}/3)`);
+    haptic('medium');
+    
+    if (state.consumedCount >= 3) {
+        applyHighEffect();
+        state.consumedCount = 0;
+        document.getElementById('profile-state').textContent = '🌀 Накурило!';
+    }
     save();
     render();
 }
@@ -925,32 +1088,15 @@ function sellAll() {
     let total = 0, items = 0;
     for (const [id, amt] of Object.entries(state.inventory)) {
         if (amt <= 0) continue;
-        const s = getStrain(id);
-        if (s) {
-            const price = getMarketPrice(id);
-            total += amt * price;
+        const info = getProductInfo(id);
+        if (info) {
+            total += amt * info.sellPrice;
             items += amt;
         }
     }
     if (!items) { showToast('Склад пуст', true); return; }
     state.money += total;
     state.inventory = {};
-    showToast('💰 Продано за ' + total + '$');
-    haptic('success');
-    addXp(Math.floor(total / 10));
-    save();
-    render();
-}
-
-function sellProduct(key) {
-    const amt = state.inventory[key] || 0;
-    if (amt <= 0) return;
-    const s = getStrain(key);
-    if (!s) return;
-    const price = getMarketPrice(key);
-    const total = amt * price;
-    state.money += total;
-    delete state.inventory[key];
     showToast('💰 Продано за ' + total + '$');
     haptic('success');
     addXp(Math.floor(total / 10));
@@ -1304,6 +1450,88 @@ function renderInventory() {
     });
 }
 
+// ====== ЦЕХ (ПЕРЕРАБОТКА) ======
+function renderProcess() {
+    const list = document.getElementById('process-list');
+    list.innerHTML = '';
+    
+    // Сырьё для сушки
+    const raws = Object.entries(state.inventory).filter(([k, v]) => v > 0 && getStrain(k));
+    if (!raws.length) {
+        list.innerHTML = '<div class="empty"><div class="empty-emoji">⚗️</div>Нет сырья для переработки</div>';
+    } else {
+        raws.forEach(([id, amt]) => {
+            const s = getStrain(id);
+            const c = document.createElement('div');
+            c.className = 'card';
+            c.innerHTML = `
+                <div class="card-emoji">${s.emoji}</div>
+                <div class="card-info">
+                    <div class="card-title">${s.emoji} ${s.name} <span class="inv-count">×${amt}</span></div>
+                    <div class="card-desc">Сырец</div>
+                </div>
+                <button class="btn btn-small btn-warning" onclick="processItem('${id}','dried')">🍂 Сушить</button>
+            `;
+            list.appendChild(c);
+        });
+    }
+    
+    // Сушка → продукты
+    const dried = Object.entries(state.inventory).filter(([k, v]) => v > 0 && k.endsWith('_dried'));
+    dried.forEach(([key, amt]) => {
+        const info = getProductInfo(key);
+        if (!info) return;
+        const sid = info.strain;
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `
+            <div class="card-emoji">🍂</div>
+            <div class="card-info">
+                <div class="card-title">${info.name} <span class="inv-count">×${amt}</span></div>
+                <div class="card-desc">Переработка</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                <button class="btn btn-small" onclick="processItem('${sid}','joint')">🚬 Косяк</button>
+                <button class="btn btn-small" onclick="processItem('${sid}','oil')">🧴 Масло</button>
+                <button class="btn btn-small" onclick="processItem('${sid}','edible')">🍪 Еда</button>
+            </div>
+        `;
+        list.appendChild(c);
+    });
+    
+    // Готовая продукция
+    const plist = document.getElementById('products-list');
+    plist.innerHTML = '';
+    const products = Object.entries(state.inventory).filter(([k, v]) => v > 0 && 
+        (k.includes('_joint') || k.includes('_oil') || k.includes('_edible') || k.includes('_dried')));
+    
+    if (!products.length) {
+        plist.innerHTML = '<div class="empty"><div class="empty-emoji">🍃</div>Нет готовой продукции</div>';
+    } else {
+        products.forEach(([key, amt]) => {
+            const info = getProductInfo(key);
+            if (!info) return;
+            const isConsumable = info.type === 'dried' || info.type === 'joint' || info.type === 'oil' || info.type === 'edible';
+            const btnLabel = info.type === 'dried' ? '🚬 Покурить' : '🍽 Попробовать';
+            const btnClass = info.type === 'dried' ? 'btn-smoke' : 'btn-taste';
+            const c = document.createElement('div');
+            c.className = 'card';
+            c.innerHTML = `
+                <div class="card-emoji">${info.emoji}</div>
+                <div class="card-info">
+                    <div class="card-title">${info.name} <span class="inv-count">×${amt}</span></div>
+                    <div class="card-desc">${info.sellPrice}$ · ${amt * info.sellPrice}$</div>
+                </div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <button class="btn btn-small" onclick="sellProduct('${key}')">💰</button>
+                    ${isConsumable ? `<button class="btn btn-small ${btnClass}" onclick="consumeProduct('${key}','${info.type}')">${btnLabel}</button>` : ''}
+                </div>
+            `;
+            plist.appendChild(c);
+        });
+    }
+}
+
 function renderRoom() {
     const info = document.getElementById('room-info');
     info.innerHTML = `
@@ -1364,7 +1592,7 @@ function renderProfile() {
     document.getElementById('profile-energy').textContent = Math.floor(state.energy) + '/' + state.maxEnergy;
     document.getElementById('profile-harvests').textContent = state.totalHarvests || 0;
     document.getElementById('profile-pots').textContent = state.pots.length;
-    document.getElementById('profile-state').textContent = document.body.classList.contains('snoop-high') ? '🔥 Убойная трава!' : '🧠 Норма';
+    document.getElementById('profile-state').textContent = document.body.classList.contains('snoop-high') ? '🔥 Убойная трава!' : (highTimer ? '🌀 Накурило!' : '🧠 Норма');
 }
 
 function renderFriends() {
@@ -1397,6 +1625,7 @@ function render() {
     renderMarket();
     renderShop();
     renderInventory();
+    renderProcess();
     renderRoom();
     renderProfile();
     renderFriends();
@@ -1463,6 +1692,8 @@ window.buyPot = buyPot;
 window.buyRoomUpgrade = buyRoomUpgrade;
 window.sellAll = sellAll;
 window.sellProduct = sellProduct;
+window.processItem = processItem;
+window.consumeProduct = consumeProduct;
 window.shareReferral = shareReferral;
 window.copyReferral = copyReferral;
 window.loadLeaderboard = loadLeaderboard;
