@@ -293,14 +293,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 // ====== НАСТРОЙКИ ======
 // ============================================================
 const BOT_USERNAME = 'Rastafaray420_bot';
-const SERVER_URL = 'https://grow-simulator-undernz.waw0.amvera.tech';
 const tg = window.Telegram?.WebApp;
 
 let userId = 'guest_' + Math.random().toString(36).slice(2,9);
 if (tg) {
     tg.ready();
     tg.expand();
-    try { tg.setHeaderColor('secondary_bg_color'); } catch(e) {}
     if (tg.initDataUnsafe?.user?.id) {
         userId = String(tg.initDataUnsafe.user.id);
     }
@@ -357,18 +355,10 @@ const ROOM_UPGRADES = [
 ];
 
 const PRODUCTS = {
-    dried: { name: 'Сушка', emoji: '🍂', mult: 1.4, energy: 3, from: 'raw', need: 1,
-        sellPrice: function(basePrice) { return Math.floor(basePrice * 1.4); }
-    },
-    joint: { name: 'Косяк', emoji: '🚬', mult: 1.9, energy: 5, from: 'dried', need: 1,
-        sellPrice: function(basePrice) { return Math.floor(basePrice * 1.9); }
-    },
-    oil: { name: 'Масло', emoji: '🧴', mult: 2.4, energy: 8, from: 'dried', need: 2,
-        sellPrice: function(basePrice) { return Math.floor(basePrice * 2.4 * 2); }
-    },
-    edible: { name: 'Еда', emoji: '🍪', mult: 2.8, energy: 10, from: 'dried', need: 3,
-        sellPrice: function(basePrice) { return Math.floor(basePrice * 2.8 * 3); }
-    }
+    dried: { name: 'Сушка', emoji: '🍂', mult: 1.4, energy: 3, from: 'raw', need: 1 },
+    joint: { name: 'Косяк', emoji: '🚬', mult: 1.9, energy: 5, from: 'dried', need: 1 },
+    oil: { name: 'Масло', emoji: '🧴', mult: 2.4, energy: 8, from: 'dried', need: 2 },
+    edible: { name: 'Еда', emoji: '🍪', mult: 2.8, energy: 10, from: 'dried', need: 3 }
 };
 
 const STAGE_NAMES = ['','🌱 Семя','🌿 Росток','🌳 Вегетация','🌸 Цветение','✨ Готово'];
@@ -385,7 +375,6 @@ let state = {
     xp: 0,
     rep: 0,
     heat: 0,
-    policeTimer: 0,
     totalEarned: 0,
     maxEarned: 5000,
     pots: [],
@@ -479,9 +468,6 @@ function addXp(a) {
     render();
 }
 
-// ============================================================
-// ====== СОХРАНЕНИЕ ======
-// ============================================================
 function save() {
     state.lastUpdate = Date.now();
     try { localStorage.setItem('grow_sim_v3_' + userId, JSON.stringify(state)); } catch(e) {}
@@ -528,7 +514,6 @@ function load() {
     if (!state.totalEarned) state.totalEarned = 0;
     if (!state.maxEarned) state.maxEarned = 5000;
     if (!state.heat) state.heat = 0;
-    if (!state.policeTimer) state.policeTimer = 0;
     if (!state.lastHeatCheck) state.lastHeatCheck = Date.now();
     if (!state.registerDate) state.registerDate = new Date().toISOString();
     if (!state.totalHarvests) state.totalHarvests = 0;
@@ -550,165 +535,6 @@ function load() {
     updateBonusTimer();
     loadChat();
     updateHeat();
-    syncWithServer();
-}
-
-// ============================================================
-// ====== СИНХРОНИЗАЦИЯ С СЕРВЕРОМ ======
-// ============================================================
-async function syncWithServer() {
-    try {
-        // Регистрируем/обновляем пользователя на сервере
-        const response = await fetch(`${SERVER_URL}/api/update-stats`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId: userId,
-                userName: getUserName(),
-                stats: {
-                    level: state.level,
-                    harvests: state.totalHarvests || 0,
-                    money: Math.floor(state.money),
-                    energy: Math.floor(state.energy)
-                }
-            })
-        });
-        const data = await response.json();
-        if (data.success) {
-            console.log('✅ Данные синхронизированы с сервером');
-        }
-    } catch(e) {
-        console.log('⚠️ Ошибка синхронизации с сервером:', e);
-    }
-}
-
-// ============================================================
-// ====== РЕФЕРАЛЬНАЯ СИСТЕМА ======
-// ============================================================
-async function handleReferral() {
-    // Проверяем Telegram-параметр
-    let refId = null;
-    
-    if (tg?.initDataUnsafe?.start_param) {
-        const param = tg.initDataUnsafe.start_param;
-        if (param.startsWith('ref_')) {
-            refId = param.replace('ref_', '');
-        }
-    }
-    
-    // Проверяем URL-параметр (для веб-версии)
-    if (!refId) {
-        const urlParams = new URLSearchParams(window.location.search);
-        refId = urlParams.get('ref');
-    }
-    
-    // Если уже есть реферал или это мы сами — выходим
-    if (state.referredBy) return;
-    if (!refId) return;
-    if (refId === userId) return;
-    
-    try {
-        // Отправляем запрос на сервер
-        const response = await fetch(`${SERVER_URL}/api/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId: userId,
-                userName: getUserName(),
-                referredBy: refId
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            state.referredBy = refId;
-            state.money += 100;
-            state.energy = Math.min(state.maxEnergy, state.energy + 30);
-            showToast('🎁 Бонус новичка! +100$ +30⚡');
-            save();
-            render();
-            
-            // Обновляем список рефералов у пригласившего
-            await updateReferralList(refId);
-            
-            // Загружаем обновлённую статистику
-            await loadReferrals();
-        }
-    } catch (e) {
-        console.log('❌ Ошибка реферальной системы:', e);
-        // Если сервер не отвечает — используем локальный вариант
-        handleLocalReferral(refId);
-    }
-}
-
-function handleLocalReferral(refId) {
-    if (state.referredBy) return;
-    state.referredBy = refId;
-    state.money += 100;
-    state.energy = Math.min(state.maxEnergy, state.energy + 30);
-    showToast('🎁 Бонус новичка! +100$ +30⚡ (локально)');
-    save();
-    render();
-}
-
-async function updateReferralList(refId) {
-    try {
-        await fetch(`${SERVER_URL}/api/referral/add`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                referrerId: refId,
-                userId: userId,
-                userName: getUserName(),
-                bonus: 150
-            })
-        });
-    } catch(e) {
-        console.log('Не удалось обновить список рефералов');
-    }
-}
-
-async function loadReferrals() {
-    try {
-        const response = await fetch(`${SERVER_URL}/api/referrals/${userId}`);
-        if (response.ok) {
-            const data = await response.json();
-            state.referrals = data.total || 0;
-            state.referralEarned = data.earned || 0;
-            state.referralsList = data.referrals || [];
-            save();
-            renderFriends();
-        }
-    } catch(e) {
-        console.log('Не удалось загрузить рефералов');
-    }
-}
-
-// ============================================================
-// ====== РЕФЕРАЛЬНЫЕ ССЫЛКИ ======
-// ============================================================
-function getRefLink() {
-    // Для Telegram Mini App
-    if (tg) {
-        return `https://t.me/${BOT_USERNAME}?startapp=ref_${userId}`;
-    }
-    // Для веб-версии
-    return `${SERVER_URL}/?ref=${userId}`;
-}
-
-function shareReferral() {
-    const link = getRefLink();
-    if (tg?.openTelegramLink) {
-        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('🌿 Присоединяйся к Weed Grow Simulator!')}`);
-    } else {
-        navigator.clipboard?.writeText(link).then(() => showToast('📋 Ссылка скопирована'));
-    }
-}
-
-function copyReferral() {
-    const link = getRefLink();
-    navigator.clipboard?.writeText(link).then(() => showToast('📋 Ссылка скопирована'));
 }
 
 // ============================================================
@@ -866,6 +692,60 @@ function getPriceChange(strainId) {
     const current = getMarketPrice(strainId);
     const base = STRAINS.find(s => s.id === strainId)?.sellPrice || 50;
     return ((current - base) / base * 100);
+}
+
+// ============================================================
+// ====== РЕФЕРАЛЫ ======
+// ============================================================
+function getRefLink() {
+    if (tg) {
+        return `https://t.me/${BOT_USERNAME}?startapp=ref_${userId}`;
+    }
+    return window.location.origin + '/?ref=' + userId;
+}
+
+function shareReferral() {
+    const link = getRefLink();
+    if (tg?.openTelegramLink) {
+        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('🌿 Присоединяйся к Weed Grow Simulator!')}`);
+    } else {
+        navigator.clipboard?.writeText(link).then(() => showToast('📋 Ссылка скопирована'));
+    }
+}
+
+function copyReferral() {
+    const link = getRefLink();
+    navigator.clipboard?.writeText(link).then(() => showToast('📋 Ссылка скопирована'));
+}
+
+function handleReferral() {
+    let refId = null;
+    
+    if (tg?.initDataUnsafe?.start_param) {
+        const param = tg.initDataUnsafe.start_param;
+        if (param.startsWith('ref_')) {
+            refId = param.replace('ref_', '');
+        }
+    }
+    
+    if (!refId) {
+        const urlParams = new URLSearchParams(window.location.search);
+        refId = urlParams.get('ref');
+    }
+    
+    if (state.referredBy) return;
+    if (!refId) return;
+    if (refId === userId) return;
+    
+    state.referredBy = refId;
+    state.money += 100;
+    state.energy = Math.min(state.maxEnergy, state.energy + 30);
+    state.referralsList.push({ name: 'Реферал', date: new Date().toISOString(), bonus: 150 });
+    state.referrals += 1;
+    state.referralEarned += 150;
+    showToast('🎁 Бонус новичка! +100$ +30⚡');
+    save();
+    render();
 }
 
 // ============================================================
@@ -1585,7 +1465,7 @@ function getFriendData(friendId) {
     return null;
 }
 
-async function loadLeaderboard(period) {
+function loadLeaderboard(period) {
     const list = document.getElementById('leaderboard-list');
     const myRank = document.getElementById('my-rank');
     if (!list) return;
@@ -1593,62 +1473,6 @@ async function loadLeaderboard(period) {
     list.innerHTML = '<div class="empty">📊 Загрузка...</div>';
     if (myRank) myRank.style.display = 'none';
     
-    try {
-        // Пытаемся загрузить с сервера
-        const response = await fetch(`${SERVER_URL}/api/leaderboard/${period}`);
-        const data = await response.json();
-        
-        if (data.players && data.players.length > 0) {
-            let html = '';
-            let myPosition = -1;
-            
-            data.players.forEach((player, index) => {
-                const pos = index + 1;
-                let rankClass = 'rank-card';
-                if (pos === 1) rankClass += ' top1';
-                else if (pos === 2) rankClass += ' top2';
-                else if (pos === 3) rankClass += ' top3';
-                
-                let badge = '';
-                if (pos === 1) badge = '🥇';
-                else if (pos === 2) badge = '🥈';
-                else if (pos === 3) badge = '🥉';
-                
-                if (player.id === userId) myPosition = pos;
-                
-                const isMe = player.id === userId;
-                const heatEmoji = player.heat > 50 ? '👮' : '';
-                html += `
-                    <div class="${rankClass}" style="${isMe ? 'border:2px solid var(--gold);' : ''}">
-                        <span class="rank-pos">${pos}</span>
-                        <span class="rank-badge">${badge}</span>
-                        <span class="rank-name">${player.name || 'Игрок'} ${isMe ? '⭐' : ''}</span>
-                        <span class="rank-level">Lv.${player.level}</span>
-                        <span class="rank-money">💰${player.money}</span>
-                        <span style="font-size:8px;color:var(--hint);">${heatEmoji}</span>
-                    </div>
-                `;
-            });
-            
-            list.innerHTML = html;
-            
-            if (myRank && myPosition > 0) {
-                myRank.innerHTML = `
-                    <div class="my-rank">
-                        <div style="font-size:10px;color:var(--hint);">👑 Ваше место</div>
-                        <div style="font-size:20px;font-weight:700;color:var(--gold);">#${myPosition}</div>
-                        <div style="font-size:9px;color:var(--hint);">из ${data.players.length} игроков</div>
-                    </div>
-                `;
-                myRank.style.display = 'block';
-            }
-            return;
-        }
-    } catch(e) {
-        console.log('⚠️ Ошибка загрузки с сервера, используем локальные данные');
-    }
-    
-    // Локальный рейтинг (если сервер не отвечает)
     try {
         const players = [];
         const allKeys = Object.keys(localStorage);
@@ -1940,7 +1764,7 @@ function renderChat() {
 }
 
 // ============================================================
-// ====== ОТРИСОВКА (БАЗОВАЯ) ======
+// ====== ОТРИСОВКА ======
 // ============================================================
 function getPlantSVG(strainId, stage, health, disease, ready) {
     const colors = {
@@ -1979,9 +1803,500 @@ function getPlantSVG(strainId, stage, health, disease, ready) {
     return svg;
 }
 
-// Остальные функции рендеринга (renderFarm, renderMarket, renderShop, etc.)
-// Они такие же как в твоей рабочей игре, я их сохранил, но для экономии места
-// здесь они не показаны полностью. В полном файле они есть.
+function renderFarm() {
+    const grid = document.getElementById('farm-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    if (state.pots.length === 0) {
+        grid.innerHTML = '<div class="empty"><div class="empty-emoji">🪴</div>Нет горшков</div>';
+        document.getElementById('btn-buy-pot').textContent = '➕ Купить горшок';
+        return;
+    }
+    state.pots.forEach(pot => {
+        const div = document.createElement('div');
+        div.className = 'pot';
+        
+        if (!pot.strain) {
+            div.innerHTML += `
+                <div class="pot-emoji">🪴</div>
+                <div class="pot-name">Пустой горшок</div>
+                <div class="pot-status">Готов к посадке</div>
+                <button class="btn btn-full" onclick="openSeedModal(${pot.id})">🌱 Посадить</button>
+            `;
+        } else {
+            const s = getStrain(pot.strain);
+            const prog = getProgress(pot);
+            const left = Math.max(0, Math.ceil(getEffectiveTime(pot) - (Date.now() - pot.plantedAt) / 1000));
+            updatePotStage(pot);
+            const ready = prog >= 1;
+            if (ready) div.classList.add('ready');
+            else if (pot.water < 25) div.classList.add('needs-water');
+            if (pot.disease) div.classList.add('sick');
+            
+            let tags = '';
+            if (pot.disease) tags += ' 🦠';
+            if (pot.lamp) {
+                const l = getLamp(pot.lamp);
+                if (l) tags += ` ${l.emoji}`;
+            }
+            if (pot.fert) tags += ' 🧪';
+            
+            let actions = '';
+            if (ready) {
+                actions = `<button class="btn btn-full" onclick="harvest(${pot.id})">🌿 Собрать урожай</button>`;
+            } else {
+                actions = `
+                    <div class="pot-actions">
+                        <button class="btn btn-blue btn-small" onclick="waterPot(${pot.id})">💧</button>
+                        <button class="btn btn-warning btn-small" onclick="openFertModal(${pot.id})">🧪</button>
+                        <button class="btn btn-purple btn-small" onclick="openLampModal(${pot.id})">💡</button>
+                    </div>
+                `;
+            }
+            
+            div.innerHTML += `
+                <div class="pot-emoji">${STAGE_EMOJI[pot.stage] || '🌱'}</div>
+                <div class="pot-name">${s.emoji} ${s.name} ${tags}</div>
+                <div class="pot-status">${ready ? '✅ Готово!' : STAGE_NAMES[pot.stage] + ' · ' + formatTime(left)}</div>
+                <div class="plant-container">${getPlantSVG(pot.strain, pot.stage, pot.health, pot.disease, ready)}</div>
+                <div class="bars">
+                    <div class="bar-row"><span>💧</span><div class="bar"><div class="bar-fill water" style="width:${pot.water}%"></div></div></div>
+                    <div class="bar-row"><span>❤️</span><div class="bar"><div class="bar-fill health" style="width:${pot.health}%"></div></div></div>
+                    <div class="bar-row"><span>⏱</span><div class="bar"><div class="bar-fill growth" style="width:${prog * 100}%"></div></div></div>
+                </div>
+                ${actions}
+            `;
+        }
+        grid.appendChild(div);
+    });
+    const maxLevel = Math.min(5, Math.floor((state.level + 1) / 2) + 1);
+    const buyLevel = getPotLevel(maxLevel) || POT_LEVELS[0];
+    const price = buyLevel.price + state.pots.length * 50;
+    document.getElementById('btn-buy-pot').textContent = '➕ Купить горшок (' + price + '$)';
+}
+
+function renderMarket() {
+    const grid = document.getElementById('market-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    STRAINS.forEach(s => {
+        const price = getMarketPrice(s.id);
+        const change = getPriceChange(s.id);
+        const changeClass = change >= 0 ? 'up' : 'down';
+        const changeSign = change >= 0 ? '+' : '';
+        const div = document.createElement('div');
+        div.className = 'market-item';
+        div.innerHTML = `
+            <span>${s.emoji} ${s.name}</span>
+            <span>
+                <span class="price">${price}$</span>
+                <span class="change ${changeClass}">${changeSign}${change.toFixed(1)}%</span>
+            </span>
+        `;
+        grid.appendChild(div);
+    });
+    const now = Date.now();
+    const nextUpdate = state.marketUpdateTime + 3600000;
+    const remaining = Math.max(0, Math.floor((nextUpdate - now) / 1000));
+    const min = Math.floor(remaining / 60);
+    const sec = remaining % 60;
+    document.getElementById('market-timer').textContent = `🔄 Обновление через: ${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+function renderShop() {
+    const list = document.getElementById('shop-list');
+    if (!list) return;
+    list.innerHTML = `
+        <div class="card">
+            <div class="card-emoji">⚡</div>
+            <div class="card-info">
+                <div class="card-title">Энергетик</div>
+                <div class="card-desc">+50 энергии</div>
+            </div>
+            <button class="btn btn-small" onclick="buyEnergy()">80$</button>
+        </div>
+        <div class="section-title">💡 Лампы</div>
+    `;
+    LAMPS.forEach(l => {
+        const owned = state.lamps[l.id] || 0;
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `
+            <div class="card-emoji">${l.emoji}</div>
+            <div class="card-info">
+                <div class="card-title">${l.emoji} ${l.name} ${owned ? `<span class="inv-count">×${owned}</span>` : ''}</div>
+                <div class="card-desc">${l.desc} · ⚡${LAMP_ENERGY_COST[l.id].toFixed(1)}/с</div>
+            </div>
+            <button class="btn btn-small btn-warning" onclick="buyLamp('${l.id}')">${l.price}$</button>
+        `;
+        list.appendChild(c);
+    });
+    list.innerHTML += `<div class="section-title">🧪 Удобрения</div>`;
+    FERTS.forEach(f => {
+        const owned = state.ferts[f.id] || 0;
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `
+            <div class="card-emoji">${f.emoji}</div>
+            <div class="card-info">
+                <div class="card-title">${f.emoji} ${f.name} ${owned ? `<span class="inv-count">×${owned}</span>` : ''}</div>
+                <div class="card-desc">${f.desc}</div>
+            </div>
+            <button class="btn btn-small" onclick="buyFert('${f.id}')">${f.price}$</button>
+        `;
+        list.appendChild(c);
+    });
+}
+
+function renderInventory() {
+    const list = document.getElementById('inventory-list');
+    if (!list) return;
+    const entries = Object.entries(state.inventory).filter(([_, a]) => a > 0);
+    if (!entries.length) {
+        list.innerHTML = '<div class="empty"><div class="empty-emoji">📦</div>Склад пуст</div>';
+        document.getElementById('btn-sell-all').style.display = 'none';
+        return;
+    }
+    document.getElementById('btn-sell-all').style.display = 'block';
+    list.innerHTML = '';
+    entries.forEach(([id, amt]) => {
+        const s = getStrain(id);
+        if (!s) return;
+        const price = getMarketPrice(id);
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `
+            <div class="card-emoji">${s.emoji}</div>
+            <div class="card-info">
+                <div class="card-title">${s.emoji} ${s.name} <span class="inv-count">×${amt}</span></div>
+                <div class="card-desc">💰${price}$ · ${amt * price}$</div>
+            </div>
+            <button class="btn btn-small" onclick="sellProduct('${id}')">💰</button>
+        `;
+        list.appendChild(c);
+    });
+}
+
+function renderProcess() {
+    const list = document.getElementById('process-list');
+    if (!list) return;
+    list.innerHTML = '';
+    
+    const raws = Object.entries(state.inventory).filter(([k, v]) => v > 0 && getStrain(k));
+    if (!raws.length) {
+        list.innerHTML = '<div class="empty"><div class="empty-emoji">⚗️</div>Нет сырья для переработки</div>';
+    } else {
+        raws.forEach(([id, amt]) => {
+            const s = getStrain(id);
+            const c = document.createElement('div');
+            c.className = 'card';
+            c.innerHTML = `
+                <div class="card-emoji">${s.emoji}</div>
+                <div class="card-info">
+                    <div class="card-title">${s.emoji} ${s.name} <span class="inv-count">×${amt}</span></div>
+                    <div class="card-desc">Сырец</div>
+                </div>
+                <button class="btn btn-small btn-warning" onclick="processItem('${id}','dried')">🍂 Сушить</button>
+            `;
+            list.appendChild(c);
+        });
+    }
+    
+    const dried = Object.entries(state.inventory).filter(([k, v]) => v > 0 && k.endsWith('_dried'));
+    dried.forEach(([key, amt]) => {
+        const info = getProductInfo(key);
+        if (!info) return;
+        const sid = info.strain;
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `
+            <div class="card-emoji">🍂</div>
+            <div class="card-info">
+                <div class="card-title">${info.name} <span class="inv-count">×${amt}</span></div>
+                <div class="card-desc">Переработка</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                <button class="btn btn-small" onclick="processItem('${sid}','joint')">🚬 Косяк</button>
+                <button class="btn btn-small" onclick="processItem('${sid}','oil')">🧴 Масло</button>
+                <button class="btn btn-small" onclick="processItem('${sid}','edible')">🍪 Еда</button>
+            </div>
+        `;
+        list.appendChild(c);
+    });
+    
+    const plist = document.getElementById('products-list');
+    if (!plist) return;
+    plist.innerHTML = '';
+    const products = Object.entries(state.inventory).filter(([k, v]) => v > 0 && 
+        (k.includes('_joint') || k.includes('_oil') || k.includes('_edible') || k.includes('_dried')));
+    
+    if (!products.length) {
+        plist.innerHTML = '<div class="empty"><div class="empty-emoji">🍃</div>Нет готовой продукции</div>';
+    } else {
+        products.forEach(([key, amt]) => {
+            const info = getProductInfo(key);
+            if (!info) return;
+            const isConsumable = info.type === 'dried' || info.type === 'joint' || info.type === 'oil' || info.type === 'edible';
+            const btnLabel = info.type === 'dried' ? '🚬 Покурить' : '🍽 Попробовать';
+            const btnClass = info.type === 'dried' ? 'btn-smoke' : 'btn-taste';
+            const c = document.createElement('div');
+            c.className = 'card';
+            c.innerHTML = `
+                <div class="card-emoji">${info.emoji}</div>
+                <div class="card-info">
+                    <div class="card-title">${info.name} <span class="inv-count">×${amt}</span></div>
+                    <div class="card-desc">${info.sellPrice}$ · ${amt * info.sellPrice}$</div>
+                </div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <button class="btn btn-small" onclick="sellProduct('${key}')">💰</button>
+                    ${isConsumable ? `<button class="btn btn-small ${btnClass}" onclick="consumeProduct('${key}','${info.type}')">${btnLabel}</button>` : ''}
+                </div>
+            `;
+            plist.appendChild(c);
+        });
+    }
+}
+
+function renderRoom() {
+    const info = document.getElementById('room-info');
+    if (!info) return;
+    info.innerHTML = `
+        <div class="room-grid">
+            <div class="room-item"><span class="big">🪴</span><div>${state.pots.length}</div><div class="label">Горшков</div></div>
+            <div class="room-item"><span class="big">${state.room.vent ? '✅' : '❌'}</span><div>${state.room.vent ? 'Вкл' : 'Выкл'}</div><div class="label">Вентиляция</div></div>
+            <div class="room-item"><span class="big">${state.room.auto ? '✅' : '❌'}</span><div>${state.room.auto ? 'Вкл' : 'Выкл'}</div><div class="label">Автополив</div></div>
+            <div class="room-item" style="grid-column:span 3;"><span class="big">${state.room.heater ? '✅' : '❌'}</span><div>${state.room.heater ? 'Вкл' : 'Выкл'}</div><div class="label">Обогреватель</div></div>
+        </div>
+    `;
+    const list = document.getElementById('room-list');
+    if (!list) return;
+    list.innerHTML = '';
+    list.innerHTML += '<div class="section-title">🪴 Уровни горшков</div>';
+    POT_LEVELS.forEach(pl => {
+        const unlocked = state.level >= pl.id * 2;
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.style.opacity = unlocked ? '1' : '0.5';
+        c.innerHTML = `
+            <div class="card-emoji">${pl.emoji}</div>
+            <div class="card-info">
+                <div class="card-title">${pl.emoji} ${pl.name} ${unlocked ? '✅' : '🔒'}</div>
+                <div class="card-desc">${pl.desc} · ${pl.price}$</div>
+            </div>
+            <span style="font-size:9px;color:${unlocked ? 'var(--accent)' : 'var(--hint)'};">${unlocked ? 'Доступен' : 'Ур. ' + pl.id * 2}</span>
+        `;
+        list.appendChild(c);
+    });
+    list.innerHTML += '<div class="section-title">🏠 Улучшения</div>';
+    ROOM_UPGRADES.forEach(u => {
+        let bought = false;
+        if (u.type === 'vent' && state.room.vent) bought = true;
+        if (u.type === 'auto' && state.room.auto) bought = true;
+        if (u.type === 'heater' && state.room.heater) bought = true;
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.style.opacity = bought ? '0.5' : '1';
+        c.innerHTML = `
+            <div class="card-emoji">${u.emoji}</div>
+            <div class="card-info">
+                <div class="card-title">${u.emoji} ${u.name}</div>
+                <div class="card-desc">${u.desc}</div>
+            </div>
+            ${bought ? '<span style="color:var(--hint);font-size:10px;">✅ Куплено</span>' : `<button class="btn btn-small" onclick="buyRoomUpgrade('${u.id}')">${u.price}$</button>`}
+        `;
+        list.appendChild(c);
+    });
+}
+
+function renderProfile() {
+    const name = tg?.initDataUnsafe?.user?.first_name || 'Игрок';
+    document.getElementById('profile-name').textContent = name;
+    document.getElementById('profile-id').textContent = 'ID: ' + userId;
+    const regDate = new Date(state.registerDate);
+    document.getElementById('profile-regdate').textContent = regDate.toLocaleDateString();
+    document.getElementById('profile-level').textContent = state.level;
+    document.getElementById('profile-money').textContent = Math.floor(state.money) + '$';
+    document.getElementById('profile-energy').textContent = Math.floor(state.energy) + '/' + state.maxEnergy;
+    document.getElementById('profile-harvests').textContent = state.totalHarvests || 0;
+    document.getElementById('profile-pots').textContent = state.pots.length;
+    const stateText = document.body.classList.contains('snoop-high') ? '🔥 Убойная трава!' : (highTimer ? '🌀 Накурило!' : '🧠 Норма');
+    document.getElementById('profile-state').textContent = stateText;
+    document.getElementById('profile-heat').textContent = Math.floor(state.heat) + '%';
+}
+
+function renderFriends() {
+    document.getElementById('ref-count').textContent = state.referrals || 0;
+    document.getElementById('ref-earned').textContent = state.referralEarned || 0;
+    
+    const container = document.getElementById('friends-list');
+    if (!container) return;
+    
+    const friends = state.referralsList || [];
+    if (friends.length === 0) {
+        container.innerHTML = `
+            <div style="color:var(--hint);font-size:10px;text-align:center;padding:8px;">
+                👤 Пока нет друзей по реферальной ссылке<br>
+                <span style="font-size:8px;">Пригласи друзей и получай бонусы!</span>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '<div style="font-size:10px;font-weight:600;color:var(--hint);margin-top:4px;">👥 Приглашённые друзья</div>';
+    friends.forEach((friend, index) => {
+        const date = friend.date ? new Date(friend.date).toLocaleDateString() : 'Недавно';
+        html += `
+            <div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10px;display:flex;justify-content:space-between;">
+                <span>${friend.name || 'Друг'}</span>
+                <span style="color:var(--gold);font-size:9px;">+${friend.bonus || 150}$</span>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function renderSocial() {
+    const reqDiv = document.getElementById('friend-requests');
+    if (state.friendRequests.length === 0) {
+        reqDiv.innerHTML = '';
+    } else {
+        let html = '<div class="section-title">📩 Заявки в друзья</div>';
+        state.friendRequests.forEach((req, i) => {
+            html += `
+                <div class="request-item">
+                    <span>${req.name}</span>
+                    <div>
+                        <button class="btn btn-small" onclick="acceptFriend(${i})">✅</button>
+                        <button class="btn btn-small btn-secondary" onclick="rejectFriend(${i})">❌</button>
+                    </div>
+                </div>
+            `;
+        });
+        reqDiv.innerHTML = html;
+    }
+    
+    const friendsDiv = document.getElementById('friends-list-social');
+    if (!friendsDiv) return;
+    if (state.friends.length === 0) {
+        friendsDiv.innerHTML = '<div class="empty"><div class="empty-emoji">👤</div>Нет друзей. Добавь их!</div>';
+    } else {
+        let html = '<div class="section-title">👫 Мои друзья</div>';
+        state.friends.forEach((friend, i) => {
+            let friendData = null;
+            try {
+                const raw = localStorage.getItem('grow_sim_public_' + friend.id);
+                if (raw) {
+                    friendData = JSON.parse(raw);
+                }
+            } catch(e) {}
+            
+            const money = friendData?.money || 0;
+            const level = friendData?.level || 1;
+            const isOnline = friendData ? (Date.now() - friendData.lastActive < 60000) : false;
+            const dotClass = isOnline ? 'online' : 'offline';
+            const statusText = isOnline ? '🟢 онлайн' : '⚪ офлайн';
+            
+            html += `
+                <div class="friend-item">
+                    <span class="online-dot ${dotClass}"></span>
+                    <span style="flex:1;font-weight:600;">${friend.name}</span>
+                    <span style="font-size:10px;color:var(--hint);">💰${money} • 🏆${level}</span>
+                    <span style="font-size:8px;color:var(--hint);">${statusText}</span>
+                    <button class="btn btn-small btn-secondary" onclick="removeFriend(${i})" style="margin-left:4px;">🗑</button>
+                </div>
+            `;
+        });
+        friendsDiv.innerHTML = html;
+    }
+    
+    const logDiv = document.getElementById('bonus-log');
+    if (!logDiv) return;
+    if (state.bonusLog.length === 0) {
+        logDiv.innerHTML = 'История бонусов пуста';
+    } else {
+        let html = '<div style="font-weight:600;font-size:9px;color:var(--hint);">📜 История бонусов</div>';
+        state.bonusLog.slice(0, 10).forEach(entry => {
+            const date = new Date(entry.date).toLocaleDateString();
+            html += `
+                <div style="padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:9px;display:flex;justify-content:space-between;">
+                    <span>${date}</span>
+                    <span style="color:var(--gold);">+${entry.amount}$ +${entry.energy}⚡ (${entry.friends} друзей)</span>
+                </div>
+            `;
+        });
+        logDiv.innerHTML = html;
+    }
+    
+    renderChat();
+}
+
+function renderHeader() {
+    document.getElementById('money').textContent = Math.floor(state.money);
+    document.getElementById('energy').textContent = Math.floor(state.energy);
+    document.getElementById('level').textContent = state.level;
+    document.getElementById('rep').textContent = state.rep;
+    document.getElementById('heat').textContent = Math.floor(state.heat);
+    document.getElementById('xp-badge').textContent = `${state.xp}/${xpFor(state.level)} XP`;
+}
+
+function render() {
+    renderHeader();
+    renderFarm();
+    renderMarket();
+    renderShop();
+    renderInventory();
+    renderProcess();
+    renderRoom();
+    renderProfile();
+    renderFriends();
+    renderSocial();
+    updateBonusTimer();
+}
+
+// ============================================================
+// ====== ТАБЫ ======
+// ============================================================
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        const tabName = this.dataset.tab;
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('section-' + tabName).classList.add('active');
+        if (tabName === 'market') renderMarket();
+        if (tabName === 'leaderboard') loadLeaderboard('monthly');
+        if (tabName === 'friends') { renderSocial(); updateBonusTimer(); }
+        haptic('light');
+    });
+});
+
+// ============================================================
+// ====== ЦИКЛ ИГРЫ ======
+// ============================================================
+setInterval(() => {
+    if (state.energy < state.maxEnergy) {
+        state.energy = Math.min(state.maxEnergy, state.energy + 0.3);
+    }
+    tickPots();
+    updateMarketPrices();
+    trySpawnSnoop();
+    renderHeader();
+    renderFarm();
+    renderMarket();
+    updateBonusTimer();
+    save();
+}, 1500);
+
+// Обновляем статус друзей каждые 10 секунд
+setInterval(() => {
+    renderSocial();
+}, 10000);
+
+// Обновляем палево каждые 5 секунд
+setInterval(() => {
+    updateHeat();
+}, 5000);
 
 // ============================================================
 // ====== ЗАПУСК ======
@@ -1990,29 +2305,43 @@ load();
 handleReferral();
 render();
 setTimeout(() => loadLeaderboard('monthly'), 1000);
-setTimeout(() => loadReferrals(), 2000);
 
-// Обновляем рейтинг каждые 30 секунд
-setInterval(() => {
-    loadLeaderboard('monthly');
-    renderSocial();
-    save();
-}, 30000);
-
-// Обновляем палево каждые 5 секунд
-setInterval(() => {
-    updateHeat();
-}, 5000);
-
-// Синхронизация с сервером каждые 60 секунд
-setInterval(() => {
-    syncWithServer();
-}, 60000);
+// ============================================================
+// ====== ЭКСПОРТЫ ======
+// ============================================================
+window.openSeedModal = openSeedModal;
+window.closeModal = closeModal;
+window.plantSeed = plantSeed;
+window.harvest = harvest;
+window.waterPot = waterPot;
+window.openFertModal = openFertModal;
+window.applyFert = applyFert;
+window.openLampModal = openLampModal;
+window.applyLamp = applyLamp;
+window.buyLamp = buyLamp;
+window.buyFert = buyFert;
+window.buyEnergy = buyEnergy;
+window.buyPot = buyPot;
+window.buyRoomUpgrade = buyRoomUpgrade;
+window.sellAll = sellAll;
+window.sellProduct = sellProduct;
+window.processItem = processItem;
+window.consumeProduct = consumeProduct;
+window.shareReferral = shareReferral;
+window.copyReferral = copyReferral;
+window.loadLeaderboard = loadLeaderboard;
+window.acceptSnoop = acceptSnoop;
+window.rejectSnoop = rejectSnoop;
+window.addFriend = addFriend;
+window.acceptFriend = acceptFriend;
+window.rejectFriend = rejectFriend;
+window.removeFriend = removeFriend;
+window.sendDailyBonus = sendDailyBonus;
+window.sendChatMessage = sendChatMessage;
 
 console.log('🌿 Игра загружена!');
 console.log('👥 Друзей:', state.friends?.length || 0);
 console.log('👮 Уровень палева:', state.heat || 0);
-console.log('🔄 Сервер:', SERVER_URL);
 </script>
 </body>
 </html>
