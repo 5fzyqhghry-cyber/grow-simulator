@@ -198,6 +198,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div class="profile-stat"><span class="label">🪴 Горшков</span><span class="value" id="profile-pots">0</span></div>
       <div class="profile-stat"><span class="label">🌀 Состояние</span><span class="value" id="profile-state">🧠 Норма</span></div>
     </div>
+    <!-- ===== НОВЫЕ КНОПКИ СОХРАНЕНИЯ ===== -->
+    <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
+        <div style="display:flex;gap:6px;">
+            <button class="btn btn-small" onclick="exportSave()" style="flex:1;background:linear-gradient(135deg,#2e7d32,#1b5e20);">💾 Скачать сохранение</button>
+            <button class="btn btn-small btn-warning" onclick="importSave()" style="flex:1;">📂 Восстановить</button>
+        </div>
+        <div style="font-size:8px;color:var(--hint);text-align:center;">Автосохранение на сервер каждые 5 секунд</div>
+    </div>
   </div>
 
   <div class="section" id="section-leaderboard">
@@ -238,13 +246,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 const BOT_USERNAME = 'Rastafaray420_bot';
 const SERVER_URL = window.location.origin;
 const tg = window.Telegram?.WebApp;
-let userId = 'guest_' + Math.random().toString(36).slice(2,9);
-if (tg) {
-    tg.ready();
-    tg.expand();
-    try { tg.setHeaderColor('secondary_bg_color'); } catch(e) {}
-    if (tg.initDataUnsafe?.user?.id) {
-        userId = String(tg.initDataUnsafe.user.id);
+
+// ============================================================
+// ====== ФИКСИРОВАННЫЙ userId (НЕ МЕНЯЕТСЯ) ======
+// ============================================================
+let userId;
+if (tg?.initDataUnsafe?.user?.id) {
+    userId = String(tg.initDataUnsafe.user.id);
+} else {
+    userId = localStorage.getItem('grow_sim_user_id');
+    if (!userId) {
+        userId = 'user_' + Math.random().toString(36).slice(2,9);
+        localStorage.setItem('grow_sim_user_id', userId);
     }
 }
 
@@ -352,52 +365,11 @@ let selectedPotId = null;
 let snoopTimer = null;
 let highTimer = null;
 let highElements = [];
+let saveTimeout = null;
 
 // ============================================================
 // ====== БАЗОВЫЕ ФУНКЦИИ ======
 // ============================================================
-function save() {
-    state.lastUpdate = Date.now();
-    try { localStorage.setItem('grow_sim_v3_' + userId, JSON.stringify(state)); } catch(e) {}
-}
-
-function load() {
-    try {
-        const raw = localStorage.getItem('grow_sim_v3_' + userId);
-        if (raw) {
-            const l = JSON.parse(raw);
-            state = { ...state, ...l };
-        }
-    } catch(e) {}
-    if (state.pots.length === 0) {
-        state.pots.push({
-            id: state.nextPotId++,
-            strain: null,
-            plantedAt: null,
-            water: 100,
-            health: 100,
-            stage: 0,
-            disease: false,
-            lamp: null,
-            fert: null,
-            speedMult: 1,
-            yieldMult: 1,
-            lastTick: Date.now(),
-            _lastWarning: null,
-            potLevel: 1
-        });
-    }
-    if (!state.registerDate) state.registerDate = new Date().toISOString();
-    if (!state.totalHarvests) state.totalHarvests = 0;
-    if (!state.potUpgrades) state.potUpgrades = {};
-    if (!state.marketPrices) state.marketPrices = {};
-    if (!state.marketUpdateTime) state.marketUpdateTime = 0;
-    if (!state.snoopCooldown) state.snoopCooldown = 0;
-    if (!state.snoopActive) state.snoopActive = false;
-    if (!state.consumedCount) state.consumedCount = 0;
-    updateMarketPrices();
-}
-
 function showToast(m, err=false, type='') {
     const t = document.getElementById('toast');
     t.textContent = m;
@@ -449,19 +421,128 @@ function addXp(a) {
 }
 
 // ============================================================
-// ====== СНУП ДОГГ (ИСПРАВЛЕНО — ПОЯВЛЯЕТСЯ ЧАЩЕ) ======
+// ====== АВТОСОХРАНЕНИЕ НА СЕРВЕР ======
+// ============================================================
+function save() {
+    state.lastUpdate = Date.now();
+    try {
+        localStorage.setItem('grow_sim_v3_' + userId, JSON.stringify(state));
+    } catch(e) {}
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        saveToServer();
+    }, 5000);
+}
+
+async function saveToServer() {
+    try {
+        const response = await fetch(SERVER_URL + '/api/save-game', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: userId,
+                gameState: state
+            })
+        });
+        const data = await response.json();
+        if (data.success) {
+            console.log('💾 Автосохранение на сервер успешно');
+        }
+    } catch(e) {
+        console.log('❌ Ошибка сохранения на сервер:', e);
+    }
+}
+
+async function loadFromServer() {
+    try {
+        const response = await fetch(SERVER_URL + '/api/load-game/' + userId);
+        const data = await response.json();
+        if (data.success && data.gameState) {
+            const oldLevel = state.level;
+            const oldMoney = state.money;
+            const oldPots = state.pots;
+            
+            state = { ...state, ...data.gameState };
+            
+            if (!state.level) state.level = oldLevel || 1;
+            if (!state.money) state.money = oldMoney || 100;
+            if (!state.pots || state.pots.length === 0) state.pots = oldPots || [];
+            
+            localStorage.setItem('grow_sim_v3_' + userId, JSON.stringify(state));
+            console.log('📥 Прогресс восстановлен с сервера');
+            showToast('💾 Прогресс восстановлен с сервера');
+            return true;
+        }
+        return false;
+    } catch(e) {
+        console.log('❌ Ошибка загрузки с сервера:', e);
+        return false;
+    }
+}
+
+// ============================================================
+// ====== ЭКСПОРТ / ИМПОРТ СОХРАНЕНИЯ ======
+// ============================================================
+function exportSave() {
+    const saveData = localStorage.getItem('grow_sim_v3_' + userId);
+    if (!saveData) { showToast('Нет сохранения', true); return; }
+    
+    const exportData = {
+        version: '1.0',
+        userId: userId,
+        exportedAt: new Date().toISOString(),
+        gameData: JSON.parse(saveData)
+    };
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `grow_sim_save_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('💾 Сохранение скачано!');
+    haptic('success');
+}
+
+function importSave() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e2) {
+            try {
+                const data = JSON.parse(e2.target.result);
+                if (data.gameData) {
+                    localStorage.setItem('grow_sim_v3_' + userId, JSON.stringify(data.gameData));
+                } else {
+                    localStorage.setItem('grow_sim_v3_' + userId, e2.target.result);
+                }
+                showToast('✅ Сохранение восстановлено! Перезагрузите игру');
+                haptic('success');
+                setTimeout(() => location.reload(), 1000);
+            } catch(err) {
+                showToast('❌ Ошибка: неверный файл', true);
+                haptic('error');
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+// ============================================================
+// ====== СНУП ДОГГ ======
 // ============================================================
 function trySpawnSnoop() {
-    // Проверяем, не активен ли уже
     if (state.snoopActive) return;
-    
-    // Проверяем кд (2 минуты вместо 4)
     if (Date.now() - state.snoopCooldown < 120000) return;
-    
-    // 12% шанс каждую секунду (было 8%)
     if (Math.random() > 0.12) return;
-    
-    // Показываем попап
     document.getElementById('snoopPopup').classList.add('show');
     document.getElementById('snoopOverlay').classList.add('active');
     state.snoopActive = true;
@@ -1634,6 +1715,57 @@ function render() {
 }
 
 // ============================================================
+// ====== ЗАГРУЗКА ПРИ ЗАПУСКЕ ======
+// ============================================================
+async function load() {
+    // Сначала пробуем загрузить из localStorage
+    try {
+        const raw = localStorage.getItem('grow_sim_v3_' + userId);
+        if (raw) {
+            const l = JSON.parse(raw);
+            state = { ...state, ...l };
+        }
+    } catch(e) {}
+    
+    // Потом пробуем загрузить с сервера
+    const serverLoaded = await loadFromServer();
+    
+    if (!serverLoaded) {
+        saveToServer();
+    }
+    
+    if (state.pots.length === 0) {
+        state.pots.push({
+            id: state.nextPotId++,
+            strain: null,
+            plantedAt: null,
+            water: 100,
+            health: 100,
+            stage: 0,
+            disease: false,
+            lamp: null,
+            fert: null,
+            speedMult: 1,
+            yieldMult: 1,
+            lastTick: Date.now(),
+            _lastWarning: null,
+            potLevel: 1
+        });
+    }
+    
+    if (!state.registerDate) state.registerDate = new Date().toISOString();
+    if (!state.totalHarvests) state.totalHarvests = 0;
+    if (!state.potUpgrades) state.potUpgrades = {};
+    if (!state.marketPrices) state.marketPrices = {};
+    if (!state.marketUpdateTime) state.marketUpdateTime = 0;
+    if (!state.snoopCooldown) state.snoopCooldown = 0;
+    if (!state.snoopActive) state.snoopActive = false;
+    if (!state.consumedCount) state.consumedCount = 0;
+    
+    updateMarketPrices();
+}
+
+// ============================================================
 // ====== ТАБЫ ======
 // ============================================================
 document.querySelectorAll('.tab').forEach(tab => {
@@ -1701,6 +1833,8 @@ window.copyReferral = copyReferral;
 window.loadLeaderboard = loadLeaderboard;
 window.acceptSnoop = acceptSnoop;
 window.rejectSnoop = rejectSnoop;
+window.exportSave = exportSave;
+window.importSave = importSave;
 </script>
 </body>
 </html>
