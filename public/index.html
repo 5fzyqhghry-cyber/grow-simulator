@@ -132,7 +132,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </head>
 <body>
 
-<!-- Модалки -->
 <div class="modal-overlay" id="policeModal"><div class="modal"><div class="modal-title">👮 ПОЛИЦИЯ!</div><div id="policeMessage" style="text-align:center;font-size:12px;margin-bottom:8px;"></div><div id="policeOptions" style="display:flex;flex-direction:column;gap:6px;margin:8px 0"></div><button class="btn btn-secondary btn-full" onclick="closePoliceModal()">Закрыть</button></div></div>
 <div class="modal-overlay" id="sellModal"><div class="modal"><div class="modal-title" id="sellTitle">💰 Продажа</div><div id="sellInfo" style="text-align:center;font-size:12px;margin-bottom:4px;"></div><div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 0"><button class="btn btn-secondary btn-small" onclick="changeSellQty(-10)">-10</button><button class="btn btn-secondary btn-small" onclick="changeSellQty(-1)">-1</button><span id="sellQtyDisplay" style="font-size:18px;font-weight:700;color:var(--gold);min-width:30px;text-align:center">1</span><button class="btn btn-secondary btn-small" onclick="changeSellQty(1)">+1</button><button class="btn btn-secondary btn-small" onclick="changeSellQty(10)">+10</button></div><div style="display:flex;justify-content:center;gap:6px;margin:4px 0;"><button class="btn btn-small btn-secondary" onclick="setSellQty('max')">Макс</button><button class="btn btn-small btn-secondary" onclick="setSellQty('half')">Половина</button></div><div style="display:flex;flex-direction:column;gap:6px;margin:8px 0"><button class="btn btn-gold" onclick="confirmSell()">💰 Продать</button><button class="btn btn-secondary" onclick="closeSellModal()">Отмена</button></div></div></div>
 <div class="modal-overlay" id="modal-cross"><div class="modal"><div class="modal-title">🧬 Скрещивание</div><div id="crossInfo" style="text-align:center;font-size:11px;margin-bottom:6px;color:var(--hint)">Выбери два готовых растения</div><div id="crossList" style="margin-bottom:6px;"></div><button class="btn btn-secondary btn-full" onclick="closeModal('modal-cross')">Отмена</button></div></div>
@@ -144,7 +143,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="modal-overlay" id="modal-fert"><div class="modal"><div class="modal-title">🧪 Удобрения</div><div id="fert-list"></div><button class="btn btn-secondary btn-full" onclick="closeModal('modal-fert')">Отмена</button></div></div>
 <div class="modal-overlay" id="modal-lamp"><div class="modal"><div class="modal-title">💡 Лампы</div><div id="lamp-list"></div><button class="btn btn-secondary btn-full" onclick="closeModal('modal-lamp')">Отмена</button></div></div>
 
-<!-- HEADER -->
 <div class="header">
   <div class="stats">
     <div class="stat">💰 <span id="money">0</span>$</div>
@@ -155,7 +153,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="level-badge" id="xp-badge">0 XP</div>
 </div>
 
-<!-- TABS -->
 <div class="tabs">
   <div class="tab active" data-tab="farm">🌱 Ферма</div>
   <div class="tab" data-tab="market">📊 Рынок</div>
@@ -168,7 +165,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="tab" data-tab="friends">👥 Друзья</div>
 </div>
 
-<!-- CONTENT -->
 <div class="content">
   <div class="section active" id="section-farm">
     <div id="police-warning" style="display:none;" class="police-alert">🚨 ВНИМАНИЕ! Высокий уровень палева! Полиция может нагрянуть!</div>
@@ -283,7 +279,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 <script>
 // ============================================================
-// ПОЛНАЯ РАБОЧАЯ ВЕРСИЯ - ВЕСЬ КОД В ОДНОМ ФАЙЛЕ
+// ПОЛНАЯ РАБОЧАЯ ВЕРСИЯ ДЛЯ TELEGRAM
 // ============================================================
 const tg = window.Telegram?.WebApp;
 let userId = 'guest_' + Math.random().toString(36).slice(2,9);
@@ -378,7 +374,6 @@ let state = {
   referrals:0,referralEarned:0,referralsList:[],referredBy:null,
   nextPotId:1,totalHarvests:0,registerDate:new Date().toISOString(),
   marketPrices:{},marketUpdateTime:0,lastTick:Date.now(),
-  snoopCooldown:0,snoopActive:false,consumedCount:0,
   friends:[],friendRequests:[],lastBonusTime:0,bonusLog:[],
   lastHeatCheck:Date.now(),policeActive:false,
   registered:false,waterReservoir:100,
@@ -387,7 +382,6 @@ let state = {
 };
 
 let selectedPotId=null, selectedCrossList=[], crossStep=0;
-let highTimer=null, highElements=[], toastTimeout=null;
 let chatMessages=[], sellTarget=null, sellQty=1;
 
 // ========== БАЗОВЫЕ ФУНКЦИИ ==========
@@ -930,9 +924,6 @@ function load(){
   if(!state.totalHarvests) state.totalHarvests=0;
   if(!state.marketPrices) state.marketPrices={};
   if(!state.marketUpdateTime) state.marketUpdateTime=0;
-  if(!state.snoopCooldown) state.snoopCooldown=0;
-  if(!state.snoopActive) state.snoopActive=false;
-  if(!state.consumedCount) state.consumedCount=0;
   if(!state.friends) state.friends=[];
   if(!state.friendRequests) state.friendRequests=[];
   if(!state.lastBonusTime) state.lastBonusTime=0;
@@ -1128,7 +1119,7 @@ setInterval(()=>{ updateHeat(); },5000);
 
 load(); render(); setTimeout(()=>loadLeaderboardFromServer(),1000);
 
-console.log('🌿 Weed Grow Simulator FINAL - ПОЛНАЯ РАБОЧАЯ ВЕРСИЯ!');
+console.log('🌿 Weed Grow Simulator FULL - РАБОЧАЯ ВЕРСИЯ!');
 console.log(`🪴 Горшков: ${state.pots.length}/${getMaxPots()}`);
 console.log(`💰 Следующий горшок: ${getPotPrice()}$`);
 console.log(`👤 Регистрация: ${state.registered?'Да':'Нет'}`);
