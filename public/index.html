@@ -55,8 +55,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .pot.lamp-red{border-color:var(--lamp-red);box-shadow:0 0 30px rgba(244,67,54,.2),inset 0 0 30px rgba(0,0,0,.3)}
 .pot.lamp-blue{border-color:var(--lamp-blue);box-shadow:0 0 30px rgba(33,150,243,.2),inset 0 0 30px rgba(0,0,0,.3)}
 .pot.lamp-green{border-color:var(--lamp-green);box-shadow:0 0 30px rgba(76,175,80,.2),inset 0 0 30px rgba(0,0,0,.3)}
-.plant-container{width:100%;height:90px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px}
+.plant-container{width:100%;height:90px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px;position:relative}
 .plant-container svg{width:70px;height:85px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))}
+.web-overlay{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;font-size:42px;opacity:.85;z-index:5;text-shadow:0 0 8px #fff,0 0 12px #ccc}
 .bars{width:100%;display:flex;flex-direction:column;gap:1px;margin:2px 0}
 .bar-row{display:flex;align-items:center;gap:3px;font-size:7px}
 .bar-row span{width:12px;font-size:8px}
@@ -117,6 +118,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .chat-input:focus{border-color:var(--accent)}
 .police-alert{background:rgba(229,57,53,.12);border:1px solid var(--danger);border-radius:6px;padding:6px 10px;margin:4px 0;text-align:center;color:var(--danger);font-size:10px;animation:policeFlash 1s ease-in-out infinite alternate}
 @keyframes policeFlash{0%{opacity:.6}100%{opacity:1}}
+.jail-overlay{position:fixed;inset:0;background:rgba(10,10,30,.95);z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+.jail-overlay.show{display:flex}
+.jail-overlay .jail-icon{font-size:64px;margin-bottom:12px}
+.jail-overlay .jail-title{font-size:22px;font-weight:700;color:#e53935;margin-bottom:8px}
+.jail-overlay .jail-desc{font-size:13px;color:var(--hint);margin-bottom:12px;max-width:300px}
+.jail-overlay .jail-timer{font-size:18px;font-weight:700;color:var(--gold);margin-bottom:16px}
 .register-banner{background:linear-gradient(135deg,rgba(46,125,50,.12),rgba(27,94,32,.04));border:2px solid var(--accent);border-radius:10px;padding:10px;text-align:center;margin-bottom:6px}
 .register-banner .title{font-size:13px;font-weight:700;color:var(--accent)}
 .register-banner .desc{font-size:9px;color:var(--hint);margin:3px 0}
@@ -158,6 +165,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="snoop-sub">Готов забить косяк? +50$ +20⚡</div>
   <button class="snoop-btn" onclick="acceptSnoop()">🔥 Забить</button>
   <button class="snoop-btn snoop-btn-secondary" onclick="rejectSnoop()">👋 Позже</button>
+</div>
+
+<div class="jail-overlay" id="jailOverlay">
+  <div class="jail-icon">🚔</div>
+  <div class="jail-title">ТЫ В ТЮРЬМЕ!</div>
+  <div class="jail-desc">Полиция изъяла весь товар. Оставили только 200$ и 2 горшка. Отсидишь 3 игровых часа.</div>
+  <div class="jail-timer" id="jailTimer">Осталось: --:--</div>
 </div>
 
 <div class="modal-overlay" id="policeModal"><div class="modal"><div class="modal-title">👮 ПОЛИЦИЯ!</div><div id="policeMessage" style="text-align:center;font-size:12px;margin-bottom:8px;"></div><div id="policeOptions" style="display:flex;flex-direction:column;gap:6px;margin:8px 0"></div><button class="btn btn-secondary btn-full" onclick="closePoliceModal()">Закрыть</button></div></div>
@@ -378,6 +392,11 @@ const PRODUCTS = {
 const STAGE_NAMES = ['','🌱 Семя','🌿 Росток','🌳 Вегетация','🌸 Цветение','✨ Готово'];
 const STAGE_EMOJI = ['','🌱','🌿','🌳','🌸','✨'];
 
+const PEST_TYPES = [
+  {id:'aphid', name:'Тля', emoji:'🐛', webEmoji:'🕸️'},
+  {id:'mite', name:'Паутинный клещ', emoji:'🕷️', webEmoji:'🕸️'}
+];
+
 const ACHIEVEMENTS = [
   {id:'first_harvest',name:'Первый урожай',desc:'Собери первое растение',icon:'🌿',check:()=>state.totalHarvests>=1,reward:50},
   {id:'thc_master',name:'Мастер ТГК',desc:'ТГК > 80%',icon:'💎',check:()=>state.pots.some(p=>p.thc>=80),reward:200},
@@ -408,7 +427,8 @@ let state = {
   lastHeatCheck:Date.now(),gameTime:12*60,policeActive:false,
   registered:false,waterReservoir:100,
   hybrids:[],achievements:[],investments:[],pestsKilled:0,
-  marketSaturation:1.0,activeBuyers:[],buyerTimer:0,totalSoldToBuyers:0,maxTHC:0
+  marketSaturation:1.0,activeBuyers:[],buyerTimer:0,totalSoldToBuyers:0,maxTHC:0,
+  inJail:false, jailUntil:0, lastWarningTime:0
 };
 
 let selectedPotId = null, selectedCrossList = [], crossStep = 0;
@@ -416,7 +436,7 @@ let snoopTimer = null, highTimer = null, highElements = [], toastTimeout = null;
 let chatMessages = [], sellTarget = null, sellQty = 1;
 
 function getUserName(){ if (tg?.initDataUnsafe?.user?.first_name) return tg.initDataUnsafe.user.first_name; if (tg?.initDataUnsafe?.user?.username) return tg.initDataUnsafe.user.username; return 'Игрок'; }
-function showToast(m, err=false){ const t=document.getElementById('toast'); if(!t) return; t.textContent=m; t.className='toast show'+(err?' error':''); clearTimeout(toastTimeout); toastTimeout=setTimeout(()=>t.classList.remove('show'),2000); haptic(err?'error':'light'); }
+function showToast(m, err=false){ const t=document.getElementById('toast'); if(!t) return; t.textContent=m; t.className='toast show'+(err?' error':''); clearTimeout(toastTimeout); toastTimeout=setTimeout(()=>t.classList.remove('show'),2500); haptic(err?'error':'light'); }
 function haptic(t='light'){ try { if (tg?.HapticFeedback) { if (t==='success') tg.HapticFeedback.notificationOccurred('success'); else if (t==='error') tg.HapticFeedback.notificationOccurred('error'); else if (t==='warning') tg.HapticFeedback.notificationOccurred('warning'); else if (t==='medium') tg.HapticFeedback.impactOccurred('medium'); else tg.HapticFeedback.impactOccurred('light'); } } catch(e) {} }
 function formatTime(s){ if(s<=0) return 'Готово!'; const m=Math.floor(s/60), sec=Math.floor(s%60); return m>0?`${m}м ${sec}с`:`${sec}с`; }
 function getStrain(id){ return STRAINS.find(s=>s.id===id); }
@@ -428,40 +448,35 @@ function getMaxPots(){ return Math.floor((state.level + 4) / 5); }
 function getPotPrice(){ const count=state.pots.length; return count===0?100:100+count*700; }
 
 function buyPot(){
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
   const maxPots=getMaxPots();
   if(state.pots.length>=maxPots){ showToast(`❌ Лимит ${maxPots} горшков!`,true); return; }
   const price=getPotPrice();
   if(state.money<price){ showToast(`❌ Нужно ${price}$`,true); return; }
   state.money-=price;
-  state.pots.push({id:state.nextPotId++,strain:null,plantedAt:null,water:80,health:100,stage:0,disease:false,pests:false,pestLevel:0,lamp:null,fert:null,fertCount:0,speedMult:1,yieldMult:1,thc:0,lastTick:Date.now(),isActive:true,quality:1.0,lampTHCBonus:0});
+  state.pots.push({id:state.nextPotId++,strain:null,plantedAt:null,water:100,health:100,stage:0,disease:false,pests:false,pestType:null,pestLevel:0,lamp:null,fert:null,fertCount:0,speedMult:1,yieldMult:1,thc:0,lastTick:Date.now(),isActive:true,quality:1.0,lampTHCBonus:0});
   showToast(`🪴 Новый горшок! (${price}$)`);
   haptic('success');
   addXp(5);
   save(); render();
 }
 
-// ============================================================
-// ЛИСТ КОНОПЛИ — ПАЛЬЧАТАЯ ФОРМА
-// ============================================================
 function cannabisLeaf(cx, cy, size, color, opacity) {
   const p = size / 2;
   const serration = 3;
   let path = '';
-  // Центральная доля
   path += `M${cx} ${cy-size} `;
   for (let i = 1; i <= serration; i++) {
     path += `L${cx - p/2 + i*p/serration} ${cy - size + i*2} `;
     path += `L${cx + p/2 - i*p/serration} ${cy - size + i*2} `;
   }
   path += `L${cx} ${cy} `;
-  // Левая доля
   path += `M${cx} ${cy} `;
   path += `L${cx - size} ${cy - size*0.2} `;
   for (let i = 1; i <= serration; i++) {
     path += `L${cx - size + i*p/serration} ${cy - size*0.2 + i*1.5} `;
   }
   path += `L${cx} ${cy} `;
-  // Правая доля
   path += `L${cx + size} ${cy - size*0.2} `;
   for (let i = 1; i <= serration; i++) {
     path += `L${cx + size - i*p/serration} ${cy - size*0.2 + i*1.5} `;
@@ -556,6 +571,7 @@ function getQuality(pot){ let q=pot.quality||1.0; if(pot.health>=90) q+=0.25; el
 function qualityName(q){ if(q>=2.2) return'💎 Легендарное'; if(q>=1.7) return'🌟 Отличное'; if(q>=1.2) return'⭐ Хорошее'; if(q>=0.8) return'🌿 Обычное'; return'🥀 Слабое'; }
 
 function tickPots(){
+  if(state.inJail) return;
   const now=Date.now();
   const dt=(now-(state.lastTick||now))/1000;
   state.lastTick=now;
@@ -563,26 +579,78 @@ function tickPots(){
   state.pots.forEach(pot=>{
     if(!pot.isActive||!pot.strain) return;
     if(isNight&&pot.stage>=2&&pot.stage<5) return;
-    let waterDrain=0.5;
-    if(pot.stage>=4) waterDrain=1.0;
-    else if(pot.stage>=3) waterDrain=0.8;
-    else if(pot.stage>=2) waterDrain=0.6;
-    if(state.room.auto&&state.waterReservoir>0){ const autoAmount=0.3*dt; if(state.waterReservoir>=autoAmount){ pot.water=Math.min(100,pot.water+autoAmount); state.waterReservoir-=autoAmount; waterDrain*=0.4; } }
-    pot.water=Math.max(0,pot.water-waterDrain*dt);
-    if(pot.water<5) pot.health=Math.max(0,pot.health-0.8*dt);
-    if(pot.lamp&&pot.stage>0&&pot.stage<5){
-      const cost=LAMP_ENERGY_COST[pot.lamp]||0.5;
-      state.energy=Math.max(0,state.energy-cost*dt*0.3);
-      if(state.energy>2){ const thcBonus=getLamp(pot.lamp)?.thcBonus||0; const thcPerSecond=thcBonus/30; pot.thc=Math.min(100,(pot.thc||0)+thcPerSecond*dt); pot.lampTHCBonus=(pot.lampTHCBonus||0)+thcPerSecond*dt; }
+
+    // ВОДА ТРАТИТСЯ БЫСТРЕЕ ЧЕМ РАНЬШЕ
+    let waterDrain = 0.9;                 // базовый расход (раньше было ~0.5)
+    if(pot.stage >= 4) waterDrain = 1.7;  // цветение — очень быстро
+    else if(pot.stage >= 3) waterDrain = 1.35;
+    else if(pot.stage >= 2) waterDrain = 1.1;
+
+    // Автополив снижает расход и подливает
+    if(state.room.auto && state.waterReservoir > 0){ 
+      const autoAmount = 0.55 * dt; 
+      if(state.waterReservoir >= autoAmount){ 
+        pot.water = Math.min(100, pot.water + autoAmount); 
+        state.waterReservoir -= autoAmount; 
+        waterDrain *= 0.35; // сильно снижает расход
+      } 
     }
-    let healthRegen=0.15, diseaseChance=0.004;
-    if(state.room.vent){ diseaseChance*=0.3; healthRegen*=1.4; }
-    if(state.room.heater) healthRegen*=1.15;
-    if(pot.water>25) pot.health=Math.min(100,pot.health+healthRegen*dt);
-    if(pot.pests){ pot.health=Math.max(0,pot.health-0.2*dt); pot.pestLevel=Math.min(100,(pot.pestLevel||0)+0.5*dt); if(pot.pestLevel>80){ pot.pests=false; pot.pestLevel=0; showToast('💀 Вредители уничтожили растение!',true); pot.strain=null; pot.plantedAt=null; pot.stage=0; pot.disease=false; pot.water=80; pot.health=100; pot.lamp=null; pot.fert=null; pot.fertCount=0; pot.speedMult=1; pot.yieldMult=1; pot.thc=0; pot.lampTHCBonus=0; save(); render(); return; } }
-    if(!pot.disease&&pot.health<30&&Math.random()<diseaseChance){ pot.disease=true; showToast('🦠 Болезнь!',true); haptic('error'); }
-    if(pot.disease) pot.health=Math.max(0,pot.health-0.3*dt);
-    if(pot.health<=0){ showToast('💀 Растение погибло!',true); if(pot.strain){ const s=getStrain(pot.strain); if(s){ state.money+=Math.floor(s.seedPrice*0.2); } } pot.strain=null; pot.plantedAt=null; pot.stage=0; pot.disease=false; pot.pests=false; pot.pestLevel=0; pot.water=80; pot.health=100; pot.lamp=null; pot.fert=null; pot.fertCount=0; pot.speedMult=1; pot.yieldMult=1; pot.thc=0; pot.lampTHCBonus=0; }
+
+    pot.water = Math.max(0, pot.water - waterDrain * dt);
+
+    // Если вода критически низкая — здоровье падает
+    if(pot.water < 10) pot.health = Math.max(0, pot.health - 0.9 * dt);
+    else if(pot.water < 25) pot.health = Math.max(0, pot.health - 0.35 * dt);
+
+    if(pot.lamp && pot.stage > 0 && pot.stage < 5){
+      const cost = LAMP_ENERGY_COST[pot.lamp] || 0.5;
+      state.energy = Math.max(0, state.energy - cost * dt * 0.3);
+      if(state.energy > 2){ 
+        const thcBonus = getLamp(pot.lamp)?.thcBonus || 0; 
+        const thcPerSecond = thcBonus / 30; 
+        pot.thc = Math.min(100, (pot.thc || 0) + thcPerSecond * dt); 
+        pot.lampTHCBonus = (pot.lampTHCBonus || 0) + thcPerSecond * dt; 
+      }
+    }
+
+    let healthRegen = 0.16, diseaseChance = 0.0035;
+    if(state.room.vent){ diseaseChance *= 0.25; healthRegen *= 1.5; }
+    if(state.room.heater) healthRegen *= 1.15;
+    if(pot.water > 40) pot.health = Math.min(100, pot.health + healthRegen * dt);
+
+    // ВРЕДИТЕЛИ СИЛЬНО БЬЮТ ПО ЗДОРОВЬЮ
+    if(pot.pests){ 
+      pot.health = Math.max(0, pot.health - 0.65 * dt);   // здоровье падает быстрее
+      pot.pestLevel = Math.min(100, (pot.pestLevel || 0) + 0.85 * dt); 
+      pot.water = Math.max(0, pot.water - 0.4 * dt);      // вредители сильно сушат
+      if(pot.pestLevel > 80){ 
+        pot.pests = false; pot.pestType = null; pot.pestLevel = 0; 
+        showToast('💀 Вредители уничтожили растение!', true); 
+        pot.strain = null; pot.plantedAt = null; pot.stage = 0; pot.disease = false; 
+        pot.water = 100; pot.health = 100; pot.lamp = null; pot.fert = null; pot.fertCount = 0; 
+        pot.speedMult = 1; pot.yieldMult = 1; pot.thc = 0; pot.lampTHCBonus = 0; 
+        save(); render(); return; 
+      } 
+    }
+
+    if(!pot.disease && pot.health < 35 && Math.random() < diseaseChance){ 
+      pot.disease = true; 
+      showToast('🦠 Болезнь!', true); 
+      haptic('error'); 
+    }
+    if(pot.disease) pot.health = Math.max(0, pot.health - 0.4 * dt);
+
+    if(pot.health <= 0){ 
+      showToast('💀 Растение погибло!', true); 
+      if(pot.strain){ 
+        const s = getStrain(pot.strain); 
+        if(s){ state.money += Math.floor(s.seedPrice * 0.2); } 
+      } 
+      pot.strain = null; pot.plantedAt = null; pot.stage = 0; pot.disease = false; 
+      pot.pests = false; pot.pestType = null; pot.pestLevel = 0; 
+      pot.water = 100; pot.health = 100; pot.lamp = null; pot.fert = null; pot.fertCount = 0; 
+      pot.speedMult = 1; pot.yieldMult = 1; pot.thc = 0; pot.lampTHCBonus = 0; 
+    }
     updatePotStage(pot);
     updateTHC(pot);
   });
@@ -591,6 +659,7 @@ function tickPots(){
 }
 
 function harvest(id){
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
   const pot=state.pots.find(p=>p.id===id);
   if(!pot||!pot.isActive||!pot.strain) return;
   if(getProgress(pot)<0.99){ showToast('Растение ещё не выросло!',true); return; }
@@ -608,38 +677,424 @@ function harvest(id){
   haptic('success');
   addXp(amount*2+Math.floor(q*3)+Math.floor((pot.thc||0)/10));
   addHeat(amount*0.3);
-  pot.strain=null; pot.plantedAt=null; pot.stage=0; pot.disease=false; pot.pests=false; pot.pestLevel=0; pot.water=80; pot.health=100; pot.fert=null; pot.fertCount=0; pot.lamp=null; pot.lampTHCBonus=0; pot.speedMult=1; pot.yieldMult=1; pot.thc=0; pot.quality=1.0;
+  pot.strain=null; pot.plantedAt=null; pot.stage=0; pot.disease=false; pot.pests=false; pot.pestType=null; pot.pestLevel=0; pot.water=100; pot.health=100; pot.fert=null; pot.fertCount=0; pot.lamp=null; pot.lampTHCBonus=0; pot.speedMult=1; pot.yieldMult=1; pot.thc=0; pot.quality=1.0;
   checkAchievements();
   save(); render();
 }
 
-function waterPot(id){ const pot=state.pots.find(p=>p.id===id); if(!pot||!pot.isActive||!pot.strain) return; if(state.energy<2){ showToast('Нужно 2⚡',true); return; } state.energy-=2; pot.water=Math.min(100,pot.water+45); showToast('💧 Полито!'); haptic('medium'); addXp(1); save(); render(); }
+function waterPot(id){ 
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
+  const pot=state.pots.find(p=>p.id===id); 
+  if(!pot||!pot.isActive||!pot.strain) return; 
+  if(state.energy<2){ showToast('Нужно 2⚡',true); return; } 
+  state.energy-=2; 
+  pot.water=Math.min(100,pot.water+50); 
+  showToast('💧 Полито!'); 
+  haptic('medium'); 
+  addXp(1); 
+  save(); render(); 
+}
 
-function checkPests(){ state.pots.forEach(pot=>{ if(!pot.strain||!pot.isActive||pot.pests||pot.health<40) return; if(Math.random()<0.0005){ pot.pests=true; pot.pestLevel=Math.floor(Math.random()*30)+10; showToast('🐛 Вредители!',true); haptic('warning'); save(); render(); } }); }
+function checkPests(){ 
+  if(state.inJail) return;
+  state.pots.forEach(pot=>{ 
+    if(!pot.strain||!pot.isActive||pot.pests||pot.health<25) return; 
+    // Значительно увеличенный шанс появления вредителей
+    // Базовый шанс ~0.8% каждые 1.5 сек при неблагоприятных условиях
+    let chance = 0.004;
+    if(pot.water < 40) chance += 0.006;
+    if(pot.health < 60) chance += 0.005;
+    if(pot.stage >= 3) chance += 0.003;
+    if(state.room.vent) chance *= 0.4;
+    if(Math.random() < chance){ 
+      pot.pests=true; 
+      pot.pestLevel=Math.floor(Math.random()*25)+15; 
+      // Случайный тип вредителя
+      const pest = PEST_TYPES[Math.floor(Math.random()*PEST_TYPES.length)];
+      pot.pestType = pest.id;
+      showToast(`🐛 ${pest.name} на растении!`,true); 
+      haptic('warning'); 
+      save(); render(); 
+    } 
+  }); 
+}
 
-function treatPestsAction(potId){ const pot=state.pots.find(p=>p.id===potId); if(!pot||!pot.pests) return; if((state.ferts['heal']||0)<=0){ showToast('❌ Нет лекарства!',true); return; } state.ferts['heal']--; pot.pests=false; pot.pestLevel=0; pot.health=Math.min(100,pot.health+20); state.pestsKilled=(state.pestsKilled||0)+1; showToast('💊 Вредители уничтожены!'); haptic('success'); checkAchievements(); save(); render(); }
+function treatPestsAction(potId){ 
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
+  const pot=state.pots.find(p=>p.id===potId); 
+  if(!pot||!pot.pests) return; 
+  if((state.ferts['heal']||0)<=0){ showToast('❌ Нет лекарства!',true); return; } 
+  state.ferts['heal']--; 
+  pot.pests=false; 
+  pot.pestType=null;
+  pot.pestLevel=0; 
+  pot.health=Math.min(100,pot.health+25); 
+  state.pestsKilled=(state.pestsKilled||0)+1; 
+  showToast('💊 Вредители уничтожены!'); 
+  haptic('success'); 
+  checkAchievements(); 
+  save(); render(); 
+}
 
-function applyFertToPot(potId, fertId){ const pot=state.pots.find(p=>p.id===potId); if(!pot||!pot.isActive||!pot.strain) return; if((state.ferts[fertId]||0)<=0){ showToast('Нет удобрения',true); return; } const f=getFert(fertId); if(f.effect==='thc'){ if(pot.fertCount>=MAX_FERT_PER_PLANT){ showToast(`❌ Максимум ${MAX_FERT_PER_PLANT}!`,true); return; } state.ferts[fertId]--; pot.fertCount=(pot.fertCount||0)+1; pot.thc=Math.min(100,(pot.thc||0)+f.value); showToast(`💎 +${f.value}% ТГК`); haptic('success'); save(); render(); return; } state.ferts[fertId]--; if(f.effect==='heal'){ pot.disease=false; pot.pests=false; pot.pestLevel=0; pot.health=Math.min(100,pot.health+40); showToast('💊 Вылечено!'); } else { if(f.effect==='speed'||f.effect==='both') pot.speedMult=(pot.speedMult||1)*(1+f.value); if(f.effect==='yield'||f.effect==='both') pot.yieldMult=(pot.yieldMult||1)*(1+f.value); pot.fert=fertId; showToast(f.emoji+' '+f.name+' применено'); } closeModal('modal-fert'); haptic('success'); addXp(2); save(); render(); }
+function applyFertToPot(potId, fertId){ 
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
+  const pot=state.pots.find(p=>p.id===potId); 
+  if(!pot||!pot.isActive||!pot.strain) return; 
+  if((state.ferts[fertId]||0)<=0){ showToast('Нет удобрения',true); return; } 
+  const f=getFert(fertId); 
+  if(f.effect==='thc'){ 
+    if(pot.fertCount>=MAX_FERT_PER_PLANT){ showToast(`❌ Максимум ${MAX_FERT_PER_PLANT}!`,true); return; } 
+    state.ferts[fertId]--; 
+    pot.fertCount=(pot.fertCount||0)+1; 
+    pot.thc=Math.min(100,(pot.thc||0)+f.value); 
+    showToast(`💎 +${f.value}% ТГК`); 
+    haptic('success'); 
+    save(); render(); 
+    return; 
+  } 
+  state.ferts[fertId]--; 
+  if(f.effect==='heal'){ 
+    pot.disease=false; 
+    pot.pests=false; 
+    pot.pestType=null;
+    pot.pestLevel=0; 
+    pot.health=Math.min(100,pot.health+40); 
+    showToast('💊 Вылечено!'); 
+  } else { 
+    if(f.effect==='speed'||f.effect==='both') pot.speedMult=(pot.speedMult||1)*(1+f.value); 
+    if(f.effect==='yield'||f.effect==='both') pot.yieldMult=(pot.yieldMult||1)*(1+f.value); 
+    pot.fert=fertId; 
+    showToast(f.emoji+' '+f.name+' применено'); 
+  } 
+  closeModal('modal-fert'); 
+  haptic('success'); 
+  addXp(2); 
+  save(); render(); 
+}
 
-function applyLamp(potId, lampId){ const pot=state.pots.find(p=>p.id===potId); if(!pot||!pot.isActive||!pot.strain) return; if((state.lamps[lampId]||0)<=0){ showToast('Нет лампы',true); return; } if(pot.lamp){ state.lamps[pot.lamp]=(state.lamps[pot.lamp]||0)+1; } state.lamps[lampId]--; pot.lamp=lampId; showToast('💡 '+getLamp(lampId).emoji+' установлена'); haptic('success'); closeModal('modal-lamp'); save(); render(); }
+function applyLamp(potId, lampId){ 
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
+  const pot=state.pots.find(p=>p.id===potId); 
+  if(!pot||!pot.isActive||!pot.strain) return; 
+  if((state.lamps[lampId]||0)<=0){ showToast('Нет лампы',true); return; } 
+  if(pot.lamp){ state.lamps[pot.lamp]=(state.lamps[pot.lamp]||0)+1; } 
+  state.lamps[lampId]--; 
+  pot.lamp=lampId; 
+  showToast('💡 '+getLamp(lampId).emoji+' установлена'); 
+  haptic('success'); 
+  closeModal('modal-lamp'); 
+  save(); render(); 
+}
 
-function generateBuyers(){ const now=Date.now(); if(now-state.buyerTimer<30000) return; state.buyerTimer=now; state.activeBuyers=state.activeBuyers.filter(b=>Date.now()-b.appearTime<120000); const count=Math.floor(Math.random()*2)+1; for(let i=0;i<count;i++){ const type=BUYER_TYPES[Math.floor(Math.random()*BUYER_TYPES.length)]; state.activeBuyers.push({...type,wantedTHC:Math.floor(30+Math.random()*70),maxPrice:Math.floor(50+Math.random()*300),appearTime:now}); } save(); render(); }
+function generateBuyers(){ 
+  if(state.inJail) return;
+  const now=Date.now(); 
+  if(now-state.buyerTimer<30000) return; 
+  state.buyerTimer=now; 
+  state.activeBuyers=state.activeBuyers.filter(b=>Date.now()-b.appearTime<120000); 
+  const count=Math.floor(Math.random()*2)+1; 
+  for(let i=0;i<count;i++){ 
+    const type=BUYER_TYPES[Math.floor(Math.random()*BUYER_TYPES.length)]; 
+    state.activeBuyers.push({...type,wantedTHC:Math.floor(30+Math.random()*70),maxPrice:Math.floor(50+Math.random()*300),appearTime:now}); 
+  } 
+  save(); render(); 
+}
 
-function openBuyersModal(){ const list=document.getElementById('buyersList'); list.innerHTML=''; if(state.activeBuyers.length===0){ list.innerHTML='<div class="empty">👥 Нет покупателей</div>'; } else { state.activeBuyers.forEach((buyer,index)=>{ const timeLeft=Math.floor((120000-(Date.now()-buyer.appearTime))/1000); const div=document.createElement('div'); div.className='buyer-item'; div.innerHTML=`<div class="buyer-info"><div class="buyer-name">${buyer.name}${buyer.isCop?' 🚨':''}</div><div class="buyer-desc">${buyer.desc} | ТГК ${buyer.wantedTHC}% | ⏱ ${timeLeft}с</div></div><div style="text-align:right"><div class="buyer-price">💰${buyer.maxPrice}$</div><button class="btn btn-small btn-gold" onclick="sellToBuyer(${index})">🤝 Продать</button></div>`; list.appendChild(div); }); } document.getElementById('modal-buyers').classList.add('show'); }
+function openBuyersModal(){ 
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
+  const list=document.getElementById('buyersList'); 
+  list.innerHTML=''; 
+  if(state.activeBuyers.length===0){ 
+    list.innerHTML='<div class="empty">👥 Нет покупателей</div>'; 
+  } else { 
+    state.activeBuyers.forEach((buyer,index)=>{ 
+      const timeLeft=Math.floor((120000-(Date.now()-buyer.appearTime))/1000); 
+      const div=document.createElement('div'); 
+      div.className='buyer-item'; 
+      div.innerHTML=`<div class="buyer-info"><div class="buyer-name">${buyer.name}${buyer.isCop?' 🚨':''}</div><div class="buyer-desc">${buyer.desc} | ТГК ${buyer.wantedTHC}% | ⏱ ${timeLeft}с</div></div><div style="text-align:right"><div class="buyer-price">💰${buyer.maxPrice}$</div><button class="btn btn-small btn-gold" onclick="sellToBuyer(${index})">🤝 Продать</button></div>`; 
+      list.appendChild(div); 
+    }); 
+  } 
+  document.getElementById('modal-buyers').classList.add('show'); 
+}
 
-function sellToBuyer(index){ const buyer=state.activeBuyers[index]; if(!buyer) return; let availableItems=[]; for(const[key,amt]of Object.entries(state.inventory)){ if(amt>0){ const info=getProductInfo(key); if(info) availableItems.push({key,amt,info}); } } if(availableItems.length===0){ showToast('Нет товара!',true); return; } const item=availableItems[Math.floor(Math.random()*availableItems.length)]; const finalPrice=Math.floor(buyer.maxPrice*(0.7+Math.random()*0.6)); state.inventory[item.key]--; if(state.inventory[item.key]<=0) delete state.inventory[item.key]; addMoney(finalPrice); state.totalSoldToBuyers=(state.totalSoldToBuyers||0)+1; addHeat(finalPrice/30); if(buyer.isCop){ state.heat=Math.min(100,state.heat+20); showToast('🚨 Продан полицейскому! +20% палева',true); haptic('error'); } else { showToast(`🤝 Продано за ${finalPrice}$`); haptic('success'); } state.activeBuyers.splice(index,1); addXp(5); save(); render(); closeModal('modal-buyers'); }
+function sellToBuyer(index){ 
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
+  const buyer=state.activeBuyers[index]; 
+  if(!buyer) return; 
+  let availableItems=[]; 
+  for(const[key,amt]of Object.entries(state.inventory)){ 
+    if(amt>0){ 
+      const info=getProductInfo(key); 
+      if(info) availableItems.push({key,amt,info}); 
+    } 
+  } 
+  if(availableItems.length===0){ showToast('Нет товара!',true); return; } 
+  const item=availableItems[Math.floor(Math.random()*availableItems.length)]; 
+  const finalPrice=Math.floor(buyer.maxPrice*(0.7+Math.random()*0.6)); 
+  state.inventory[item.key]--; 
+  if(state.inventory[item.key]<=0) delete state.inventory[item.key]; 
+  addMoney(finalPrice); 
+  state.totalSoldToBuyers=(state.totalSoldToBuyers||0)+1; 
+  addHeat(finalPrice/30); 
+  if(buyer.isCop){ 
+    state.heat=Math.min(100,state.heat+20); 
+    showToast('🚨 Продан полицейскому! +20% палева',true); 
+    haptic('error'); 
+  } else { 
+    showToast(`🤝 Продано за ${finalPrice}$`); 
+    haptic('success'); 
+  } 
+  state.activeBuyers.splice(index,1); 
+  addXp(5); 
+  save(); render(); 
+  closeModal('modal-buyers'); 
+}
 
-function updateHeat(){ const now=Date.now(); const dt=(now-state.lastHeatCheck)/1000; state.lastHeatCheck=now; let reduction=0.02; if(state.room.vent) reduction+=0.03; if(state.heat>0) state.heat=Math.max(0,state.heat-reduction*dt); const hours=Math.floor(state.gameTime/60)%24; const isDay=hours>=6&&hours<18; const baseChance=isDay?0.0008:0.0003; const heatMultiplier=1+(state.heat/100)*5; if(state.heat>30&&!state.policeActive&&Math.random()<baseChance*heatMultiplier*dt){ state.policeActive=true; triggerPoliceRaid(); } if(state.heat>=100&&!state.policeActive){ state.policeActive=true; triggerPoliceRaid(); } document.getElementById('heat').textContent=Math.floor(state.heat); document.getElementById('police-warning').style.display=state.heat>40?'block':'none'; }
+// ==================== НОВАЯ СИСТЕМА ПОЛИЦИИ ====================
+function updateHeat(){ 
+  if(state.inJail) {
+    // Проверяем, закончилась ли тюрьма
+    if(state.gameTime >= state.jailUntil){
+      state.inJail = false;
+      state.jailUntil = 0;
+      document.getElementById('jailOverlay').classList.remove('show');
+      showToast('🔓 Ты вышел из тюрьмы!');
+      haptic('success');
+      save(); render();
+    }
+    return;
+  }
 
-function addHeat(amount){ const hours=Math.floor(state.gameTime/60)%24; const isDay=hours>=6&&hours<18; state.heat=Math.min(100,state.heat+amount*(isDay?1.5:0.8)); if(state.heat>80){ showToast('👮 Высокий уровень палева!',true); haptic('error'); } save(); render(); }
+  const now=Date.now(); 
+  const dt=(now-state.lastHeatCheck)/1000; 
+  state.lastHeatCheck=now; 
 
-function triggerPoliceRaid(){ const hasItems=Object.keys(state.inventory).length>0; const hasMoney=state.money>0; if(!hasItems&&!hasMoney){ showToast('👮 Полиция ничего не нашла!'); state.heat=Math.max(0,state.heat-50); state.policeActive=false; save(); render(); return; } const modal=document.getElementById('policeModal'); document.getElementById('policeMessage').textContent='👮 Рейд! Выбери действие:'; const optionsDiv=document.getElementById('policeOptions'); optionsDiv.innerHTML=''; if(hasMoney&&state.money>=200){ const btn=document.createElement('button'); btn.className='btn btn-police'; btn.textContent='💰 Взятка (200$)'; btn.onclick=()=>handlePoliceChoice('bribe'); optionsDiv.appendChild(btn); } if(hasItems){ const btn=document.createElement('button'); btn.className='btn btn-warning'; btn.textContent='📦 Отдать половину'; btn.onclick=()=>handlePoliceChoice('half'); optionsDiv.appendChild(btn); const btn2=document.createElement('button'); btn2.className='btn btn-danger'; btn2.textContent='📦 Отдать всё'; btn2.onclick=()=>handlePoliceChoice('all'); optionsDiv.appendChild(btn2); } const btnResist=document.createElement('button'); btnResist.className='btn btn-secondary'; btnResist.textContent='💪 Сопротивляться'; btnResist.onclick=()=>handlePoliceChoice('resist'); optionsDiv.appendChild(btnResist); modal.classList.add('show'); haptic('warning'); }
+  let reduction=0.025; 
+  if(state.room.vent) reduction+=0.04; 
+  if(state.heat>0) state.heat=Math.max(0,state.heat-reduction*dt); 
 
-function handlePoliceChoice(choice){ state.policeActive=false; switch(choice){ case 'bribe': if(state.money>=200){ state.money-=200; state.heat=Math.max(0,state.heat-60); showToast('💰 Взятка дана!'); } break; case 'half': Object.keys(state.inventory).forEach(key=>{ const taken=Math.floor((state.inventory[key]||0)/2); if(taken>0){ state.inventory[key]-=taken; if(state.inventory[key]<=0) delete state.inventory[key]; } }); state.heat=Math.max(0,state.heat-40); showToast('📦 Отдана половина!'); break; case 'all': Object.keys(state.inventory).forEach(key=>delete state.inventory[key]); state.heat=Math.max(0,state.heat-50); showToast('📦 Всё забрано!'); break; case 'resist': if(Math.random()<0.5){ state.heat=Math.max(0,state.heat-70); showToast('💪 Ты сбежал!'); } else { Object.keys(state.inventory).forEach(key=>delete state.inventory[key]); state.money=Math.floor(state.money/2); state.heat=Math.max(0,state.heat-30); showToast('💀 Не получилось!'); } break; } closePoliceModal(); save(); render(); }
+  const hours=Math.floor(state.gameTime/60)%24; 
+  const isDay=hours>=6&&hours<18; 
+  const heat = state.heat;
 
-function closePoliceModal(){ document.getElementById('policeModal').classList.remove('show'); state.policeActive=false; }
+  // 40%+ — предупреждение (не чаще раза в 2 минуты реального времени)
+  if(heat >= 40 && heat < 75 && !state.policeActive){
+    const baseChance = isDay ? 0.0012 : 0.0006;
+    if(Math.random() < baseChance * dt && (now - (state.lastWarningTime||0) > 120000)){
+      state.lastWarningTime = now;
+      showToast('⚠️ ПОЛИЦИЯ: У вас высокий уровень подозрений! Снижайте палево.', true);
+      haptic('warning');
+      // Небольшое снижение за предупреждение
+      state.heat = Math.max(0, state.heat - 5);
+    }
+  }
 
-function updateMarketPrices(){ const now=Date.now(); if(now-state.marketUpdateTime<60000) return; state.marketUpdateTime=now; let totalItems=0; for(const key in state.inventory) totalItems+=state.inventory[key]||0; state.marketSaturation=0.5+(Math.min(totalItems,100)/100)*1.5; STRAINS.forEach(s=>{ const basePrice=s.sellPrice; const saturationFactor=1/(0.6+0.4*state.marketSaturation); const randomFactor=0.85+Math.random()*0.3; let price=Math.floor(basePrice*saturationFactor*randomFactor); price=Math.max(Math.floor(basePrice*0.3),price); price=Math.min(Math.floor(basePrice*2.5),price); state.marketPrices[s.id]=price; }); save(); }
+  // 75%+ — рейд
+  if(heat >= 75 && heat < 99 && !state.policeActive){
+    const baseChance = isDay ? 0.0015 : 0.0007;
+    const heatMultiplier = 1 + ((heat-75)/25)*2;
+    if(Math.random() < baseChance * heatMultiplier * dt){
+      state.policeActive=true; 
+      triggerPoliceRaid(); 
+    }
+  }
+
+  // 99%+ — тюрьма гарантированно
+  if(heat >= 99 && !state.policeActive){
+    goToJail();
+  }
+
+  document.getElementById('heat').textContent=Math.floor(state.heat); 
+  document.getElementById('police-warning').style.display = state.heat > 35 ? 'block' : 'none'; 
+}
+
+function addHeat(amount){ 
+  if(state.inJail) return;
+  const hours=Math.floor(state.gameTime/60)%24; 
+  const isDay=hours>=6&&hours<18; 
+  state.heat=Math.min(100,state.heat+amount*(isDay?1.5:0.8)); 
+  if(state.heat>80){ 
+    showToast('👮 Высокий уровень палева!',true); 
+    haptic('error'); 
+  } 
+  save(); render(); 
+}
+
+function triggerPoliceRaid(){ 
+  const hasItems=Object.keys(state.inventory).length>0; 
+  const hasMoney=state.money>50; 
+  if(!hasItems&&!hasMoney){ 
+    showToast('👮 Полиция ничего не нашла!'); 
+    state.heat=Math.max(0,state.heat-40); 
+    state.policeActive=false; 
+    save(); render(); 
+    return; 
+  } 
+  const modal=document.getElementById('policeModal'); 
+  document.getElementById('policeMessage').textContent='👮 Рейд! Полиция нашла улики. Выбери действие:'; 
+  const optionsDiv=document.getElementById('policeOptions'); 
+  optionsDiv.innerHTML=''; 
+  
+  if(hasMoney&&state.money>=300){ 
+    const btn=document.createElement('button'); 
+    btn.className='btn btn-police'; 
+    btn.textContent='💰 Взятка (300$)'; 
+    btn.onclick=()=>handlePoliceChoice('bribe'); 
+    optionsDiv.appendChild(btn); 
+  } 
+  if(hasItems){ 
+    const btn=document.createElement('button'); 
+    btn.className='btn btn-warning'; 
+    btn.textContent='📦 Отдать половину товара'; 
+    btn.onclick=()=>handlePoliceChoice('half'); 
+    optionsDiv.appendChild(btn); 
+    const btn2=document.createElement('button'); 
+    btn2.className='btn btn-danger'; 
+    btn2.textContent='📦 Отдать всё'; 
+    btn2.onclick=()=>handlePoliceChoice('all'); 
+    optionsDiv.appendChild(btn2); 
+  } 
+  const btnResist=document.createElement('button'); 
+  btnResist.className='btn btn-secondary'; 
+  btnResist.textContent='💪 Сопротивляться (риск!)'; 
+  btnResist.onclick=()=>handlePoliceChoice('resist'); 
+  optionsDiv.appendChild(btnResist); 
+  
+  modal.classList.add('show'); 
+  haptic('warning'); 
+}
+
+function handlePoliceChoice(choice){ 
+  state.policeActive=false; 
+  switch(choice){ 
+    case 'bribe': 
+      if(state.money>=300){ 
+        state.money-=300; 
+        state.heat=Math.max(0,state.heat-55); 
+        showToast('💰 Взятка дана! Палево снижено.'); 
+      } 
+      break; 
+    case 'half': 
+      Object.keys(state.inventory).forEach(key=>{ 
+        const taken=Math.floor((state.inventory[key]||0)/2); 
+        if(taken>0){ 
+          state.inventory[key]-=taken; 
+          if(state.inventory[key]<=0) delete state.inventory[key]; 
+        } 
+      }); 
+      state.heat=Math.max(0,state.heat-35); 
+      showToast('📦 Отдана половина товара!'); 
+      break; 
+    case 'all': 
+      Object.keys(state.inventory).forEach(key=>delete state.inventory[key]); 
+      state.heat=Math.max(0,state.heat-45); 
+      showToast('📦 Весь товар изъят!'); 
+      break; 
+    case 'resist': 
+      if(Math.random()<0.4){ 
+        state.heat=Math.max(0,state.heat-60); 
+        showToast('💪 Тебе удалось сбежать!'); 
+      } else { 
+        // Неудачное сопротивление → тюрьма
+        goToJail();
+        return;
+      } 
+      break; 
+  } 
+  closePoliceModal(); 
+  save(); render(); 
+}
+
+function goToJail(){
+  state.policeActive = false;
+  state.inJail = true;
+  // 3 игровых часа = 180 игровых минут
+  state.jailUntil = state.gameTime + 180;
+  
+  // Изъять весь товар
+  state.inventory = {};
+  
+  // Оставить только 200$
+  state.money = 200;
+  
+  // Оставить только 2 горшка (очистить лишние)
+  if(state.pots.length > 2){
+    state.pots = state.pots.slice(0, 2);
+  }
+  // Очистить растения в оставшихся горшках
+  state.pots.forEach(pot => {
+    pot.strain = null;
+    pot.plantedAt = null;
+    pot.stage = 0;
+    pot.disease = false;
+    pot.pests = false;
+    pot.pestType = null;
+    pot.pestLevel = 0;
+    pot.water = 100;
+    pot.health = 100;
+    pot.lamp = null;
+    pot.fert = null;
+    pot.fertCount = 0;
+    pot.speedMult = 1;
+    pot.yieldMult = 1;
+    pot.thc = 0;
+    pot.lampTHCBonus = 0;
+  });
+  
+  state.heat = 0;
+  
+  document.getElementById('jailOverlay').classList.add('show');
+  updateJailTimer();
+  showToast('🚔 Тебя посадили на 3 игровых часа!', true);
+  haptic('error');
+  closePoliceModal();
+  save();
+  render();
+}
+
+function updateJailTimer(){
+  if(!state.inJail) return;
+  const remaining = Math.max(0, state.jailUntil - state.gameTime);
+  const h = Math.floor(remaining / 60);
+  const m = Math.floor(remaining % 60);
+  const el = document.getElementById('jailTimer');
+  if(el) el.textContent = `Осталось: ${h}ч ${String(m).padStart(2,'0')}м`;
+  
+  if(remaining <= 0){
+    state.inJail = false;
+    state.jailUntil = 0;
+    document.getElementById('jailOverlay').classList.remove('show');
+    showToast('🔓 Ты вышел из тюрьмы! Будь осторожнее.');
+    haptic('success');
+    save();
+    render();
+  }
+}
+
+function closePoliceModal(){ 
+  document.getElementById('policeModal').classList.remove('show'); 
+  state.policeActive=false; 
+}
+
+function updateMarketPrices(){ 
+  const now=Date.now(); 
+  if(now-state.marketUpdateTime<60000) return; 
+  state.marketUpdateTime=now; 
+  let totalItems=0; 
+  for(const key in state.inventory) totalItems+=state.inventory[key]||0; 
+  state.marketSaturation=0.5+(Math.min(totalItems,100)/100)*1.5; 
+  STRAINS.forEach(s=>{ 
+    const basePrice=s.sellPrice; 
+    const saturationFactor=1/(0.6+0.4*state.marketSaturation); 
+    const randomFactor=0.85+Math.random()*0.3; 
+    let price=Math.floor(basePrice*saturationFactor*randomFactor); 
+    price=Math.max(Math.floor(basePrice*0.3),price); 
+    price=Math.min(Math.floor(basePrice*2.5),price); 
+    state.marketPrices[s.id]=price; 
+  }); 
+  save(); 
+}
 function getMarketPrice(id){ return state.marketPrices[id]||STRAINS.find(s=>s.id===id)?.sellPrice||50; }
 function getPriceChange(id){ const current=getMarketPrice(id); const base=STRAINS.find(s=>s.id===id)?.sellPrice||50; return((current-base)/base*100); }
 function addMoney(amount){ state.money+=amount; state.totalEarned+=amount; if(amount>50) addHeat(amount/50); save(); render(); }
@@ -653,30 +1108,169 @@ function getProductInfo(key){
   return null;
 }
 
-function processItem(strainId, productType){ const p=PRODUCTS[productType]; if(!p) return; const rawKey=strainId, driedKey=strainId+'_dried', outKey=strainId+'_'+productType; if(productType==='dried'){ if((state.inventory[rawKey]||0)<1){ showToast('Нет сырья',true); return; } if(state.energy<p.energy){ showToast('Мало энергии',true); return; } state.inventory[rawKey]--; if(state.inventory[rawKey]<=0) delete state.inventory[rawKey]; state.energy-=p.energy; state.inventory[driedKey]=(state.inventory[driedKey]||0)+1; showToast('🍂 Высушено!'); addHeat(1); } else { const need=p.need||1; if((state.inventory[driedKey]||0)<need){ showToast(`Нужна сушка ×${need}`,true); return; } if(state.energy<p.energy){ showToast('Мало энергии',true); return; } state.inventory[driedKey]-=need; if(state.inventory[driedKey]<=0) delete state.inventory[driedKey]; state.energy-=p.energy; state.inventory[outKey]=(state.inventory[outKey]||0)+1; addHeat(need*0.5); showToast(p.emoji+' '+p.name+' готов!'); } haptic('success'); addXp(4); save(); render(); }
+function processItem(strainId, productType){ 
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
+  const p=PRODUCTS[productType]; 
+  if(!p) return; 
+  const rawKey=strainId, driedKey=strainId+'_dried', outKey=strainId+'_'+productType; 
+  if(productType==='dried'){ 
+    if((state.inventory[rawKey]||0)<1){ showToast('Нет сырья',true); return; } 
+    if(state.energy<p.energy){ showToast('Мало энергии',true); return; } 
+    state.inventory[rawKey]--; 
+    if(state.inventory[rawKey]<=0) delete state.inventory[rawKey]; 
+    state.energy-=p.energy; 
+    state.inventory[driedKey]=(state.inventory[driedKey]||0)+1; 
+    showToast('🍂 Высушено!'); 
+    addHeat(1); 
+  } else { 
+    const need=p.need||1; 
+    if((state.inventory[driedKey]||0)<need){ showToast(`Нужна сушка ×${need}`,true); return; } 
+    if(state.energy<p.energy){ showToast('Мало энергии',true); return; } 
+    state.inventory[driedKey]-=need; 
+    if(state.inventory[driedKey]<=0) delete state.inventory[driedKey]; 
+    state.energy-=p.energy; 
+    state.inventory[outKey]=(state.inventory[outKey]||0)+1; 
+    addHeat(need*0.5); 
+    showToast(p.emoji+' '+p.name+' готов!'); 
+  } 
+  haptic('success'); 
+  addXp(4); 
+  save(); render(); 
+}
 
-function openSellModal(key){ const amt=state.inventory[key]||0; if(amt<=0) return; const info=getProductInfo(key); if(!info) return; sellTarget={key:key,name:info.name,price:info.sellPrice,maxQty:amt}; sellQty=Math.min(1,amt); document.getElementById('sellTitle').textContent='💰 Продажа: '+info.name; document.getElementById('sellInfo').textContent=`Цена: ${info.sellPrice}$ | Всего: ${amt} шт.`; document.getElementById('sellQtyDisplay').textContent=sellQty; document.getElementById('sellModal').classList.add('show'); }
+function openSellModal(key){ 
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
+  const amt=state.inventory[key]||0; 
+  if(amt<=0) return; 
+  const info=getProductInfo(key); 
+  if(!info) return; 
+  sellTarget={key:key,name:info.name,price:info.sellPrice,maxQty:amt}; 
+  sellQty=Math.min(1,amt); 
+  document.getElementById('sellTitle').textContent='💰 Продажа: '+info.name; 
+  document.getElementById('sellInfo').textContent=`Цена: ${info.sellPrice}$ | Всего: ${amt} шт.`; 
+  document.getElementById('sellQtyDisplay').textContent=sellQty; 
+  document.getElementById('sellModal').classList.add('show'); 
+}
 function changeSellQty(delta){ if(!sellTarget) return; sellQty=Math.max(1,Math.min(sellTarget.maxQty,sellQty+delta)); document.getElementById('sellQtyDisplay').textContent=sellQty; }
 function setSellQty(mode){ if(!sellTarget) return; if(mode==='max') sellQty=sellTarget.maxQty; else if(mode==='half') sellQty=Math.max(1,Math.floor(sellTarget.maxQty/2)); document.getElementById('sellQtyDisplay').textContent=sellQty; }
-function confirmSell(){ if(!sellTarget) return; const {key,price,maxQty}=sellTarget; const qty=Math.min(sellQty,maxQty); if(qty<=0) return; if((state.inventory[key]||0)<qty){ showToast('Недостаточно товара',true); return; } const total=qty*price; addMoney(total); state.inventory[key]-=qty; if(state.inventory[key]<=0) delete state.inventory[key]; showToast(`💰 Продано за ${total}$`); haptic('success'); addXp(Math.floor(total/10)); addHeat(total/15); closeSellModal(); save(); render(); }
+function confirmSell(){ 
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
+  if(!sellTarget) return; 
+  const {key,price,maxQty}=sellTarget; 
+  const qty=Math.min(sellQty,maxQty); 
+  if(qty<=0) return; 
+  if((state.inventory[key]||0)<qty){ showToast('Недостаточно товара',true); return; } 
+  const total=qty*price; 
+  addMoney(total); 
+  state.inventory[key]-=qty; 
+  if(state.inventory[key]<=0) delete state.inventory[key]; 
+  showToast(`💰 Продано за ${total}$`); 
+  haptic('success'); 
+  addXp(Math.floor(total/10)); 
+  addHeat(total/15); 
+  closeSellModal(); 
+  save(); render(); 
+}
 function closeSellModal(){ document.getElementById('sellModal').classList.remove('show'); sellTarget=null; sellQty=1; }
-function sellAll(){ let total=0, items=0; for(const[id,amt]of Object.entries(state.inventory)){ if(amt<=0) continue; const info=getProductInfo(id); if(info){ total+=amt*info.sellPrice; items+=amt; } } if(!items){ showToast('Склад пуст',true); return; } addMoney(total); state.inventory={}; showToast('💰 Продано за '+total+'$'); haptic('success'); addXp(Math.floor(total/10)); addHeat(total/8); save(); render(); }
+function sellAll(){ 
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
+  let total=0, items=0; 
+  for(const[id,amt]of Object.entries(state.inventory)){ 
+    if(amt<=0) continue; 
+    const info=getProductInfo(id); 
+    if(info){ total+=amt*info.sellPrice; items+=amt; } 
+  } 
+  if(!items){ showToast('Склад пуст',true); return; } 
+  addMoney(total); 
+  state.inventory={}; 
+  showToast('💰 Продано за '+total+'$'); 
+  haptic('success'); 
+  addXp(Math.floor(total/10)); 
+  addHeat(total/8); 
+  save(); render(); 
+}
 
 function addXp(a){ state.xp += a; let up = false; while(state.xp >= xpFor(state.level)){ state.xp -= xpFor(state.level); state.level++; state.maxEnergy = 100 + (state.level-1)*8; state.energy = state.maxEnergy; up = true; } if(up){ showToast('🎉 Уровень '+state.level+'!'); haptic('success'); } save(); render(); }
 function save(){ state.lastUpdate = Date.now(); try{ localStorage.setItem('grow_sim_final_'+userId, JSON.stringify(state)); }catch(e){} }
 
 function load(){
-  try{ const raw = localStorage.getItem('grow_sim_final_'+userId); if(raw){ const l=JSON.parse(raw); state={...state,...l}; if(!state.pots) state.pots=[]; if(!state.inventory) state.inventory={}; if(!state.lamps) state.lamps={}; if(!state.ferts) state.ferts={}; if(!state.room) state.room={vent:false,auto:false,heater:false}; if(!state.hybrids) state.hybrids=[]; if(!state.achievements) state.achievements=[]; if(!state.investments) state.investments=[]; if(!state.activeBuyers) state.activeBuyers=[]; if(!state.friends) state.friends=[]; if(!state.friendRequests) state.friendRequests=[]; if(!state.bonusLog) state.bonusLog=[]; if(!state.referralsList) state.referralsList=[]; if(state.registered===undefined) state.registered=false; } }catch(e){ console.error('Load error:', e); }
-  if(!state.pots || state.pots.length===0){ state.pots = [{id:1,strain:null,plantedAt:null,water:80,health:100,stage:0,disease:false,pests:false,pestLevel:0,lamp:null,fert:null,fertCount:0,speedMult:1,yieldMult:1,thc:0,lastTick:Date.now(),isActive:true,quality:1.0,lampTHCBonus:0}]; state.nextPotId = 2; }
-  state.pots.forEach(pot=>{ if(pot.isActive===undefined) pot.isActive=true; if(pot.pests===undefined) pot.pests=false; if(pot.pestLevel===undefined) pot.pestLevel=0; if(pot.thc===undefined) pot.thc=0; if(pot.water===undefined) pot.water=80; if(pot.health===undefined) pot.health=100; if(pot.quality===undefined) pot.quality=1.0; if(pot.fertCount===undefined) pot.fertCount=0; if(pot.lampTHCBonus===undefined) pot.lampTHCBonus=0; if(pot.speedMult===undefined) pot.speedMult=1; if(pot.yieldMult===undefined) pot.yieldMult=1; });
-  if(!state.totalHarvests) state.totalHarvests=0; if(!state.heat) state.heat=0; if(!state.marketPrices) state.marketPrices={}; if(!state.gameTime) state.gameTime=12*60; if(state.waterReservoir===undefined) state.waterReservoir=100; if(!state.pestsKilled) state.pestsKilled=0; if(!state.marketSaturation) state.marketSaturation=1.0; if(!state.totalSoldToBuyers) state.totalSoldToBuyers=0; if(!state.maxTHC) state.maxTHC=0; if(!state.buyerTimer) state.buyerTimer=0; if(!state.lastHeatCheck) state.lastHeatCheck=Date.now(); if(!state.lastTick) state.lastTick=Date.now();
-  updateMarketPrices(); loadChat(); generateBuyers();
+  try{ 
+    const raw = localStorage.getItem('grow_sim_final_'+userId); 
+    if(raw){ 
+      const l=JSON.parse(raw); 
+      state={...state,...l}; 
+      if(!state.pots) state.pots=[]; 
+      if(!state.inventory) state.inventory={}; 
+      if(!state.lamps) state.lamps={}; 
+      if(!state.ferts) state.ferts={}; 
+      if(!state.room) state.room={vent:false,auto:false,heater:false}; 
+      if(!state.hybrids) state.hybrids=[]; 
+      if(!state.achievements) state.achievements=[]; 
+      if(!state.investments) state.investments=[]; 
+      if(!state.activeBuyers) state.activeBuyers=[]; 
+      if(!state.friends) state.friends=[]; 
+      if(!state.friendRequests) state.friendRequests=[]; 
+      if(!state.bonusLog) state.bonusLog=[]; 
+      if(!state.referralsList) state.referralsList=[]; 
+      if(state.registered===undefined) state.registered=false; 
+      if(state.inJail===undefined) state.inJail=false;
+      if(state.jailUntil===undefined) state.jailUntil=0;
+      if(state.lastWarningTime===undefined) state.lastWarningTime=0;
+    } 
+  }catch(e){ console.error('Load error:', e); }
+  
+  if(!state.pots || state.pots.length===0){ 
+    state.pots = [{id:1,strain:null,plantedAt:null,water:100,health:100,stage:0,disease:false,pests:false,pestType:null,pestLevel:0,lamp:null,fert:null,fertCount:0,speedMult:1,yieldMult:1,thc:0,lastTick:Date.now(),isActive:true,quality:1.0,lampTHCBonus:0}]; 
+    state.nextPotId = 2; 
+  }
+  state.pots.forEach(pot=>{ 
+    if(pot.isActive===undefined) pot.isActive=true; 
+    if(pot.pests===undefined) pot.pests=false; 
+    if(pot.pestType===undefined) pot.pestType=null;
+    if(pot.pestLevel===undefined) pot.pestLevel=0; 
+    if(pot.thc===undefined) pot.thc=0; 
+    if(pot.water===undefined) pot.water=100; 
+    if(pot.health===undefined) pot.health=100; 
+    if(pot.quality===undefined) pot.quality=1.0; 
+    if(pot.fertCount===undefined) pot.fertCount=0; 
+    if(pot.lampTHCBonus===undefined) pot.lampTHCBonus=0; 
+    if(pot.speedMult===undefined) pot.speedMult=1; 
+    if(pot.yieldMult===undefined) pot.yieldMult=1; 
+  });
+  if(!state.totalHarvests) state.totalHarvests=0; 
+  if(!state.heat) state.heat=0; 
+  if(!state.marketPrices) state.marketPrices={}; 
+  if(!state.gameTime) state.gameTime=12*60; 
+  if(state.waterReservoir===undefined) state.waterReservoir=100; 
+  if(!state.pestsKilled) state.pestsKilled=0; 
+  if(!state.marketSaturation) state.marketSaturation=1.0; 
+  if(!state.totalSoldToBuyers) state.totalSoldToBuyers=0; 
+  if(!state.maxTHC) state.maxTHC=0; 
+  if(!state.buyerTimer) state.buyerTimer=0; 
+  if(!state.lastHeatCheck) state.lastHeatCheck=Date.now(); 
+  if(!state.lastTick) state.lastTick=Date.now();
+  updateMarketPrices(); 
+  loadChat(); 
+  generateBuyers();
+  
+  // Если игрок был в тюрьме — показать оверлей
+  if(state.inJail){
+    document.getElementById('jailOverlay').classList.add('show');
+    updateJailTimer();
+  }
 }
 
 function checkAchievements(){ ACHIEVEMENTS.forEach(a=>{ if(!state.achievements.includes(a.id)&&a.check()){ state.achievements.push(a.id); showToast(`🏆 ${a.icon} ${a.name}! (+${a.reward}$)`); state.money+=a.reward; haptic('success'); } }); }
 function openAchievementsModal(){ const list=document.getElementById('achievementsList'); list.innerHTML=''; ACHIEVEMENTS.forEach(a=>{ const unlocked=state.achievements.includes(a.id); const div=document.createElement('div'); div.className='card'; div.style.opacity=unlocked?'1':'0.5'; div.innerHTML=`<div class="card-emoji">${a.icon}</div><div class="card-info"><div class="card-title">${a.name} ${unlocked?'✅':'🔒'}</div><div class="card-desc">${a.desc} ${unlocked?'+'+a.reward+'$':''}</div></div>`; list.appendChild(div); }); document.getElementById('modal-achievements').classList.add('show'); }
 
-function openCrossModal(){ const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1); if(readyPots.length<2){ showToast('Нужно 2 готовых растения',true); return; } crossStep=0; selectedCrossList=[]; renderCrossModal(); document.getElementById('modal-cross').classList.add('show'); }
+function openCrossModal(){ 
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
+  const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1); 
+  if(readyPots.length<2){ showToast('Нужно 2 готовых растения',true); return; } 
+  crossStep=0; selectedCrossList=[]; 
+  renderCrossModal(); 
+  document.getElementById('modal-cross').classList.add('show'); 
+}
 function renderCrossModal(){ const list=document.getElementById('crossList'); const info=document.getElementById('crossInfo'); if(crossStep===0){ info.textContent='Выбери ПЕРВОЕ растение'; const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1); list.innerHTML=''; readyPots.forEach(pot=>{ const s=getStrain(pot.strain); const div=document.createElement('div'); div.className='card'; div.style.cursor='pointer'; div.innerHTML=`<div class="card-emoji">${s?.emoji||'🌿'}</div><div class="card-info"><div class="card-title">${s?.name||''}</div><div class="card-desc">ТГК: ${Math.round(pot.thc)}%</div></div><span style="color:var(--accent);font-size:9px;">Выбрать</span>`; div.onclick=()=>{ selectedCrossList[0]=pot; crossStep=1; renderCrossModal(); }; list.appendChild(div); }); } else if(crossStep===1){ info.textContent=`Выбрано: ${getStrain(selectedCrossList[0].strain)?.name||''}. Выбери ВТОРОЕ`; const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1&&p.id!==selectedCrossList[0].id); list.innerHTML=''; readyPots.forEach(pot=>{ const s=getStrain(pot.strain); const div=document.createElement('div'); div.className='card'; div.style.cursor='pointer'; div.innerHTML=`<div class="card-emoji">${s?.emoji||'🌿'}</div><div class="card-info"><div class="card-title">${s?.name||''}</div><div class="card-desc">ТГК: ${Math.round(pot.thc)}%</div></div><span style="color:var(--accent);font-size:9px;">Выбрать</span>`; div.onclick=()=>{ selectedCrossList[1]=pot; crossStep=2; renderCrossModal(); }; list.appendChild(div); }); } else { const p1=selectedCrossList[0], p2=selectedCrossList[1]; info.textContent=`Скрещивание: ${getStrain(p1.strain)?.name||''} × ${getStrain(p2.strain)?.name||''}`; list.innerHTML=`<div class="card"><div class="card-emoji">🧬</div><div class="card-info"><div class="card-title">Новый гибрид!</div><div class="card-desc">ТГК: ~${Math.round((p1.thc+p2.thc)/2)}%</div></div><button class="btn btn-small btn-purple" onclick="doCross()">🧬 Создать</button></div>`; } }
 function doCross(){ const p1=selectedCrossList[0], p2=selectedCrossList[1], s1=getStrain(p1.strain), s2=getStrain(p2.strain); state.hybrids.push({id:Date.now().toString(36),name:`${s1.name} × ${s2.name}`,emoji:'🧬',quality:(s1.quality+s2.quality)/2,thc:Math.round((p1.thc+p2.thc)/2),parents:[s1.id,s2.id]}); p1.strain=null; p1.plantedAt=null; p1.stage=0; p1.thc=0; p2.strain=null; p2.plantedAt=null; p2.stage=0; p2.thc=0; showToast('🧬 Гибрид создан!'); haptic('success'); addXp(20); closeModal('modal-cross'); checkAchievements(); save(); render(); }
 
@@ -713,7 +1307,10 @@ function renderFarm(){
         const ready=prog>=1;
         let tags='';
         if(pot.disease) tags+=' 🦠';
-        if(pot.pests) tags+=' 🐛';
+        if(pot.pests) {
+          const pest = PEST_TYPES.find(p => p.id === pot.pestType) || PEST_TYPES[0];
+          tags += ` ${pest.emoji}`;
+        }
         if(pot.lamp){ const l=getLamp(pot.lamp); if(l) tags+=` ${l.emoji}`; }
         const thcDisplay=pot.thc>0?`<div class="thc-indicator">💎 ТГК: ${Math.round(pot.thc)}%</div>`:'';
         const timerDisplay=!ready?`<div class="growth-timer">⏱ ${formatTime(timeLeft)}</div>`:'<div class="growth-timer">✅ Готово!</div>';
@@ -724,13 +1321,34 @@ function renderFarm(){
           if(pot.pests){ pestBtn=`<button class="btn btn-small btn-warning" onclick="treatPestsAction(${pot.id})" style="font-size:7px">💊 Лечить</button>`; }
           actions=`<div class="pot-actions"><button class="btn btn-blue btn-small" onclick="waterPot(${pot.id})" style="font-size:7px">💧</button><button class="btn btn-warning btn-small" onclick="openFertModal(${pot.id})" style="font-size:7px">🧪</button><button class="btn btn-purple btn-small" onclick="openLampModal(${pot.id})" style="font-size:7px">💡</button>${pestBtn}</div>`;
         }
-        div.innerHTML=`<div class="pot-emoji">${STAGE_EMOJI[pot.stage]||'🌱'}</div><div class="pot-name">${s?.emoji} ${s?.name}${tags}</div>${thcDisplay}${timerDisplay}<div class="pot-status">${ready?'✅ Готово!':STAGE_NAMES[pot.stage]}</div><div class="plant-container">${getPlantSVG(pot.strain,pot.stage,pot.health,ready,pot.thc,pot.water)}</div><div class="bars"><div class="bar-row"><span>💧</span><div class="bar"><div class="bar-fill water" style="width:${pot.water}%"></div></div></div><div class="bar-row"><span>❤️</span><div class="bar"><div class="bar-fill health" style="width:${pot.health}%"></div></div></div><div class="bar-row"><span>⏱</span><div class="bar"><div class="bar-fill growth" style="width:${prog*100}%"></div></div></div>${pot.thc>0?`<div class="bar-row"><span>💎</span><div class="bar"><div class="bar-fill thc" style="width:${pot.thc}%"></div></div></div>`:''}</div>${actions}`;
+        
+        // Паутина поверх растения при вредителях
+        const webHtml = pot.pests ? `<div class="web-overlay">🕸️</div>` : '';
+        
+        div.innerHTML=`<div class="pot-emoji">${STAGE_EMOJI[pot.stage]||'🌱'}</div><div class="pot-name">${s?.emoji} ${s?.name}${tags}</div>${thcDisplay}${timerDisplay}<div class="pot-status">${ready?'✅ Готово!':STAGE_NAMES[pot.stage]}${pot.pests ? ' · 🐛 ' + (PEST_TYPES.find(p=>p.id===pot.pestType)?.name || 'Вредители') : ''}</div><div class="plant-container">${getPlantSVG(pot.strain,pot.stage,pot.health,ready,pot.thc,pot.water)}${webHtml}</div><div class="bars"><div class="bar-row"><span>💧</span><div class="bar"><div class="bar-fill water" style="width:${pot.water}%"></div></div></div><div class="bar-row"><span>❤️</span><div class="bar"><div class="bar-fill health" style="width:${pot.health}%"></div></div></div><div class="bar-row"><span>⏱</span><div class="bar"><div class="bar-fill growth" style="width:${prog*100}%"></div></div></div>${pot.thc>0?`<div class="bar-row"><span>💎</span><div class="bar"><div class="bar-fill thc" style="width:${pot.thc}%"></div></div></div>`:''}${pot.pests?`<div class="bar-row"><span>🐛</span><div class="bar"><div class="bar-fill pests" style="width:${pot.pestLevel||0}%"></div></div></div>`:''}</div>${actions}`;
       }
       grid.appendChild(div);
     });
   }
   const btn=document.getElementById('btn-buy-pot');
-  if(btn){ const maxPots=getMaxPots(); const currentPots=state.pots.length; const price=getPotPrice(); if(currentPots>=maxPots){ btn.textContent=`🔒 Лимит ${maxPots} горшков`; btn.disabled=true; btn.style.opacity='0.5'; } else { btn.textContent=`➕ Купить горшок (${price}$)`; btn.disabled=false; btn.style.opacity='1'; } }
+  if(btn){ 
+    const maxPots=getMaxPots(); 
+    const currentPots=state.pots.length; 
+    const price=getPotPrice(); 
+    if(state.inJail){
+      btn.textContent=`🚔 Ты в тюрьме`; 
+      btn.disabled=true; 
+      btn.style.opacity='0.5';
+    } else if(currentPots>=maxPots){ 
+      btn.textContent=`🔒 Лимит ${maxPots} горшков`; 
+      btn.disabled=true; 
+      btn.style.opacity='0.5'; 
+    } else { 
+      btn.textContent=`➕ Купить горшок (${price}$)`; 
+      btn.disabled=false; 
+      btn.style.opacity='1'; 
+    } 
+  }
 }
 
 function renderMarket(){ const grid=document.getElementById('market-grid'); if(!grid) return; grid.innerHTML=''; STRAINS.forEach(s=>{ const price=getMarketPrice(s.id); const change=getPriceChange(s.id); const div=document.createElement('div'); div.className='market-item'; div.innerHTML=`<span>${s.emoji} ${s.name}</span><span><span class="price">${price}$</span><span class="change ${change>=0?'up':'down'}">${change>=0?'+':''}${change.toFixed(1)}%</span></span>`; grid.appendChild(div); }); const now=Date.now(); const remaining=Math.max(0,Math.floor((state.marketUpdateTime+60000-now)/1000)); document.getElementById('market-timer').textContent=`🔄 Обновление: ${Math.floor(remaining/60)}:${String(remaining%60).padStart(2,'0')}`; }
@@ -743,7 +1361,7 @@ function renderProcess(){ const list=document.getElementById('process-list'); if
 
 function renderRoom(){ const info=document.getElementById('room-info'); if(!info) return; info.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px"><div style="background:rgba(255,255,255,.03);padding:4px;border-radius:6px;text-align:center"><span style="font-size:18px;">🪴</span><div>${state.pots.length}</div></div><div style="background:rgba(255,255,255,.03);padding:4px;border-radius:6px;text-align:center"><span style="font-size:18px;">${state.room.vent?'✅':'❌'}</span><div style="font-size:8px;">Вентиляция</div></div><div style="background:rgba(255,255,255,.03);padding:4px;border-radius:6px;text-align:center"><span style="font-size:18px;">${state.room.auto?'✅':'❌'}</span><div style="font-size:8px;">Автополив</div></div><div style="grid-column:span 3;background:rgba(255,255,255,.03);padding:4px;border-radius:6px;text-align:center"><span style="font-size:18px;">${state.room.heater?'✅':'❌'}</span><div style="font-size:8px;">Обогреватель</div></div></div>`; const list=document.getElementById('room-list'); if(!list) return; list.innerHTML='<div class="section-title">🏠 Улучшения</div>'; ROOM_UPGRADES.forEach(u=>{ const bought=(u.type==='vent'&&state.room.vent)||(u.type==='auto'&&state.room.auto)||(u.type==='heater'&&state.room.heater); const c=document.createElement('div'); c.className='card'; c.style.opacity=bought?'0.5':'1'; c.innerHTML=`<div class="card-emoji">${u.emoji}</div><div class="card-info"><div class="card-title">${u.name}</div><div class="card-desc">${u.desc}</div></div>${bought?'<span style="font-size:9px;">✅</span>':`<button class="btn btn-small" onclick="buyRoomUpgrade('${u.id}')">${u.price}$</button>`}`; list.appendChild(c); }); }
 
-function renderProfile(){ document.getElementById('profile-name').textContent=getUserName(); document.getElementById('profile-id').textContent='ID: '+userId; document.getElementById('profile-regdate').textContent=new Date(state.registerDate).toLocaleDateString(); document.getElementById('profile-level').textContent=state.level; document.getElementById('profile-money').textContent=Math.floor(state.money)+'$'; document.getElementById('profile-energy').textContent=Math.floor(state.energy)+'/'+state.maxEnergy; document.getElementById('profile-harvests').textContent=state.totalHarvests||0; document.getElementById('profile-pots').textContent=state.pots.length; document.getElementById('profile-state').textContent=highTimer?'🌀 Накурило!':'🧠 Норма'; document.getElementById('profile-heat').textContent=Math.floor(state.heat)+'%'; const hours=Math.floor(state.gameTime/60)%24, minutes=Math.floor(state.gameTime%60); document.getElementById('profile-time').textContent=`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')} ${hours>=6&&hours<18?'☀️':'🌙'}`; document.getElementById('profile-maxthc').textContent=Math.round(state.maxTHC||0)+'%'; const regEl=document.getElementById('profile-registered'); if(regEl){ regEl.textContent=state.registered?'✅ Да':'❌ Нет'; regEl.className='value '+(state.registered?'green':'red'); } }
+function renderProfile(){ document.getElementById('profile-name').textContent=getUserName(); document.getElementById('profile-id').textContent='ID: '+userId; document.getElementById('profile-regdate').textContent=new Date(state.registerDate).toLocaleDateString(); document.getElementById('profile-level').textContent=state.level; document.getElementById('profile-money').textContent=Math.floor(state.money)+'$'; document.getElementById('profile-energy').textContent=Math.floor(state.energy)+'/'+state.maxEnergy; document.getElementById('profile-harvests').textContent=state.totalHarvests||0; document.getElementById('profile-pots').textContent=state.pots.length; document.getElementById('profile-state').textContent=state.inJail?'🚔 Тюрьма':(highTimer?'🌀 Накурило!':'🧠 Норма'); document.getElementById('profile-heat').textContent=Math.floor(state.heat)+'%'; const hours=Math.floor(state.gameTime/60)%24, minutes=Math.floor(state.gameTime%60); document.getElementById('profile-time').textContent=`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')} ${hours>=6&&hours<18?'☀️':'🌙'}`; document.getElementById('profile-maxthc').textContent=Math.round(state.maxTHC||0)+'%'; const regEl=document.getElementById('profile-registered'); if(regEl){ regEl.textContent=state.registered?'✅ Да':'❌ Нет'; regEl.className='value '+(state.registered?'green':'red'); } }
 
 function renderHeader(){ document.getElementById('money').textContent=Math.floor(state.money); document.getElementById('energy').textContent=Math.floor(state.energy); document.getElementById('level').textContent=state.level; document.getElementById('rep').textContent=state.rep; document.getElementById('heat').textContent=Math.floor(state.heat); document.getElementById('xp-badge').textContent=`${state.xp}/${xpFor(state.level)} XP`; }
 
@@ -751,9 +1369,18 @@ function renderFriends(){ document.getElementById('ref-count').textContent=state
 
 function renderSocial(){ const reqDiv=document.getElementById('friend-requests'); if(state.friendRequests.length===0){ reqDiv.innerHTML=''; } else { reqDiv.innerHTML='<div class="section-title">📩 Заявки</div>'+state.friendRequests.map((req,i)=>`<div class="request-item"><span>${req.name}</span><div><button class="btn btn-small" onclick="acceptFriend(${i})">✅</button><button class="btn btn-small btn-secondary" onclick="rejectFriend(${i})">❌</button></div></div>`).join(''); } const friendsDiv=document.getElementById('friends-list-social'); if(!friendsDiv) return; if(state.friends.length===0){ friendsDiv.innerHTML='<div class="empty">Нет друзей</div>'; } else { friendsDiv.innerHTML='<div class="section-title">👫 Мои друзья</div>'+state.friends.map((f,i)=>`<div class="friend-item"><span style="flex:1;">${f.name}</span><button class="btn btn-small btn-secondary" onclick="removeFriend(${i})">🗑</button></div>`).join(''); } const logDiv=document.getElementById('bonus-log'); if(logDiv) logDiv.innerHTML=state.bonusLog.length===0?'История пуста':state.bonusLog.slice(0,10).map(e=>`<div style="padding:2px;font-size:8px;">${new Date(e.date).toLocaleDateString()}: +${e.amount}$ +${e.energy}⚡</div>`).join(''); renderChat(); }
 
-function render(){ renderHeader(); renderFarm(); renderMarket(); renderShop(); renderInventory(); renderProcess(); renderRoom(); renderProfile(); renderFriends(); renderSocial(); updateBonusTimer(); updateGameTime(); }
+function render(){ renderHeader(); renderFarm(); renderMarket(); renderShop(); renderInventory(); renderProcess(); renderRoom(); renderProfile(); renderFriends(); renderSocial(); updateBonusTimer(); updateGameTime(); updateJailTimer(); }
 
-function updateGameTime(){ const now=Date.now(); const dt=(now-(state.lastTick||now))/1000; state.gameTime=(state.gameTime||12*60)+dt/3; const hours=Math.floor(state.gameTime/60)%24, minutes=Math.floor(state.gameTime%60); document.getElementById('gameTime').textContent=`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`; document.getElementById('dayPhase').textContent=hours>=6&&hours<18?'☀️':'🌙'; }
+function updateGameTime(){ 
+  const now=Date.now(); 
+  const dt=(now-(state.lastTick||now))/1000; 
+  // Игровое время идёт всегда (даже в тюрьме)
+  state.gameTime=(state.gameTime||12*60)+dt/3; 
+  const hours=Math.floor(state.gameTime/60)%24, minutes=Math.floor(state.gameTime%60); 
+  document.getElementById('gameTime').textContent=`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`; 
+  document.getElementById('dayPhase').textContent=hours>=6&&hours<18?'☀️':'🌙'; 
+  if(state.inJail) updateJailTimer();
+}
 
 function updateBonusTimer(){ const now=Date.now(); const remaining=Math.max(0,24*60*60*1000-(now-(state.lastBonusTime||0))); const timerEl=document.getElementById('bonus-countdown'); const btnEl=document.getElementById('btn-bonus'); if(remaining<=0){ if(timerEl) timerEl.textContent='🎁 Доступно!'; if(btnEl){ btnEl.disabled=false; btnEl.style.opacity='1'; } return; } const h=Math.floor(remaining/(60*60*1000)), m=Math.floor((remaining%(60*60*1000))/(60*1000)), s=Math.floor((remaining%(60*1000))/1000); if(timerEl) timerEl.textContent=`⏳ ${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; if(btnEl){ btnEl.disabled=true; btnEl.style.opacity='0.5'; } }
 
@@ -777,8 +1404,51 @@ function registerProfileOnServer(){ if(state.registered){ showToast('✅ Уже 
 function updateRegisterBanner(){ const banner=document.getElementById('register-banner'); if(!banner) return; banner.style.display=state.registered===true?'none':'block'; }
 function loadLeaderboardFromServer(){ const list=document.getElementById('leaderboard-list'); if(!list) return; list.innerHTML='<div class="empty">📊 Загрузка...</div>'; setTimeout(()=>{ list.innerHTML='<div class="empty">📊 Пока нет игроков</div>'; const myRank=document.getElementById('my-rank'); if(myRank){ myRank.style.display='block'; myRank.innerHTML=`<div class="my-rank">Ты: ${getUserName()} · 💰${Math.floor(state.money)}$ · ${state.registered?'✅ Зарегистрирован':'❌ Не зарегистрирован'}</div>`; } },500); }
 
-function openSeedModal(id){ selectedPotId=id; const list=document.getElementById('seed-list'); list.innerHTML=''; STRAINS.forEach(s=>{ const unlocked=state.level>=s.unlock; const can=state.money>=s.seedPrice&&state.energy>=s.energyCost; const c=document.createElement('div'); c.className='card'+(unlocked?'':' card-locked'); c.innerHTML=`<div class="card-emoji">${s.emoji}</div><div class="card-info"><div class="card-title">${s.name} ${!unlocked?'🔒':''}</div><div class="card-desc">⏱ ${formatTime(s.baseTime)} · ${s.yield} шт · 💰${s.sellPrice}$</div></div><div style="text-align:right"><div style="font-weight:700;font-size:11px;">${s.seedPrice}$</div><div style="font-size:7px;">⚡${s.energyCost}</div></div>`; if(unlocked&&can){ c.style.cursor='pointer'; c.onclick=()=>plantSeed(s.id); } list.appendChild(c); }); document.getElementById('modal-seed').classList.add('show'); }
-function plantSeed(sid){ const s=getStrain(sid); if(state.money<s.seedPrice||state.energy<s.energyCost){ showToast('Не хватает ресурсов',true); return; } const pot=state.pots.find(p=>p.id===selectedPotId); if(!pot||!pot.isActive||pot.strain){ showToast('Горшок занят',true); return; } state.money-=s.seedPrice; state.energy-=s.energyCost; pot.strain=sid; pot.plantedAt=Date.now(); pot.water=80; pot.health=100; pot.stage=1; pot.disease=false; pot.pests=false; pot.pestLevel=0; pot.speedMult=1; pot.yieldMult=1; pot.thc=0; pot.lampTHCBonus=0; pot.fertCount=0; closeModal('modal-seed'); showToast('🌱 Посажено: '+s.name); haptic('medium'); addXp(3); addHeat(0.5); save(); render(); }
+function openSeedModal(id){ 
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
+  selectedPotId=id; 
+  const list=document.getElementById('seed-list'); 
+  list.innerHTML=''; 
+  STRAINS.forEach(s=>{ 
+    const unlocked=state.level>=s.unlock; 
+    const can=state.money>=s.seedPrice&&state.energy>=s.energyCost; 
+    const c=document.createElement('div'); 
+    c.className='card'+(unlocked?'':' card-locked'); 
+    c.innerHTML=`<div class="card-emoji">${s.emoji}</div><div class="card-info"><div class="card-title">${s.name} ${!unlocked?'🔒':''}</div><div class="card-desc">⏱ ${formatTime(s.baseTime)} · ${s.yield} шт · 💰${s.sellPrice}$</div></div><div style="text-align:right"><div style="font-weight:700;font-size:11px;">${s.seedPrice}$</div><div style="font-size:7px;">⚡${s.energyCost}</div></div>`; 
+    if(unlocked&&can){ c.style.cursor='pointer'; c.onclick=()=>plantSeed(s.id); } 
+    list.appendChild(c); 
+  }); 
+  document.getElementById('modal-seed').classList.add('show'); 
+}
+function plantSeed(sid){ 
+  if(state.inJail){ showToast('🚔 Ты в тюрьме!',true); return; }
+  const s=getStrain(sid); 
+  if(state.money<s.seedPrice||state.energy<s.energyCost){ showToast('Не хватает ресурсов',true); return; } 
+  const pot=state.pots.find(p=>p.id===selectedPotId); 
+  if(!pot||!pot.isActive||pot.strain){ showToast('Горшок занят',true); return; } 
+  state.money-=s.seedPrice; 
+  state.energy-=s.energyCost; 
+  pot.strain=sid; 
+  pot.plantedAt=Date.now(); 
+  pot.water=100; 
+  pot.health=100; 
+  pot.stage=1; 
+  pot.disease=false; 
+  pot.pests=false; 
+  pot.pestType=null;
+  pot.pestLevel=0; 
+  pot.speedMult=1; 
+  pot.yieldMult=1; 
+  pot.thc=0; 
+  pot.lampTHCBonus=0; 
+  pot.fertCount=0; 
+  closeModal('modal-seed'); 
+  showToast('🌱 Посажено: '+s.name); 
+  haptic('medium'); 
+  addXp(3); 
+  addHeat(0.5); 
+  save(); render(); 
+}
 
 function openFertModal(id){ selectedPotId=id; const list=document.getElementById('fert-list'); list.innerHTML=''; let any=false; FERTS.forEach(f=>{ const cnt=state.ferts[f.id]||0; if(cnt<=0) return; any=true; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${f.emoji}</div><div class="card-info"><div class="card-title">${f.name} ×${cnt}</div><div class="card-desc">${f.desc}</div></div><button class="btn btn-small btn-warning" onclick="applyFertToPot(${selectedPotId},'${f.id}')">Применить</button>`; list.appendChild(c); }); if(!any) list.innerHTML='<div class="empty">Нет удобрений</div>'; document.getElementById('modal-fert').classList.add('show'); }
 function openLampModal(id){ selectedPotId=id; const list=document.getElementById('lamp-list'); list.innerHTML=''; let any=false; LAMPS.forEach(l=>{ const cnt=state.lamps[l.id]||0; if(cnt<=0) return; any=true; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${l.emoji}</div><div class="card-info"><div class="card-title">${l.name} ×${cnt}</div><div class="card-desc">${l.desc}</div></div><button class="btn btn-small btn-purple" onclick="applyLamp(${selectedPotId},'${l.id}')">Установить</button>`; list.appendChild(c); }); if(!any) list.innerHTML='<div class="empty">Нет ламп</div>'; document.getElementById('modal-lamp').classList.add('show'); }
@@ -790,7 +1460,7 @@ function buyRoomUpgrade(id){ const u=ROOM_UPGRADES.find(x=>x.id===id); if(state.
 
 function consumeProduct(key,type){ if((state.inventory[key]||0)<=0) return; state.inventory[key]--; if(state.inventory[key]<=0) delete state.inventory[key]; state.consumedCount=(state.consumedCount||0)+1; showToast(`💨 Покурил (${state.consumedCount}/3)`); haptic('medium'); addHeat(2); if(state.consumedCount>=3){ state.consumedCount=0; showToast('🌀 Накурило! 30 секунд!'); document.querySelectorAll('.pot-emoji, .card-emoji, .btn').forEach(el=>el.classList.add('snoop-high')); setTimeout(()=>{ document.querySelectorAll('.snoop-high').forEach(el=>el.classList.remove('snoop-high')); showToast('🌀 Эффект прошёл'); },30000); } save(); render(); }
 
-function trySpawnSnoop(){ if(state.snoopActive||Date.now()-state.snoopCooldown<120000||Math.random()>0.12) return; document.getElementById('snoopPopup').classList.add('show'); document.getElementById('snoopOverlay').classList.add('active'); state.snoopActive=true; haptic('warning'); }
+function trySpawnSnoop(){ if(state.inJail||state.snoopActive||Date.now()-state.snoopCooldown<120000||Math.random()>0.12) return; document.getElementById('snoopPopup').classList.add('show'); document.getElementById('snoopOverlay').classList.add('active'); state.snoopActive=true; haptic('warning'); }
 function acceptSnoop(){ document.getElementById('snoopPopup').classList.remove('show'); document.getElementById('snoopOverlay').classList.remove('active'); state.money+=50; state.energy=Math.min(state.maxEnergy,state.energy+20); showToast('🔥 +50$ +20⚡'); haptic('success'); state.snoopActive=false; state.snoopCooldown=Date.now(); addHeat(10); save(); render(); }
 function rejectSnoop(){ document.getElementById('snoopPopup').classList.remove('show'); document.getElementById('snoopOverlay').classList.remove('active'); state.snoopActive=false; state.snoopCooldown=Date.now(); }
 
@@ -798,7 +1468,20 @@ function closeModal(id){ document.getElementById(id).classList.remove('show'); }
 
 document.querySelectorAll('.tab').forEach(tab=>{ tab.addEventListener('click',function(e){ e.preventDefault(); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); this.classList.add('active'); document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById('section-'+this.dataset.tab).classList.add('active'); if(this.dataset.tab==='leaderboard') loadLeaderboardFromServer(); if(this.dataset.tab==='friends'){ renderSocial(); updateBonusTimer(); } haptic('light'); }); });
 
-setInterval(()=>{ if(state.energy<state.maxEnergy) state.energy=Math.min(state.maxEnergy,state.energy+0.3); tickPots(); checkPests(); updateMarketPrices(); trySpawnSnoop(); renderHeader(); renderFarm(); renderMarket(); updateBonusTimer(); updateGameTime(); save(); },1500);
+setInterval(()=>{ 
+  if(state.energy<state.maxEnergy) state.energy=Math.min(state.maxEnergy,state.energy+0.3); 
+  tickPots(); 
+  checkPests(); 
+  updateMarketPrices(); 
+  trySpawnSnoop(); 
+  renderHeader(); 
+  renderFarm(); 
+  renderMarket(); 
+  updateBonusTimer(); 
+  updateGameTime(); 
+  save(); 
+},1500);
+
 setInterval(()=>{ updateHeat(); },5000);
 setInterval(()=>{ updateGameTime(); },1000);
 
@@ -809,7 +1492,7 @@ setTimeout(()=>loadLeaderboardFromServer(),1000);
 window.addEventListener('beforeunload',()=>{ save(); });
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) save(); });
 
-console.log('🌿 Weed Grow Simulator v12 CANNABIS LEAVES загружена!');
+console.log('🌿 Weed Grow Simulator v13 — FIXED: no water drain, pests with web, police system');
 </script>
 </body>
 </html>
