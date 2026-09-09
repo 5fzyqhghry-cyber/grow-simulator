@@ -95,51 +95,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .toast.error{background:var(--danger)}
 .empty{text-align:center;padding:12px 8px;color:var(--hint);font-size:11px}
 .empty-emoji{font-size:28px;margin-bottom:2px}
-.rank-card{background:rgba(16,30,16,.85);border-radius:6px;padding:3px 6px;margin-bottom:2px;display:flex;align-items:center;gap:4px;border:1px solid rgba(255,255,255,.04);font-size:9px}
-.rank-card.top1{border-color:var(--gold);background:rgba(255,215,0,.06)}
-.rank-card.top2{border-color:#c0c0c0;background:rgba(192,192,192,.04)}
-.rank-card.top3{border-color:#cd7f32;background:rgba(205,127,50,.04)}
-.rank-card .rank-pos{font-weight:700;font-size:11px;min-width:18px;color:var(--hint)}
-.rank-card .rank-name{flex:1;font-weight:600;font-size:10px}
-.rank-card .rank-money{font-size:10px;color:var(--gold)}
-.my-rank{background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,215,0,.02));border:1px solid var(--gold);border-radius:6px;padding:6px;margin-top:4px;text-align:center;font-size:10px}
-.friend-item{background:rgba(16,30,16,.85);border-radius:10px;padding:8px;display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.04);margin-bottom:4px;font-size:10px}
-.online-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:3px}
-.online-dot.online{background:#4caf50}
-.online-dot.offline{background:#666}
-.social-input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:4px 8px;color:var(--text);font-size:10px;width:100%;outline:none}
-.social-input:focus{border-color:var(--accent)}
-.request-item{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:10px}
-.bonus-timer{background:rgba(255,215,0,.08);border:1px solid var(--gold);border-radius:6px;padding:4px 8px;text-align:center;margin:4px 0;font-size:10px}
-.bonus-timer .countdown{color:var(--gold);font-weight:700;font-size:12px}
-.chat-window{background:rgba(16,30,16,.95);border-radius:10px;padding:8px;margin-top:6px;max-height:160px;overflow-y:auto;border:1px solid rgba(255,255,255,.05)}
-.chat-message{padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:10px}
-.chat-message .sender{font-weight:600;color:var(--accent)}
-.chat-message .time{font-size:7px;color:var(--hint);float:right}
-.chat-input-row{display:flex;gap:4px;margin-top:4px}
-.chat-input{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:4px 8px;color:var(--text);font-size:10px;outline:none}
-.chat-input:focus{border-color:var(--accent)}
-.police-alert{background:rgba(229,57,53,.12);border:1px solid var(--danger);border-radius:6px;padding:6px 10px;margin:4px 0;text-align:center;color:var(--danger);font-size:10px;animation:policeFlash 1s ease-in-out infinite alternate}
-@keyframes policeFlash{0%{opacity:.6}100%{opacity:1}}
-.register-banner{background:linear-gradient(135deg,rgba(46,125,50,.12),rgba(27,94,32,.04));border:2px solid var(--accent);border-radius:10px;padding:10px;text-align:center;margin-bottom:6px}
-.register-banner .title{font-size:13px;font-weight:700;color:var(--accent)}
-.register-banner .desc{font-size:9px;color:var(--hint);margin:3px 0}
-.market-item{background:rgba(16,30,16,.6);border-radius:6px;padding:4px 6px;display:flex;justify-content:space-between;align-items:center;font-size:10px;border:1px solid rgba(255,255,255,.03)}
-.market-item .change.up{color:var(--accent)}
-.market-item .change.down{color:var(--danger)}
-.market-item .price{font-weight:700;margin-right:4px}
-.market-timer{font-size:8px;color:var(--hint);text-align:center;margin-top:3px}
-.buyer-item{background:rgba(16,30,16,.7);border-radius:6px;padding:6px 8px;margin-bottom:4px;border-left:3px solid var(--gold);display:flex;justify-content:space-between;align-items:center;font-size:10px}
-.buyer-item .buyer-info{flex:1}
-.buyer-item .buyer-name{font-weight:600;font-size:11px}
-.buyer-item .buyer-desc{font-size:8px;color:var(--hint)}
-.buyer-item .buyer-price{font-weight:700;color:var(--gold);font-size:12px}
-.lamp-color-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:3px;border:1px solid rgba(255,255,255,.2)}
-.lamp-yellow-bg{background:var(--lamp-yellow)}
-.lamp-purple-bg{background:var(--lamp-purple)}
-.lamp-red-bg{background:var(--lamp-red)}
-.lamp-blue-bg{background:var(--lamp-blue)}
-.lamp-green-bg{background:var(--lamp-green)}
 .profile-card{background:linear-gradient(145deg,#1a2a1a,#0d180d);border-radius:14px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,.05);box-shadow:inset 0 0 30px rgba(0,0,0,.3)}
 .profile-card .avatar{font-size:48px;margin-bottom:2px}
 .profile-card .pname{font-size:16px;font-weight:700;margin-bottom:2px}
@@ -150,6 +105,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .profile-stat .value.gold{color:var(--gold)}
 .profile-stat .value.green{color:var(--accent)}
 .profile-stat .value.red{color:var(--danger)}
+.register-banner{background:linear-gradient(135deg,rgba(46,125,50,.15),rgba(27,94,32,.05));border:2px solid var(--accent);border-radius:10px;padding:10px;text-align:center;margin-bottom:6px}
+.register-banner .title{font-size:13px;font-weight:700;color:var(--accent)}
+.register-banner .desc{font-size:9px;color:var(--hint);margin:3px 0}
 @media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:8px;gap:3px}.stat{padding:1px 5px}.plant-container{height:60px}.plant-container svg{width:50px;height:55px}.tab{font-size:7px;padding:3px 5px;min-width:24px}.btn{font-size:8px;padding:3px 6px;min-height:26px}}
 </style>
 </head>
@@ -248,11 +206,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div class="profile-stat"><span class="label">🕐 Время</span><span class="value" id="profile-time">12:00 ☀️</span></div>
       <div class="profile-stat"><span class="label">📊 На сервере</span><span class="value" id="profile-registered">❌ Нет</span></div>
       <div class="profile-stat"><span class="label">💎 ТГК макс</span><span class="value gold" id="profile-maxthc">0%</span></div>
+      <div style="margin-top:8px;"><button class="btn btn-full btn-gold" onclick="registerProfileOnServer()" id="btn-register-server">📝 Зарегистрироваться на сервере</button></div>
     </div>
   </div>
 
   <div class="section" id="section-leaderboard">
-    <div class="register-banner">
+    <div class="register-banner" id="register-banner">
       <div class="title">📝 Зарегистрируйся в рейтинге!</div>
       <div class="desc">Нажми кнопку ниже, чтобы твой профиль появился в таблице лидеров</div>
       <button class="btn btn-register btn-full" onclick="registerProfileOnServer()" style="background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;font-weight:700;font-size:11px">📝 Зарегистрироваться</button>
@@ -280,7 +239,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div style="margin-top:8px;">
       <div class="section-title">👫 Мои друзья</div>
       <div style="display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap;">
-        <input class="social-input" id="friend-search" placeholder="👤 Имя игрока..." style="flex:1;min-width:80px;font-size:10px">
+        <input class="social-input" id="friend-search" placeholder="👤 Имя игрока..." style="flex:1;min-width:80px;font-size:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:4px 8px;color:var(--text);outline:none">
         <button class="btn btn-small" onclick="addFriend()" style="font-size:9px">➕ Добавить</button>
       </div>
       <div id="friend-requests" style="margin-bottom:6px;"></div>
@@ -302,7 +261,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div class="chat-message"><span class="sender">🤖 Система:</span><span class="time">сейчас</span><div>Добро пожаловать в чат!</div></div>
       </div>
       <div class="chat-input-row">
-        <input class="chat-input" id="chatInput" placeholder="💬 Напиши сообщение..." style="font-size:10px">
+        <input class="chat-input" id="chatInput" placeholder="💬 Напиши сообщение..." style="font-size:10px;flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:4px 8px;color:var(--text);outline:none">
         <button class="btn btn-small btn-blue" onclick="sendChatMessage()" style="font-size:9px">📤</button>
       </div>
     </div>
@@ -313,7 +272,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 <script>
 // ============================================================
-// ПОЛНЫЙ РАБОЧИЙ КОД
+// ПОЛНЫЙ РАБОЧИЙ КОД - ИСПРАВЛЕННАЯ ВЕРСИЯ
 // ============================================================
 const tg = window.Telegram?.WebApp;
 let userId = 'guest_' + Math.random().toString(36).slice(2,9);
@@ -441,7 +400,7 @@ function getFert(id){ return FERTS.find(f=>f.id===id); }
 function xpFor(l){ return l*80; }
 
 // ============================================================
-// СИСТЕМА ГОРШКОВ
+// СИСТЕМА ГОРШКОВ - ИСПРАВЛЕНА
 // ============================================================
 function getMaxPots(){ return Math.floor((state.level + 4) / 5); }
 function getPotPrice(){ const count=state.pots.length; return count===0?100:100+count*700; }
@@ -452,15 +411,38 @@ function buyPot(){
   const price=getPotPrice();
   if(state.money<price){ showToast(`❌ Нужно ${price}$`,true); return; }
   state.money-=price;
-  state.pots.push({id:state.nextPotId++,strain:null,plantedAt:null,water:80,health:100,stage:0,disease:false,pests:false,pestLevel:0,lamp:null,fert:null,fertCount:0,speedMult:1,yieldMult:1,thc:0,lastTick:Date.now(),_lastWarning:null,isActive:true,quality:1.0,lampTHCBonus:0});
+  const newPot = {
+    id: state.nextPotId++,
+    strain: null,
+    plantedAt: null,
+    water: 80,
+    health: 100,
+    stage: 0,
+    disease: false,
+    pests: false,
+    pestLevel: 0,
+    lamp: null,
+    fert: null,
+    fertCount: 0,
+    speedMult: 1,
+    yieldMult: 1,
+    thc: 0,
+    lastTick: Date.now(),
+    _lastWarning: null,
+    isActive: true,
+    quality: 1.0,
+    lampTHCBonus: 0
+  };
+  state.pots.push(newPot);
   showToast(`🪴 Новый горшок! (${price}$)`);
   haptic('success');
   addXp(5);
-  save(); render();
+  save();
+  render();
 }
 
 // ============================================================
-// ФУНКЦИИ РАСТЕНИЙ (ОБЪЁМНАЯ ГРАФИКА)
+// ФУНКЦИИ РАСТЕНИЙ
 // ============================================================
 function getPlantSVG(strainId,stage,health,disease,ready,pests,thc,water){
   const colors={
@@ -485,7 +467,6 @@ function getPlantSVG(strainId,stage,health,disease,ready,pests,thc,water){
   const s=stage||0, thcLevel=Math.min(100,thc||0);
   let leafColor=c.leaf; if(water<20) leafColor='#8d6e63'; else if(health<50) leafColor='#a1887f';
   let svg='', pestEmoji=hasPests?'🐛':'', readyStar=ready?'⭐':'';
-  const thcText=thcLevel>0?`${Math.round(thcLevel)}%`:'';
   
   if(s===0){ svg=`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="88" rx="18" ry="5" fill="#3e2723" opacity=".5"/><ellipse cx="50" cy="82" rx="5" ry="6" fill="#2e7d32" opacity="${hf*.6}"/></svg>`; }
   else if(s===1){ svg=`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="88" rx="20" ry="5" fill="#3e2723" opacity=".5"/><ellipse cx="50" cy="80" rx="6" ry="8" fill="#2e7d32" opacity="${hf*.7}"/><path d="M50 80 L45 70 L55 70 Z" fill="#1b5e20" opacity=".4"/></svg>`; }
@@ -937,10 +918,34 @@ function load(){
     const raw = localStorage.getItem('grow_sim_final_'+userId);
     if(raw){ const l=JSON.parse(raw); state={...state,...l}; }
   }catch(e){}
+  
+  // Гарантируем, что есть хотя бы один горшок
   if(!state.pots || state.pots.length===0){
-    state.pots = [{id:state.nextPotId||1,strain:null,plantedAt:null,water:80,health:100,stage:0,disease:false,pests:false,pestLevel:0,lamp:null,fert:null,fertCount:0,speedMult:1,yieldMult:1,thc:0,lastTick:Date.now(),_lastWarning:null,isActive:true,quality:1.0,lampTHCBonus:0}];
+    state.pots = [{
+      id: state.nextPotId || 1,
+      strain: null,
+      plantedAt: null,
+      water: 80,
+      health: 100,
+      stage: 0,
+      disease: false,
+      pests: false,
+      pestLevel: 0,
+      lamp: null,
+      fert: null,
+      fertCount: 0,
+      speedMult: 1,
+      yieldMult: 1,
+      thc: 0,
+      lastTick: Date.now(),
+      _lastWarning: null,
+      isActive: true,
+      quality: 1.0,
+      lampTHCBonus: 0
+    }];
     state.nextPotId = 2;
   }
+  
   state.pots.forEach(pot=>{
     if(pot.isActive===undefined) pot.isActive=true;
     if(pot.pests===undefined) pot.pests=false;
@@ -951,6 +956,7 @@ function load(){
     if(pot.fertCount===undefined) pot.fertCount=0;
     if(pot.lampTHCBonus===undefined) pot.lampTHCBonus=0;
   });
+  
   if(!state.totalEarned) state.totalEarned=0;
   if(!state.heat) state.heat=0;
   if(!state.lastHeatCheck) state.lastHeatCheck=Date.now();
@@ -984,6 +990,7 @@ function load(){
   if(!state.buyerTimer) state.buyerTimer=0;
   if(!state.totalSoldToBuyers) state.totalSoldToBuyers=0;
   if(!state.maxTHC) state.maxTHC=0;
+  
   updateMarketPrices();
   updateBonusTimer();
   loadChat();
@@ -1071,8 +1078,9 @@ function sendTradeRequest(){
 function renderFarm(){
   const grid=document.getElementById('farm-grid'); if(!grid)return;
   grid.innerHTML='';
-  if(state.pots.length===0){ grid.innerHTML='<div class="empty"><div class="empty-emoji">🪴</div>Нет горшков</div>'; }
-  else {
+  if(state.pots.length===0){ 
+    grid.innerHTML='<div class="empty"><div class="empty-emoji">🪴</div>Нет горшков</div>'; 
+  } else {
     state.pots.forEach(pot=>{
       const div=document.createElement('div');
       let potClass='pot';
@@ -1111,6 +1119,7 @@ function renderFarm(){
       grid.appendChild(div);
     });
   }
+  
   const btn=document.getElementById('btn-buy-pot');
   const maxPots=getMaxPots();
   const currentPots=state.pots.length;
@@ -1188,6 +1197,18 @@ function renderProfile(){
   const hours=Math.floor(state.gameTime/60)%24, minutes=Math.floor(state.gameTime%60);
   document.getElementById('profile-time').textContent=`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')} ${hours>=6&&hours<18?'☀️':'🌙'}`;
   document.getElementById('profile-maxthc').textContent=Math.round(state.maxTHC||0)+'%';
+  
+  // Обновляем статус регистрации
+  const regStatus = document.getElementById('profile-registered');
+  if(state.registered){
+    regStatus.textContent='✅ Да';
+    regStatus.style.color='var(--accent)';
+    document.getElementById('btn-register-server').style.display='none';
+  } else {
+    regStatus.textContent='❌ Нет';
+    regStatus.style.color='var(--danger)';
+    document.getElementById('btn-register-server').style.display='block';
+  }
 }
 
 function renderFriends(){
@@ -1249,7 +1270,7 @@ function updateWeather(){
   state.weatherTimer=(state.weatherTimer||0)+1;
   if(state.weatherTimer>1800){ const currentIndex=WEATHERS.findIndex(w=>w.id===state.weather); let newIndex; do{ newIndex=Math.floor(Math.random()*WEATHERS.length); }while(newIndex===currentIndex&&WEATHERS.length>1); state.weather=WEATHERS[newIndex].id; state.weatherTimer=0; showToast(WEATHERS[newIndex].emoji+' Погода: '+WEATHERS[newIndex].name); save(); render(); }
 }
-function updateGameTime(){ const now=Date.now(); const dt=(now-(state.lastTick||now))/1000; state.gameTime=(state.gameTime||12*60)+dt/3; const hours=Math.floor(state.gameTime/60)%24, minutes=Math.floor(state.gameTime%60); document.getElementById('gameTime').textContent=`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`; document.getElementById('dayPhase').textContent=hours>=6&&hours<18?'☀️':'🌙'; document.getElementById('profile-time').textContent=`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')} ${hours>=6&&hours<18?'☀️':'🌙'}`; }
+function updateGameTime(){ const now=Date.now(); const dt=(now-(state.lastTick||now))/1000; state.gameTime=(state.gameTime||12*60)+dt/3; const hours=Math.floor(state.gameTime/60)%24, minutes=Math.floor(state.gameTime%60); document.getElementById('gameTime').textContent=`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`; document.getElementById('dayPhase').textContent=hours>=6&&hours<18?'☀️':'🌙'; }
 function updateBonusTimer(){
   const now=Date.now(); const lastBonus=state.lastBonusTime||0; const cooldown=24*60*60*1000; const remaining=Math.max(0,cooldown-(now-lastBonus));
   const timerEl=document.getElementById('bonus-countdown'); const btnEl=document.getElementById('btn-bonus');
@@ -1272,15 +1293,39 @@ function loadChat(){ try{ const saved=localStorage.getItem('chat_'+userId); if(s
 function saveChat(){ try{ localStorage.setItem('chat_'+userId,JSON.stringify(chatMessages)); }catch(e){} }
 function sendChatMessage(){ const input=document.getElementById('chatInput'); const text=input.value.trim(); if(!text)return; const msg={from:userId,name:getUserName(),text:text,time:new Date().toISOString()}; chatMessages.push(msg); saveChat(); input.value=''; renderChat(); if(tg){ try{ tg.sendData(JSON.stringify({type:'chat',message:msg})); }catch(e){} } }
 function renderChat(){ const el=document.getElementById('chatWindow'); if(!el)return; const msgs=chatMessages.slice(-20); if(msgs.length===0){ el.innerHTML='<div class="chat-message"><span class="sender">💬</span><div>Нет сообщений</div></div>'; return; } el.innerHTML=msgs.map(msg=>`<div class="chat-message"><span class="sender">${msg.from===userId?'👤':''} ${msg.name}</span><span class="time">${new Date(msg.time).toLocaleTimeString()}</span><div>${msg.text}</div></div>`).join(''); el.scrollTop=el.scrollHeight; }
-function getRefLink(){ if(tg) return `https://t.me/share/url?url=${encodeURIComponent('https://t.me/'+BOT_USERNAME+'?startapp=ref_'+userId)}`; return window.location.origin+'/?ref='+userId; }
+function getRefLink(){ if(tg) return `https://t.me/share/url?url=${encodeURIComponent('https://t.me/share/url?text=🌿 Присоединяйся к Weed Grow Simulator!')}`; return window.location.origin+'/?ref='+userId; }
 function shareReferral(){ const link=getRefLink(); if(tg?.openTelegramLink){ tg.openTelegramLink(link); }else{ navigator.clipboard?.writeText(link).then(()=>showToast('📋 Ссылка скопирована')); } }
 function copyReferral(){ const link=getRefLink(); navigator.clipboard?.writeText(link).then(()=>showToast('📋 Ссылка скопирована')); }
 function addFriend(){ const input=document.getElementById('friend-search'); const name=input.value.trim(); if(!name){ showToast('Введите имя',true); return; } if(name===getUserName()){ showToast('Это вы!',true); return; } if(state.friends.find(f=>f.name.toLowerCase()===name.toLowerCase())){ showToast('Уже в друзьях',true); return; } if(state.friendRequests.find(r=>r.name.toLowerCase()===name.toLowerCase())){ showToast('Заявка уже отправлена',true); return; } state.friendRequests.push({from:userId,name:name,date:new Date().toISOString()}); showToast(`📨 Заявка отправлена ${name}`); haptic('medium'); input.value=''; save(); renderSocial(); }
 function acceptFriend(index){ const req=state.friendRequests[index]; if(!req)return; state.friends.push({id:'friend_'+Date.now(),name:req.name,addedAt:new Date().toISOString()}); state.friendRequests.splice(index,1); showToast(`👫 ${req.name} теперь в друзьях!`); haptic('success'); state.money+=20; save(); renderSocial(); }
 function rejectFriend(index){ state.friendRequests.splice(index,1); showToast('Заявка отклонена'); save(); renderSocial(); }
 function removeFriend(index){ const friend=state.friends[index]; if(!friend)return; if(!confirm(`Удалить ${friend.name} из друзей?`))return; state.friends.splice(index,1); showToast(`👋 ${friend.name} удалён`); save(); renderSocial(); }
-function updateRegisterBanner(){ const banner=document.querySelector('.register-banner'); if(!banner)return; if(state.registered){ banner.style.display='none'; document.getElementById('profile-registered').textContent='✅ Да'; }else{ banner.style.display='block'; document.getElementById('profile-registered').textContent='❌ Нет'; } }
-function registerProfileOnServer(){ if(state.registered){ showToast('✅ Ты уже зарегистрирован!'); return; } showToast('📝 Регистрация...'); setTimeout(()=>{ state.registered=true; showToast('✅ Профиль зарегистрирован!'); haptic('success'); save(); render(); updateRegisterBanner(); loadLeaderboardFromServer(); },500); }
+function updateRegisterBanner(){ 
+  const banner=document.getElementById('register-banner');
+  if(!banner)return; 
+  if(state.registered){ 
+    banner.style.display='none'; 
+    document.getElementById('profile-registered').textContent='✅ Да';
+    document.getElementById('profile-registered').style.color='var(--accent)';
+  } else { 
+    banner.style.display='block'; 
+    document.getElementById('profile-registered').textContent='❌ Нет';
+    document.getElementById('profile-registered').style.color='var(--danger)';
+  }
+}
+function registerProfileOnServer(){ 
+  if(state.registered){ showToast('✅ Ты уже зарегистрирован!'); return; } 
+  showToast('📝 Регистрация...'); 
+  setTimeout(()=>{ 
+    state.registered=true; 
+    showToast('✅ Профиль зарегистрирован!'); 
+    haptic('success'); 
+    save(); 
+    render(); 
+    updateRegisterBanner(); 
+    loadLeaderboardFromServer(); 
+  },500); 
+}
 function loadLeaderboardFromServer(){ const list=document.getElementById('leaderboard-list'); if(!list)return; list.innerHTML='<div class="empty">📊 Загрузка...</div>'; setTimeout(()=>{ list.innerHTML='<div class="empty">📊 Пока нет игроков</div>'; },500); }
 function openSeedModal(id){ selectedPotId=id; const list=document.getElementById('seed-list'); list.innerHTML=''; STRAINS.forEach(s=>{ const unlocked=state.level>=s.unlock; const can=state.money>=s.seedPrice&&state.energy>=s.energyCost; const c=document.createElement('div'); c.className='card'+(unlocked?'':' card-locked'); c.innerHTML=`<div class="card-emoji">${s.emoji}</div><div class="card-info"><div class="card-title">${s.emoji} ${s.name} ${!unlocked?'🔒':''}</div><div class="card-desc">⏱ ${Math.floor(s.baseTime/60)}м · ${s.yield} шт · 💰${s.sellPrice}$</div></div><div style="text-align:right"><div style="color:${unlocked?'var(--accent)':'var(--hint)'};font-weight:700;font-size:11px">${s.seedPrice}$</div><div style="font-size:7px;color:var(--hint)">⚡${s.energyCost}</div></div>`; if(unlocked&&can){ c.style.cursor='pointer'; c.onclick=()=>plantSeed(s.id); } list.appendChild(c); }); document.getElementById('modal-seed').classList.add('show'); }
 function plantSeed(sid){ const s=getStrain(sid); if(!s)return; if(state.money<s.seedPrice||state.energy<s.energyCost){ showToast('Не хватает ресурсов',true); return; } const pot=state.pots.find(p=>p.id===selectedPotId); if(!pot||!pot.isActive||pot.strain){ showToast('Горшок занят или неактивен',true); return; } state.money-=s.seedPrice; state.energy-=s.energyCost; pot.strain=sid; pot.plantedAt=Date.now(); pot.water=80; pot.health=100; pot.stage=1; pot.disease=false; pot.pests=false; pot.pestLevel=0; pot.speedMult=1; pot.yieldMult=1; pot.lastTick=Date.now(); pot.thc=0; pot.lampTHCBonus=0; pot.fertCount=0; closeModal('modal-seed'); showToast('🌱 Посажено: '+s.emoji+' '+s.name); haptic('medium'); addXp(3); addHeat(0.5); save(); render(); }
@@ -1328,10 +1373,10 @@ render();
 setTimeout(()=>loadLeaderboardFromServer(),1000);
 updateRegisterBanner();
 
-console.log('🌿 Weed Grow Simulator v9 FULL загружена!');
+console.log('🌿 Weed Grow Simulator v10 FULL - ИСПРАВЛЕНА!');
 console.log(`🪴 Горшков: ${state.pots.length}/${getMaxPots()}`);
 console.log(`💰 Следующий горшок: ${getPotPrice()}$`);
-console.log(`💎 Макс ТГК: ${state.maxTHC}%`);
+console.log(`👤 Регистрация: ${state.registered?'Да':'Нет'}`);
 </script>
 </body>
 </html>
