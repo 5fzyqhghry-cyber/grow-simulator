@@ -132,6 +132,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </head>
 <body>
 
+<!-- Модалки -->
 <div class="modal-overlay" id="policeModal"><div class="modal"><div class="modal-title">👮 ПОЛИЦИЯ!</div><div id="policeMessage" style="text-align:center;font-size:12px;margin-bottom:8px;"></div><div id="policeOptions" style="display:flex;flex-direction:column;gap:6px;margin:8px 0"></div><button class="btn btn-secondary btn-full" onclick="closePoliceModal()">Закрыть</button></div></div>
 <div class="modal-overlay" id="sellModal"><div class="modal"><div class="modal-title" id="sellTitle">💰 Продажа</div><div id="sellInfo" style="text-align:center;font-size:12px;margin-bottom:4px;"></div><div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 0"><button class="btn btn-secondary btn-small" onclick="changeSellQty(-10)">-10</button><button class="btn btn-secondary btn-small" onclick="changeSellQty(-1)">-1</button><span id="sellQtyDisplay" style="font-size:18px;font-weight:700;color:var(--gold);min-width:30px;text-align:center">1</span><button class="btn btn-secondary btn-small" onclick="changeSellQty(1)">+1</button><button class="btn btn-secondary btn-small" onclick="changeSellQty(10)">+10</button></div><div style="display:flex;justify-content:center;gap:6px;margin:4px 0;"><button class="btn btn-small btn-secondary" onclick="setSellQty('max')">Макс</button><button class="btn btn-small btn-secondary" onclick="setSellQty('half')">Половина</button></div><div style="display:flex;flex-direction:column;gap:6px;margin:8px 0"><button class="btn btn-gold" onclick="confirmSell()">💰 Продать</button><button class="btn btn-secondary" onclick="closeSellModal()">Отмена</button></div></div></div>
 <div class="modal-overlay" id="modal-cross"><div class="modal"><div class="modal-title">🧬 Скрещивание</div><div id="crossInfo" style="text-align:center;font-size:11px;margin-bottom:6px;color:var(--hint)">Выбери два готовых растения</div><div id="crossList" style="margin-bottom:6px;"></div><button class="btn btn-secondary btn-full" onclick="closeModal('modal-cross')">Отмена</button></div></div>
@@ -143,6 +144,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="modal-overlay" id="modal-fert"><div class="modal"><div class="modal-title">🧪 Удобрения</div><div id="fert-list"></div><button class="btn btn-secondary btn-full" onclick="closeModal('modal-fert')">Отмена</button></div></div>
 <div class="modal-overlay" id="modal-lamp"><div class="modal"><div class="modal-title">💡 Лампы</div><div id="lamp-list"></div><button class="btn btn-secondary btn-full" onclick="closeModal('modal-lamp')">Отмена</button></div></div>
 
+<!-- HEADER -->
 <div class="header">
   <div class="stats">
     <div class="stat">💰 <span id="money">0</span>$</div>
@@ -153,6 +155,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="level-badge" id="xp-badge">0 XP</div>
 </div>
 
+<!-- TABS -->
 <div class="tabs">
   <div class="tab active" data-tab="farm">🌱 Ферма</div>
   <div class="tab" data-tab="market">📊 Рынок</div>
@@ -165,6 +168,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="tab" data-tab="friends">👥 Друзья</div>
 </div>
 
+<!-- CONTENT -->
 <div class="content">
   <div class="section active" id="section-farm">
     <div id="police-warning" style="display:none;" class="police-alert">🚨 ВНИМАНИЕ! Высокий уровень палева! Полиция может нагрянуть!</div>
@@ -279,12 +283,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 <script>
 // ============================================================
-// ПОЛНАЯ РАБОЧАЯ ВЕРСИЯ
+// ПОЛНАЯ РАБОЧАЯ ВЕРСИЯ - ВЕСЬ КОД В ОДНОМ ФАЙЛЕ
 // ============================================================
 const tg = window.Telegram?.WebApp;
 let userId = 'guest_' + Math.random().toString(36).slice(2,9);
 if(tg){ tg.ready(); tg.expand(); if(tg.initDataUnsafe?.user?.id) userId = String(tg.initDataUnsafe.user.id); }
 
+// ========== ДАННЫЕ ==========
 const STRAINS = [
   {id:'skunk',emoji:'🦨',name:'Skunk',seedPrice:50,baseTime:180,yield:3,sellPrice:50,energyCost:5,unlock:1,quality:1.0},
   {id:'haze',emoji:'💜',name:'Purple Haze',seedPrice:130,baseTime:220,yield:5,sellPrice:85,energyCost:8,unlock:3,quality:1.2},
@@ -366,6 +371,7 @@ const INVESTMENTS = [
   {id:'empire',name:'Империя',price:500000,income:60000,desc:'60000$/день'}
 ];
 
+// ========== СОСТОЯНИЕ ==========
 let state = {
   money:100,energy:100,maxEnergy:100,level:1,xp:0,heat:0,totalEarned:0,
   pots:[],inventory:{},lamps:{},ferts:{},room:{vent:false,auto:false,heater:false},
@@ -384,6 +390,7 @@ let selectedPotId=null, selectedCrossList=[], crossStep=0;
 let highTimer=null, highElements=[], toastTimeout=null;
 let chatMessages=[], sellTarget=null, sellQty=1;
 
+// ========== БАЗОВЫЕ ФУНКЦИИ ==========
 function getUserName(){ return tg?.initDataUnsafe?.user?.first_name||'Игрок'; }
 function showToast(m,err=false){ const t=document.getElementById('toast'); if(!t)return; t.textContent=m; t.className='toast show'+(err?' error':''); clearTimeout(toastTimeout); toastTimeout=setTimeout(()=>t.classList.remove('show'),2000); }
 function haptic(t='light'){ try{if(tg?.HapticFeedback){ if(t==='success') tg.HapticFeedback.notificationOccurred('success'); else if(t==='error') tg.HapticFeedback.notificationOccurred('error'); else tg.HapticFeedback.impactOccurred(t); }}catch(e){} }
@@ -393,6 +400,7 @@ function getLamp(id){ return LAMPS.find(l=>l.id===id); }
 function getFert(id){ return FERTS.find(f=>f.id===id); }
 function xpFor(l){ return l*80; }
 
+// ========== СИСТЕМА ГОРШКОВ ==========
 function getMaxPots(){ return Math.floor((state.level+4)/5); }
 function getPotPrice(){ const count=state.pots.length; return count===0?100:100+count*700; }
 
@@ -409,6 +417,7 @@ function buyPot(){
   save(); render();
 }
 
+// ========== РАСТЕНИЯ (ГРАФИКА) ==========
 function getPlantSVG(strainId,stage,health,disease,ready,pests,thc,water){
   const colors={skunk:{leaf:'#4caf50',dark:'#2e7d32',flower:'#8bc34a',bud:'#66bb6a'},haze:{leaf:'#7b1fa2',dark:'#4a148c',flower:'#ce93d8',bud:'#ab47bc'},widow:{leaf:'#e8f5e9',dark:'#a5d6a7',flower:'#ffffff',bud:'#e0e0e0'},alien:{leaf:'#00bcd4',dark:'#006064',flower:'#4dd0e1',bud:'#26c6da'},og:{leaf:'#f57c00',dark:'#e65100',flower:'#ffcc80',bud:'#ffa726'},cheese:{leaf:'#fdd835',dark:'#f9a825',flower:'#ffee58',bud:'#fdd835'},lemon:{leaf:'#c0ca33',dark:'#827717',flower:'#fff176',bud:'#d4e157'},blue:{leaf:'#42a5f5',dark:'#0d47a1',flower:'#90caf9',bud:'#64b5f6'},cookies:{leaf:'#8d6e63',dark:'#4e342e',flower:'#a1887f',bud:'#a1887f'},gelato:{leaf:'#ce93d8',dark:'#6a1b9a',flower:'#e1bee7',bud:'#ce93d8'},wedding:{leaf:'#ef9a9a',dark:'#b71c1c',flower:'#ffcdd2',bud:'#ef9a9a'},runtz:{leaf:'#ffab91',dark:'#bf360c',flower:'#ffccbc',bud:'#ffab91'},zkittlez:{leaf:'#80cbc4',dark:'#00695c',flower:'#b2dfdb',bud:'#80cbc4'},kush:{leaf:'#a5d6a7',dark:'#1b5e20',flower:'#c8e6c9',bud:'#a5d6a7'},glue:{leaf:'#78909c',dark:'#263238',flower:'#b0bec5',bud:'#90a4ae'}};
   const c=colors[strainId]||colors.skunk; const hf=Math.max(0.3,health/100); const s=stage||0;
@@ -423,6 +432,7 @@ function getPlantSVG(strainId,stage,health,disease,ready,pests,thc,water){
   return svg;
 }
 
+// ========== ЛОГИКА РАСТЕНИЙ ==========
 function getEffectiveTime(pot){
   const s=getStrain(pot.strain); if(!s) return 9999;
   let mult=(pot.speedMult||1);
@@ -455,6 +465,7 @@ function updateTHC(pot){
 function getQuality(pot){ let q=pot.quality||1.0; if(pot.health>=90) q+=0.25; else if(pot.health>=70) q+=0.1; else if(pot.health<40) q-=0.3; if(pot.lamp&&state.energy>5){ const l=getLamp(pot.lamp); if(l){ q+=(l.power-1)*0.3; } } if(pot.fert) q+=0.15; if(pot.disease) q-=0.4; if(pot.pests) q-=0.5; const strain=getStrain(pot.strain); if(strain) q*=strain.quality||1; if(q<0.3) q=0.3; if(q>3.0) q=3.0; return q; }
 function qualityName(q){ if(q>=2.2)return'💎 Легендарное'; if(q>=1.7)return'🌟 Отличное'; if(q>=1.2)return'⭐ Хорошее'; if(q>=0.8)return'🌿 Обычное'; return'🥀 Слабое'; }
 
+// ========== ТИК РАСТЕНИЙ ==========
 function tickPots(){
   const now=Date.now(); const dt=(now-(state.lastTick||now))/1000; state.lastTick=now;
   state.pots.forEach(pot=>{
@@ -483,6 +494,7 @@ function tickPots(){
   generateBuyers();
 }
 
+// ========== СБОР УРОЖАЯ ==========
 function harvest(id){
   const pot=state.pots.find(p=>p.id===id);
   if(!pot||!pot.isActive||!pot.strain){ showToast('Ошибка',true); return; }
@@ -533,6 +545,7 @@ function treatPestsAction(potId){
   checkAchievements(); save(); render();
 }
 
+// ========== УДОБРЕНИЯ И ЛАМПЫ ==========
 function applyFertToPot(potId, fertId){
   const pot=state.pots.find(p=>p.id===potId);
   if(!pot||!pot.isActive||!pot.strain){ showToast('Горшок неактивен',true); return; }
@@ -564,6 +577,7 @@ function applyLamp(potId, lampId){
   save(); render();
 }
 
+// ========== ПОКУПАТЕЛИ ==========
 function generateBuyers(){
   const now=Date.now();
   if(now-state.buyerTimer<30000) return;
@@ -615,6 +629,7 @@ function sellToBuyer(index){
   save(); render(); closeModal('modal-buyers');
 }
 
+// ========== ПОЛИЦИЯ ==========
 function updateHeat(){
   const now=Date.now(); const dt=(now-state.lastHeatCheck)/1000; state.lastHeatCheck=now;
   let reduction=0.02; if(state.room.vent) reduction+=0.03;
@@ -641,6 +656,7 @@ function triggerPoliceRaid(){
 }
 function closePoliceModal(){ document.getElementById('policeModal').classList.remove('show'); state.policeActive=false; }
 
+// ========== РЫНОК ==========
 function updateMarketPrices(){
   const now=Date.now();
   if(now-state.marketUpdateTime<60000) return;
@@ -660,6 +676,7 @@ function getMarketPrice(id){ return state.marketPrices[id]||STRAINS.find(s=>s.id
 function getPriceChange(id){ const c=getMarketPrice(id); const b=STRAINS.find(s=>s.id===id)?.sellPrice||50; return((c-b)/b*100); }
 function addMoney(amount){ state.money+=amount; state.totalEarned+=amount; if(amount>50) addHeat(amount/50); save(); render(); }
 
+// ========== ПРОДУКТЫ И ПЕРЕРАБОТКА ==========
 function getProductInfo(key){
   const s=getStrain(key); if(s) return {name:s.emoji+' '+s.name+' (сырец)',emoji:s.emoji,sellPrice:s.sellPrice,strain:key,type:'raw'};
   if(key.endsWith('_dried')){ const sid=key.replace('_dried',''); const s2=getStrain(sid); if(s2) return {name:s2.emoji+' '+s2.name+' (сушка)',emoji:'🍂',sellPrice:Math.floor(s2.sellPrice*1.4),strain:sid,type:'dried'}; }
@@ -689,6 +706,7 @@ function processItem(strainId, productType){
   haptic('success'); addXp(4); save(); render();
 }
 
+// ========== ПРОДАЖА ==========
 function openSellModal(key){
   const amt=state.inventory[key]||0; if(amt<=0) return;
   const info=getProductInfo(key); if(!info) return;
@@ -719,8 +737,171 @@ function sellAll(){
   for(const[id,amt]of Object.entries(state.inventory)){ if(amt<=0)continue; const info=getProductInfo(id); if(info){ total+=amt*info.sellPrice; items+=amt; } }
   if(!items){ showToast('Склад пуст',true); return; }
   addMoney(total); state.inventory={};
-  showToast('💰 Продано за '+total+'$');
+  showToast(`💰 Продано за ${total}$`);
   haptic('success'); addXp(Math.floor(total/10)); addHeat(total/8);
+  save(); render();
+}
+
+// ========== ДОСТИЖЕНИЯ ==========
+function checkAchievements(){ ACHIEVEMENTS.forEach(a=>{ if(!state.achievements.includes(a.id)&&a.check()){ state.achievements.push(a.id); showToast(`🏆 ${a.icon} Достижение: ${a.name}! (+${a.reward}$)`); state.money+=a.reward; haptic('success'); } }); }
+
+function openAchievementsModal(){
+  const list=document.getElementById('achievementsList'); list.innerHTML='';
+  ACHIEVEMENTS.forEach(a=>{ const unlocked=state.achievements.includes(a.id); const div=document.createElement('div'); div.className='card'; div.innerHTML=`<div class="card-emoji">${a.icon}</div><div class="card-info"><div class="card-title">${a.name} ${unlocked?'✅':'🔒'}</div><div class="card-desc">${a.desc} ${unlocked?'+'+a.reward+'$':''}</div></div>${unlocked?'<span style="font-size:9px;color:var(--gold);">🏆</span>':'<span style="font-size:9px;color:var(--hint);">❌</span>'}`; list.appendChild(div); });
+  document.getElementById('modal-achievements').classList.add('show');
+}
+
+// ========== СКРЕЩИВАНИЕ ==========
+function openCrossModal(){
+  const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1);
+  if(readyPots.length<2){ showToast('Нужно минимум 2 готовых растения',true); return; }
+  crossStep=0; selectedCrossList=[]; renderCrossModal(); document.getElementById('modal-cross').classList.add('show');
+}
+function renderCrossModal(){
+  const list=document.getElementById('crossList'); const info=document.getElementById('crossInfo');
+  if(crossStep===0){
+    info.textContent='Выбери ПЕРВОЕ растение';
+    const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1);
+    list.innerHTML='';
+    readyPots.forEach(pot=>{ const s=getStrain(pot.strain); const div=document.createElement('div'); div.className='card'; div.style.cursor='pointer'; div.innerHTML=`<div class="card-emoji">${s?.emoji||'🌿'}</div><div class="card-info"><div class="card-title">${s?.name||'Неизвестно'}</div><div class="card-desc">ТГК: ${Math.round(pot.thc)}%</div></div><span style="font-size:9px;color:var(--accent);">Выбрать</span>`; div.onclick=()=>{ selectedCrossList[0]=pot; crossStep=1; renderCrossModal(); }; list.appendChild(div); });
+  }else if(crossStep===1){
+    info.textContent=`Выбрано: ${getStrain(selectedCrossList[0].strain)?.name||''}. Выбери ВТОРОЕ`;
+    const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1&&p.id!==selectedCrossList[0].id);
+    list.innerHTML='';
+    readyPots.forEach(pot=>{ const s=getStrain(pot.strain); const div=document.createElement('div'); div.className='card'; div.style.cursor='pointer'; div.innerHTML=`<div class="card-emoji">${s?.emoji||'🌿'}</div><div class="card-info"><div class="card-title">${s?.name||'Неизвестно'}</div><div class="card-desc">ТГК: ${Math.round(pot.thc)}%</div></div><span style="font-size:9px;color:var(--accent);">Выбрать</span>`; div.onclick=()=>{ selectedCrossList[1]=pot; crossStep=2; renderCrossModal(); }; list.appendChild(div); });
+  }else if(crossStep===2){
+    const p1=selectedCrossList[0], p2=selectedCrossList[1], s1=getStrain(p1.strain), s2=getStrain(p2.strain);
+    info.textContent=`Скрещивание: ${s1?.name||''} × ${s2?.name||''}`;
+    list.innerHTML=`<div class="card"><div class="card-emoji">🧬</div><div class="card-info"><div class="card-title">Новый гибрид!</div><div class="card-desc">ТГК: ~${Math.round((p1.thc+p2.thc)/2)}%</div></div><button class="btn btn-small btn-purple" onclick="doCross()">🧬 Создать</button></div>`;
+  }
+}
+function doCross(){
+  const p1=selectedCrossList[0], p2=selectedCrossList[1], s1=getStrain(p1.strain), s2=getStrain(p2.strain);
+  const hybridName=`${s1.name} × ${s2.name}`;
+  const hybridQuality=(s1.quality+s2.quality)/2+Math.random()*0.3;
+  const hybridTHC=Math.round((p1.thc+p2.thc)/2+Math.random()*10);
+  state.hybrids.push({id:Date.now().toString(36),name:hybridName,emoji:'🧬',quality:hybridQuality,thc:hybridTHC,parents:[s1.id,s2.id]});
+  p1.strain=null; p1.plantedAt=null; p1.stage=0; p1.thc=0;
+  p2.strain=null; p2.plantedAt=null; p2.stage=0; p2.thc=0;
+  showToast('🧬 Создан гибрид: '+hybridName+'! ТГК: '+hybridTHC+'%');
+  haptic('success'); addXp(20); closeModal('modal-cross'); checkAchievements(); save(); render();
+}
+
+// ========== ИНВЕСТИЦИИ ==========
+function openInvestModal(){
+  const list=document.getElementById('investList'); list.innerHTML='';
+  INVESTMENTS.forEach(inv=>{ const owned=state.investments.filter(i=>i===inv.id).length; const div=document.createElement('div'); div.className='card'; div.innerHTML=`<div class="card-emoji">📈</div><div class="card-info"><div class="card-title">${inv.name} ${owned>0?'×'+owned:''}</div><div class="card-desc">${inv.desc}</div></div><button class="btn btn-small btn-pink" onclick="buyInvestment('${inv.id}')">${inv.price}$</button>`; list.appendChild(div); });
+  document.getElementById('modal-invest').classList.add('show');
+}
+function buyInvestment(id){
+  const inv=INVESTMENTS.find(i=>i.id===id); if(!inv) return;
+  if(state.money<inv.price){ showToast('Не хватает денег',true); return; }
+  state.money-=inv.price; state.investments.push(id);
+  showToast(`📈 Куплено: ${inv.name}!`); haptic('success'); checkAchievements(); save(); render(); openInvestModal();
+}
+function processInvestments(){ const income=state.investments.reduce((s,id)=>{ const inv=INVESTMENTS.find(i=>i.id===id); return s+(inv?.income||0); },0); if(income>0) addMoney(income); }
+
+// ========== ДРУЗЬЯ И ЧАТ ==========
+function openTradeModal(){
+  const list=document.getElementById('tradeList'); list.innerHTML='';
+  if(state.friends.length===0){ list.innerHTML='<div class="empty">👤 Нет друзей</div>'; }
+  else{ state.friends.forEach(f=>{ const div=document.createElement('div'); div.className='card'; div.innerHTML=`<div class="card-emoji">👤</div><div class="card-info"><div class="card-title">${f.name}</div><div class="card-desc">Отправь запрос</div></div><button class="btn btn-small btn-gold" onclick="sendTradeRequest()">📤</button>`; list.appendChild(div); }); }
+  document.getElementById('modal-trade').classList.add('show');
+}
+function sendTradeRequest(){
+  const items=Object.keys(state.inventory).filter(k=>state.inventory[k]>0);
+  if(items.length===0){ showToast('Нет товара',true); return; }
+  const item=items[Math.floor(Math.random()*items.length)];
+  const qty=Math.min(state.inventory[item]||0,1); if(qty<=0)return;
+  state.inventory[item]-=qty; if(state.inventory[item]<=0) delete state.inventory[item];
+  showToast('📤 Запрос отправлен!'); haptic('medium'); save(); render(); closeModal('modal-trade');
+}
+
+function addFriend(){
+  const input=document.getElementById('friend-search'); const name=input.value.trim();
+  if(!name){ showToast('Введите имя',true); return; }
+  if(name===getUserName()){ showToast('Это вы!',true); return; }
+  if(state.friends.find(f=>f.name.toLowerCase()===name.toLowerCase())){ showToast('Уже в друзьях',true); return; }
+  if(state.friendRequests.find(r=>r.name.toLowerCase()===name.toLowerCase())){ showToast('Заявка уже отправлена',true); return; }
+  state.friendRequests.push({from:userId,name,date:new Date().toISOString()});
+  showToast(`📨 Заявка отправлена ${name}`); haptic('medium'); input.value=''; save(); renderSocial();
+}
+function acceptFriend(i){ const req=state.friendRequests[i]; if(!req)return; state.friends.push({id:'friend_'+Date.now(),name:req.name}); state.friendRequests.splice(i,1); showToast(`👫 ${req.name} в друзьях!`); haptic('success'); state.money+=20; save(); renderSocial(); }
+function rejectFriend(i){ state.friendRequests.splice(i,1); showToast('Заявка отклонена'); save(); renderSocial(); }
+function removeFriend(i){ const f=state.friends[i]; if(!f)return; if(!confirm(`Удалить ${f.name}?`))return; state.friends.splice(i,1); showToast(`👋 ${f.name} удалён`); save(); renderSocial(); }
+
+function sendDailyBonus(){
+  const now=Date.now(), last=state.lastBonusTime||0, cd=24*60*60*1000;
+  if(now-last<cd){ showToast('Бонус ещё недоступен!',true); return; }
+  if(state.friends.length===0){ showToast('Нет друзей',true); return; }
+  const amount=50+state.friends.length*10, energy=10+state.friends.length*2;
+  addMoney(amount); state.energy=Math.min(state.maxEnergy,state.energy+energy);
+  state.lastBonusTime=now; state.bonusLog.unshift({date:new Date().toISOString(),amount,energy});
+  if(state.bonusLog.length>50) state.bonusLog.pop();
+  showToast(`🎁 Бонус! +${amount}$ +${energy}⚡`); haptic('success'); addHeat(2); save(); renderSocial(); updateBonusTimer();
+}
+
+function loadChat(){ try{ const s=localStorage.getItem('chat_'+userId); if(s) chatMessages=JSON.parse(s); }catch(e){} }
+function saveChat(){ try{ localStorage.setItem('chat_'+userId,JSON.stringify(chatMessages)); }catch(e){} }
+function sendChatMessage(){
+  const input=document.getElementById('chatInput'); const text=input.value.trim();
+  if(!text)return;
+  chatMessages.push({from:userId,name:getUserName(),text,time:new Date().toISOString()});
+  saveChat(); input.value=''; renderChat();
+}
+function renderChat(){
+  const el=document.getElementById('chatWindow'); if(!el)return;
+  const msgs=chatMessages.slice(-20);
+  if(msgs.length===0){ el.innerHTML='<div class="chat-message"><span class="sender">💬</span><div>Нет сообщений</div></div>'; return; }
+  el.innerHTML=msgs.map(m=>`<div class="chat-message"><span class="sender">${m.from===userId?'👤':''} ${m.name}</span><span class="time">${new Date(m.time).toLocaleTimeString()}</span><div>${m.text}</div></div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+function getRefLink(){ return `https://t.me/share/url?url=${encodeURIComponent('🌿 Присоединяйся к Weed Grow Simulator!')}`; }
+function shareReferral(){ const link=getRefLink(); if(tg?.openTelegramLink){ tg.openTelegramLink(link); }else{ navigator.clipboard?.writeText(link).then(()=>showToast('📋 Ссылка скопирована')); } }
+function copyReferral(){ const link=getRefLink(); navigator.clipboard?.writeText(link).then(()=>showToast('📋 Ссылка скопирована')); }
+
+// ========== РЕГИСТРАЦИЯ ==========
+function registerProfileOnServer(){
+  if(state.registered){ showToast('✅ Уже зарегистрирован!'); return; }
+  showToast('📝 Регистрация...');
+  setTimeout(()=>{ state.registered=true; showToast('✅ Профиль зарегистрирован!'); haptic('success'); save(); render(); },500);
+}
+function loadLeaderboardFromServer(){
+  const list=document.getElementById('leaderboard-list');
+  if(!list)return;
+  list.innerHTML='<div class="empty">📊 Загрузка...</div>';
+  setTimeout(()=>{
+    if(state.registered){
+      list.innerHTML=`<div class="rank-card top1"><span class="rank-pos">1</span><span class="rank-name">${getUserName()} ⭐</span><span class="rank-money">💰${Math.floor(state.money)}</span></div><div class="empty" style="font-size:8px;color:var(--hint);padding:4px;">Ты пока единственный игрок на сервере!</div>`;
+    } else {
+      list.innerHTML='<div class="empty">📊 Зарегистрируйся, чтобы попасть в рейтинг!</div>';
+    }
+  },500);
+}
+
+// ========== ПОСАДКА ==========
+function openSeedModal(id){ selectedPotId=id; const list=document.getElementById('seed-list'); list.innerHTML=''; STRAINS.forEach(s=>{ const unlocked=state.level>=s.unlock; const c=document.createElement('div'); c.className='card'+(unlocked?'':' card-locked'); c.innerHTML=`<div class="card-emoji">${s.emoji}</div><div class="card-info"><div class="card-title">${s.emoji} ${s.name} ${!unlocked?'🔒':''}</div><div class="card-desc">⏱ ${Math.floor(s.baseTime/60)}м · ${s.yield} шт</div></div><div style="text-align:right"><div style="color:${unlocked?'var(--accent)':'var(--hint)'};font-weight:700;">${s.seedPrice}$</div><div style="font-size:7px;color:var(--hint)">⚡${s.energyCost}</div></div>`; if(unlocked&&state.money>=s.seedPrice&&state.energy>=s.energyCost){ c.style.cursor='pointer'; c.onclick=()=>plantSeed(s.id); } list.appendChild(c); }); document.getElementById('modal-seed').classList.add('show'); }
+function plantSeed(sid){ const s=getStrain(sid); if(!s)return; if(state.money<s.seedPrice||state.energy<s.energyCost){ showToast('Не хватает ресурсов',true); return; } const pot=state.pots.find(p=>p.id===selectedPotId); if(!pot||!pot.isActive||pot.strain){ showToast('Горшок занят',true); return; } state.money-=s.seedPrice; state.energy-=s.energyCost; pot.strain=sid; pot.plantedAt=Date.now(); pot.water=80; pot.health=100; pot.stage=1; pot.disease=false; pot.pests=false; pot.pestLevel=0; pot.speedMult=1; pot.yieldMult=1; pot.lastTick=Date.now(); pot.thc=0; pot.lampTHCBonus=0; pot.fertCount=0; closeModal('modal-seed'); showToast('🌱 Посажено: '+s.emoji+' '+s.name); haptic('medium'); addXp(3); addHeat(0.5); save(); render(); }
+
+// ========== МОДАЛКИ ДЛЯ УДОБРЕНИЙ И ЛАМП ==========
+function openFertModal(id){ selectedPotId=id; const list=document.getElementById('fert-list'); list.innerHTML=''; let any=false; FERTS.forEach(f=>{ const cnt=state.ferts[f.id]||0; if(cnt<=0)return; any=true; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${f.emoji}</div><div class="card-info"><div class="card-title">${f.emoji} ${f.name} <span class="inv-count">×${cnt}</span></div><div class="card-desc">${f.desc}</div></div><button class="btn btn-small btn-warning" onclick="applyFertToPot(${selectedPotId},'${f.id}')">🧪 Применить</button>`; list.appendChild(c); }); if(!any) list.innerHTML='<div class="empty"><div class="empty-emoji">🧪</div>Нет удобрений</div>'; document.getElementById('modal-fert').classList.add('show'); }
+function openLampModal(id){ selectedPotId=id; const list=document.getElementById('lamp-list'); list.innerHTML=''; let any=false; LAMPS.forEach(l=>{ const cnt=state.lamps[l.id]||0; if(cnt<=0)return; any=true; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${l.emoji}</div><div class="card-info"><div class="card-title"><span class="lamp-color-dot lamp-${l.color}-bg"></span> ${l.name} <span class="inv-count">×${cnt}</span></div><div class="card-desc">+${Math.round((l.power-1)*100)}% рост, +${l.thcBonus}% ТГК/30с</div></div><button class="btn btn-small btn-purple" onclick="applyLamp(${selectedPotId},'${l.id}')">💡 Установить</button>`; list.appendChild(c); }); if(!any) list.innerHTML='<div class="empty"><div class="empty-emoji">💡</div>Нет ламп</div>'; document.getElementById('modal-lamp').classList.add('show'); }
+
+function buyLamp(id){ const l=getLamp(id); if(!l)return; if(state.money<l.price){ showToast('Мало денег',true); return; } state.money-=l.price; state.lamps[id]=(state.lamps[id]||0)+1; showToast('💡 Куплена: '+l.emoji+' '+l.name); haptic('medium'); save(); render(); }
+function buyFert(id){ const f=getFert(id); if(!f)return; if(state.money<f.price){ showToast('Мало денег',true); return; } state.money-=f.price; state.ferts[id]=(state.ferts[id]||0)+1; showToast('🧪 Куплено: '+f.emoji+' '+f.name); save(); render(); }
+function buyEnergy(){ if(state.money<80){ showToast('Мало денег',true); return; } state.money-=80; state.energy=Math.min(state.maxEnergy,state.energy+50); showToast('⚡ +50 энергии'); save(); render(); }
+function buyRoomUpgrade(id){ const u=ROOM_UPGRADES.find(x=>x.id===id); if(!u||state.money<u.price){ showToast('Мало денег',true); return; } if(u.type==='vent'&&state.room.vent){ showToast('Уже куплено'); return; } if(u.type==='auto'&&state.room.auto){ showToast('Уже куплено'); return; } if(u.type==='heater'&&state.room.heater){ showToast('Уже куплено'); return; } state.money-=u.price; if(u.type==='vent') state.room.vent=true; if(u.type==='auto') state.room.auto=true; if(u.type==='heater') state.room.heater=true; showToast('🏠 Куплено: '+u.emoji+' '+u.name); haptic('success'); addXp(10); save(); render(); }
+
+function consumeProduct(key,type){
+  const amt=state.inventory[key]||0; if(amt<=0){ showToast('Нет товара',true); return; }
+  if(state.consumedCount>=3){ showToast('🌀 Ты уже накурился!',true); return; }
+  state.inventory[key]--; if(state.inventory[key]<=0) delete state.inventory[key];
+  state.consumedCount=(state.consumedCount||0)+1;
+  const names={'joint':'косяк','oil':'масло','edible':'еду'};
+  showToast(`💨 Покурил ${names[type]||'товар'} (${state.consumedCount}/3)`);
+  haptic('medium'); addHeat(2);
+  if(state.consumedCount>=3){ state.consumedCount=0; showToast('🌀 Тебя накурило!',false); haptic('warning'); }
   save(); render();
 }
 
@@ -773,77 +954,16 @@ function load(){
   updateMarketPrices(); updateBonusTimer(); loadChat(); checkAchievements(); generateBuyers();
 }
 
-function checkAchievements(){ ACHIEVEMENTS.forEach(a=>{ if(!state.achievements.includes(a.id)&&a.check()){ state.achievements.push(a.id); showToast(`🏆 ${a.icon} Достижение: ${a.name}! (+${a.reward}$)`); state.money+=a.reward; haptic('success'); } }); }
-
-function openAchievementsModal(){
-  const list=document.getElementById('achievementsList'); list.innerHTML='';
-  ACHIEVEMENTS.forEach(a=>{ const unlocked=state.achievements.includes(a.id); const div=document.createElement('div'); div.className='card'; div.innerHTML=`<div class="card-emoji">${a.icon}</div><div class="card-info"><div class="card-title">${a.name} ${unlocked?'✅':'🔒'}</div><div class="card-desc">${a.desc} ${unlocked?'+'+a.reward+'$':''}</div></div>${unlocked?'<span style="font-size:9px;color:var(--gold);">🏆</span>':'<span style="font-size:9px;color:var(--hint);">❌</span>'}`; list.appendChild(div); });
-  document.getElementById('modal-achievements').classList.add('show');
+function updateBonusTimer(){
+  const now=Date.now(), last=state.lastBonusTime||0, cd=24*60*60*1000, rem=Math.max(0,cd-(now-last));
+  const timer=document.getElementById('bonus-countdown'), btn=document.getElementById('btn-bonus');
+  if(rem<=0){ timer.textContent='🎁 Бонус доступен!'; if(btn){ btn.disabled=false; btn.style.opacity='1'; } return; }
+  const h=Math.floor(rem/(60*60*1000)), m=Math.floor((rem%(60*60*1000))/(60*1000)), s=Math.floor((rem%(60*1000))/1000);
+  timer.textContent=`⏳ ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  if(btn){ btn.disabled=true; btn.style.opacity='0.5'; }
 }
 
-function openCrossModal(){
-  const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1);
-  if(readyPots.length<2){ showToast('Нужно минимум 2 готовых растения',true); return; }
-  crossStep=0; selectedCrossList=[]; renderCrossModal(); document.getElementById('modal-cross').classList.add('show');
-}
-function renderCrossModal(){
-  const list=document.getElementById('crossList'); const info=document.getElementById('crossInfo');
-  if(crossStep===0){
-    info.textContent='Выбери ПЕРВОЕ растение';
-    const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1);
-    list.innerHTML='';
-    readyPots.forEach(pot=>{ const s=getStrain(pot.strain); const div=document.createElement('div'); div.className='card'; div.style.cursor='pointer'; div.innerHTML=`<div class="card-emoji">${s?.emoji||'🌿'}</div><div class="card-info"><div class="card-title">${s?.name||'Неизвестно'}</div><div class="card-desc">ТГК: ${Math.round(pot.thc)}%</div></div><span style="font-size:9px;color:var(--accent);">Выбрать</span>`; div.onclick=()=>{ selectedCrossList[0]=pot; crossStep=1; renderCrossModal(); }; list.appendChild(div); });
-  }else if(crossStep===1){
-    info.textContent=`Выбрано: ${getStrain(selectedCrossList[0].strain)?.name||''}. Выбери ВТОРОЕ`;
-    const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1&&p.id!==selectedCrossList[0].id);
-    list.innerHTML='';
-    readyPots.forEach(pot=>{ const s=getStrain(pot.strain); const div=document.createElement('div'); div.className='card'; div.style.cursor='pointer'; div.innerHTML=`<div class="card-emoji">${s?.emoji||'🌿'}</div><div class="card-info"><div class="card-title">${s?.name||'Неизвестно'}</div><div class="card-desc">ТГК: ${Math.round(pot.thc)}%</div></div><span style="font-size:9px;color:var(--accent);">Выбрать</span>`; div.onclick=()=>{ selectedCrossList[1]=pot; crossStep=2; renderCrossModal(); }; list.appendChild(div); });
-  }else if(crossStep===2){
-    const p1=selectedCrossList[0], p2=selectedCrossList[1], s1=getStrain(p1.strain), s2=getStrain(p2.strain);
-    info.textContent=`Скрещивание: ${s1?.name||''} × ${s2?.name||''}`;
-    list.innerHTML=`<div class="card"><div class="card-emoji">🧬</div><div class="card-info"><div class="card-title">Новый гибрид!</div><div class="card-desc">ТГК: ~${Math.round((p1.thc+p2.thc)/2)}%</div></div><button class="btn btn-small btn-purple" onclick="doCross()">🧬 Создать</button></div>`;
-  }
-}
-function doCross(){
-  const p1=selectedCrossList[0], p2=selectedCrossList[1], s1=getStrain(p1.strain), s2=getStrain(p2.strain);
-  const hybridName=`${s1.name} × ${s2.name}`;
-  const hybridQuality=(s1.quality+s2.quality)/2+Math.random()*0.3;
-  const hybridTHC=Math.round((p1.thc+p2.thc)/2+Math.random()*10);
-  state.hybrids.push({id:Date.now().toString(36),name:hybridName,emoji:'🧬',quality:hybridQuality,thc:hybridTHC,parents:[s1.id,s2.id]});
-  p1.strain=null; p1.plantedAt=null; p1.stage=0; p1.thc=0;
-  p2.strain=null; p2.plantedAt=null; p2.stage=0; p2.thc=0;
-  showToast('🧬 Создан гибрид: '+hybridName+'! ТГК: '+hybridTHC+'%');
-  haptic('success'); addXp(20); closeModal('modal-cross'); checkAchievements(); save(); render();
-}
-
-function openInvestModal(){
-  const list=document.getElementById('investList'); list.innerHTML='';
-  INVESTMENTS.forEach(inv=>{ const owned=state.investments.filter(i=>i===inv.id).length; const div=document.createElement('div'); div.className='card'; div.innerHTML=`<div class="card-emoji">📈</div><div class="card-info"><div class="card-title">${inv.name} ${owned>0?'×'+owned:''}</div><div class="card-desc">${inv.desc}</div></div><button class="btn btn-small btn-pink" onclick="buyInvestment('${inv.id}')">${inv.price}$</button>`; list.appendChild(div); });
-  document.getElementById('modal-invest').classList.add('show');
-}
-function buyInvestment(id){
-  const inv=INVESTMENTS.find(i=>i.id===id); if(!inv) return;
-  if(state.money<inv.price){ showToast('Не хватает денег',true); return; }
-  state.money-=inv.price; state.investments.push(id);
-  showToast(`📈 Куплено: ${inv.name}!`); haptic('success'); checkAchievements(); save(); render(); openInvestModal();
-}
-function processInvestments(){ const income=state.investments.reduce((s,id)=>{ const inv=INVESTMENTS.find(i=>i.id===id); return s+(inv?.income||0); },0); if(income>0) addMoney(income); }
-
-function openTradeModal(){
-  const list=document.getElementById('tradeList'); list.innerHTML='';
-  if(state.friends.length===0){ list.innerHTML='<div class="empty">👤 Нет друзей</div>'; }
-  else{ state.friends.forEach(f=>{ const div=document.createElement('div'); div.className='card'; div.innerHTML=`<div class="card-emoji">👤</div><div class="card-info"><div class="card-title">${f.name}</div><div class="card-desc">Отправь запрос</div></div><button class="btn btn-small btn-gold" onclick="sendTradeRequest()">📤</button>`; list.appendChild(div); }); }
-  document.getElementById('modal-trade').classList.add('show');
-}
-function sendTradeRequest(){
-  const items=Object.keys(state.inventory).filter(k=>state.inventory[k]>0);
-  if(items.length===0){ showToast('Нет товара',true); return; }
-  const item=items[Math.floor(Math.random()*items.length)];
-  const qty=Math.min(state.inventory[item]||0,1); if(qty<=0)return;
-  state.inventory[item]-=qty; if(state.inventory[item]<=0) delete state.inventory[item];
-  showToast('📤 Запрос отправлен!'); haptic('medium'); save(); render(); closeModal('modal-trade');
-}
-
+// ========== РЕНДЕРИНГ ==========
 function renderFarm(){
   const grid=document.getElementById('farm-grid'); if(!grid)return;
   grid.innerHTML='';
@@ -990,102 +1110,9 @@ function renderHeader(){
 
 function render(){ renderHeader(); renderFarm(); renderMarket(); renderShop(); renderInventory(); renderProcess(); renderRoom(); renderProfile(); renderFriends(); renderSocial(); updateBonusTimer(); checkAchievements(); }
 
-function updateBonusTimer(){
-  const now=Date.now(), last=state.lastBonusTime||0, cd=24*60*60*1000, rem=Math.max(0,cd-(now-last));
-  const timer=document.getElementById('bonus-countdown'), btn=document.getElementById('btn-bonus');
-  if(rem<=0){ timer.textContent='🎁 Бонус доступен!'; if(btn){ btn.disabled=false; btn.style.opacity='1'; } return; }
-  const h=Math.floor(rem/(60*60*1000)), m=Math.floor((rem%(60*60*1000))/(60*1000)), s=Math.floor((rem%(60*1000))/1000);
-  timer.textContent=`⏳ ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  if(btn){ btn.disabled=true; btn.style.opacity='0.5'; }
-}
-
-function sendDailyBonus(){
-  const now=Date.now(), last=state.lastBonusTime||0, cd=24*60*60*1000;
-  if(now-last<cd){ showToast('Бонус ещё недоступен!',true); return; }
-  if(state.friends.length===0){ showToast('Нет друзей',true); return; }
-  const amount=50+state.friends.length*10, energy=10+state.friends.length*2;
-  addMoney(amount); state.energy=Math.min(state.maxEnergy,state.energy+energy);
-  state.lastBonusTime=now; state.bonusLog.unshift({date:new Date().toISOString(),amount,energy});
-  if(state.bonusLog.length>50) state.bonusLog.pop();
-  showToast(`🎁 Бонус! +${amount}$ +${energy}⚡`); haptic('success'); addHeat(2); save(); renderSocial(); updateBonusTimer();
-}
-
-function loadChat(){ try{ const s=localStorage.getItem('chat_'+userId); if(s) chatMessages=JSON.parse(s); }catch(e){} }
-function saveChat(){ try{ localStorage.setItem('chat_'+userId,JSON.stringify(chatMessages)); }catch(e){} }
-function sendChatMessage(){
-  const input=document.getElementById('chatInput'); const text=input.value.trim();
-  if(!text)return;
-  chatMessages.push({from:userId,name:getUserName(),text,time:new Date().toISOString()});
-  saveChat(); input.value=''; renderChat();
-}
-function renderChat(){
-  const el=document.getElementById('chatWindow'); if(!el)return;
-  const msgs=chatMessages.slice(-20);
-  if(msgs.length===0){ el.innerHTML='<div class="chat-message"><span class="sender">💬</span><div>Нет сообщений</div></div>'; return; }
-  el.innerHTML=msgs.map(m=>`<div class="chat-message"><span class="sender">${m.from===userId?'👤':''} ${m.name}</span><span class="time">${new Date(m.time).toLocaleTimeString()}</span><div>${m.text}</div></div>`).join('');
-  el.scrollTop=el.scrollHeight;
-}
-
-function getRefLink(){ return `https://t.me/share/url?url=${encodeURIComponent('🌿 Присоединяйся к Weed Grow Simulator!')}`; }
-function shareReferral(){ const link=getRefLink(); if(tg?.openTelegramLink){ tg.openTelegramLink(link); }else{ navigator.clipboard?.writeText(link).then(()=>showToast('📋 Ссылка скопирована')); } }
-function copyReferral(){ const link=getRefLink(); navigator.clipboard?.writeText(link).then(()=>showToast('📋 Ссылка скопирована')); }
-
-function addFriend(){
-  const input=document.getElementById('friend-search'); const name=input.value.trim();
-  if(!name){ showToast('Введите имя',true); return; }
-  if(name===getUserName()){ showToast('Это вы!',true); return; }
-  if(state.friends.find(f=>f.name.toLowerCase()===name.toLowerCase())){ showToast('Уже в друзьях',true); return; }
-  if(state.friendRequests.find(r=>r.name.toLowerCase()===name.toLowerCase())){ showToast('Заявка уже отправлена',true); return; }
-  state.friendRequests.push({from:userId,name,date:new Date().toISOString()});
-  showToast(`📨 Заявка отправлена ${name}`); haptic('medium'); input.value=''; save(); renderSocial();
-}
-function acceptFriend(i){ const req=state.friendRequests[i]; if(!req)return; state.friends.push({id:'friend_'+Date.now(),name:req.name}); state.friendRequests.splice(i,1); showToast(`👫 ${req.name} в друзьях!`); haptic('success'); state.money+=20; save(); renderSocial(); }
-function rejectFriend(i){ state.friendRequests.splice(i,1); showToast('Заявка отклонена'); save(); renderSocial(); }
-function removeFriend(i){ const f=state.friends[i]; if(!f)return; if(!confirm(`Удалить ${f.name}?`))return; state.friends.splice(i,1); showToast(`👋 ${f.name} удалён`); save(); renderSocial(); }
-
-function registerProfileOnServer(){
-  if(state.registered){ showToast('✅ Уже зарегистрирован!'); return; }
-  showToast('📝 Регистрация...');
-  setTimeout(()=>{ state.registered=true; showToast('✅ Профиль зарегистрирован!'); haptic('success'); save(); render(); },500);
-}
-function loadLeaderboardFromServer(){
-  const list=document.getElementById('leaderboard-list');
-  if(!list)return;
-  list.innerHTML='<div class="empty">📊 Загрузка...</div>';
-  setTimeout(()=>{
-    if(state.registered){
-      list.innerHTML=`<div class="rank-card top1"><span class="rank-pos">1</span><span class="rank-name">${getUserName()} ⭐</span><span class="rank-money">💰${Math.floor(state.money)}</span></div><div class="empty" style="font-size:8px;color:var(--hint);padding:4px;">Ты пока единственный игрок на сервере!</div>`;
-    } else {
-      list.innerHTML='<div class="empty">📊 Зарегистрируйся, чтобы попасть в рейтинг!</div>';
-    }
-  },500);
-}
-
-function openSeedModal(id){ selectedPotId=id; const list=document.getElementById('seed-list'); list.innerHTML=''; STRAINS.forEach(s=>{ const unlocked=state.level>=s.unlock; const c=document.createElement('div'); c.className='card'+(unlocked?'':' card-locked'); c.innerHTML=`<div class="card-emoji">${s.emoji}</div><div class="card-info"><div class="card-title">${s.emoji} ${s.name} ${!unlocked?'🔒':''}</div><div class="card-desc">⏱ ${Math.floor(s.baseTime/60)}м · ${s.yield} шт</div></div><div style="text-align:right"><div style="color:${unlocked?'var(--accent)':'var(--hint)'};font-weight:700;">${s.seedPrice}$</div><div style="font-size:7px;color:var(--hint)">⚡${s.energyCost}</div></div>`; if(unlocked&&state.money>=s.seedPrice&&state.energy>=s.energyCost){ c.style.cursor='pointer'; c.onclick=()=>plantSeed(s.id); } list.appendChild(c); }); document.getElementById('modal-seed').classList.add('show'); }
-function plantSeed(sid){ const s=getStrain(sid); if(!s)return; if(state.money<s.seedPrice||state.energy<s.energyCost){ showToast('Не хватает ресурсов',true); return; } const pot=state.pots.find(p=>p.id===selectedPotId); if(!pot||!pot.isActive||pot.strain){ showToast('Горшок занят',true); return; } state.money-=s.seedPrice; state.energy-=s.energyCost; pot.strain=sid; pot.plantedAt=Date.now(); pot.water=80; pot.health=100; pot.stage=1; pot.disease=false; pot.pests=false; pot.pestLevel=0; pot.speedMult=1; pot.yieldMult=1; pot.lastTick=Date.now(); pot.thc=0; pot.lampTHCBonus=0; pot.fertCount=0; closeModal('modal-seed'); showToast('🌱 Посажено: '+s.emoji+' '+s.name); haptic('medium'); addXp(3); addHeat(0.5); save(); render(); }
-
-function openFertModal(id){ selectedPotId=id; const list=document.getElementById('fert-list'); list.innerHTML=''; let any=false; FERTS.forEach(f=>{ const cnt=state.ferts[f.id]||0; if(cnt<=0)return; any=true; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${f.emoji}</div><div class="card-info"><div class="card-title">${f.emoji} ${f.name} <span class="inv-count">×${cnt}</span></div><div class="card-desc">${f.desc}</div></div><button class="btn btn-small btn-warning" onclick="applyFertToPot(${selectedPotId},'${f.id}')">🧪 Применить</button>`; list.appendChild(c); }); if(!any) list.innerHTML='<div class="empty"><div class="empty-emoji">🧪</div>Нет удобрений</div>'; document.getElementById('modal-fert').classList.add('show'); }
-function openLampModal(id){ selectedPotId=id; const list=document.getElementById('lamp-list'); list.innerHTML=''; let any=false; LAMPS.forEach(l=>{ const cnt=state.lamps[l.id]||0; if(cnt<=0)return; any=true; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${l.emoji}</div><div class="card-info"><div class="card-title"><span class="lamp-color-dot lamp-${l.color}-bg"></span> ${l.name} <span class="inv-count">×${cnt}</span></div><div class="card-desc">+${Math.round((l.power-1)*100)}% рост, +${l.thcBonus}% ТГК/30с</div></div><button class="btn btn-small btn-purple" onclick="applyLamp(${selectedPotId},'${l.id}')">💡 Установить</button>`; list.appendChild(c); }); if(!any) list.innerHTML='<div class="empty"><div class="empty-emoji">💡</div>Нет ламп</div>'; document.getElementById('modal-lamp').classList.add('show'); }
-
-function buyLamp(id){ const l=getLamp(id); if(!l)return; if(state.money<l.price){ showToast('Мало денег',true); return; } state.money-=l.price; state.lamps[id]=(state.lamps[id]||0)+1; showToast('💡 Куплена: '+l.emoji+' '+l.name); haptic('medium'); save(); render(); }
-function buyFert(id){ const f=getFert(id); if(!f)return; if(state.money<f.price){ showToast('Мало денег',true); return; } state.money-=f.price; state.ferts[id]=(state.ferts[id]||0)+1; showToast('🧪 Куплено: '+f.emoji+' '+f.name); save(); render(); }
-function buyEnergy(){ if(state.money<80){ showToast('Мало денег',true); return; } state.money-=80; state.energy=Math.min(state.maxEnergy,state.energy+50); showToast('⚡ +50 энергии'); save(); render(); }
-function buyRoomUpgrade(id){ const u=ROOM_UPGRADES.find(x=>x.id===id); if(!u||state.money<u.price){ showToast('Мало денег',true); return; } if(u.type==='vent'&&state.room.vent){ showToast('Уже куплено'); return; } if(u.type==='auto'&&state.room.auto){ showToast('Уже куплено'); return; } if(u.type==='heater'&&state.room.heater){ showToast('Уже куплено'); return; } state.money-=u.price; if(u.type==='vent') state.room.vent=true; if(u.type==='auto') state.room.auto=true; if(u.type==='heater') state.room.heater=true; showToast('🏠 Куплено: '+u.emoji+' '+u.name); haptic('success'); addXp(10); save(); render(); }
-
-function consumeProduct(key,type){
-  const amt=state.inventory[key]||0; if(amt<=0){ showToast('Нет товара',true); return; }
-  if(state.consumedCount>=3){ showToast('🌀 Ты уже накурился!',true); return; }
-  state.inventory[key]--; if(state.inventory[key]<=0) delete state.inventory[key];
-  state.consumedCount=(state.consumedCount||0)+1;
-  const names={'joint':'косяк','oil':'масло','edible':'еду'};
-  showToast(`💨 Покурил ${names[type]||'товар'} (${state.consumedCount}/3)`);
-  haptic('medium'); addHeat(2);
-  if(state.consumedCount>=3){ state.consumedCount=0; showToast('🌀 Тебя накурило!',false); haptic('warning'); document.getElementById('profile-state').textContent='🌀 Накурило!'; setTimeout(()=>{ document.getElementById('profile-state').textContent='🧠 Норма'; },30000); }
-  save(); render();
-}
-
 function closeModal(id){ document.getElementById(id).classList.remove('show'); }
 
+// ========== ЗАПУСК ==========
 document.querySelectorAll('.tab').forEach(tab=>{
   tab.addEventListener('click',function(e){ e.preventDefault(); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); this.classList.add('active'); const name=this.dataset.tab; document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById('section-'+name).classList.add('active'); if(name==='market') renderMarket(); if(name==='leaderboard') loadLeaderboardFromServer(); if(name==='friends'){ renderSocial(); updateBonusTimer(); } haptic('light'); });
 });
@@ -1101,10 +1128,11 @@ setInterval(()=>{ updateHeat(); },5000);
 
 load(); render(); setTimeout(()=>loadLeaderboardFromServer(),1000);
 
-console.log('🌿 Weed Grow Simulator FINAL - ПОЛНАЯ ВЕРСИЯ!');
+console.log('🌿 Weed Grow Simulator FINAL - ПОЛНАЯ РАБОЧАЯ ВЕРСИЯ!');
 console.log(`🪴 Горшков: ${state.pots.length}/${getMaxPots()}`);
 console.log(`💰 Следующий горшок: ${getPotPrice()}$`);
 console.log(`👤 Регистрация: ${state.registered?'Да':'Нет'}`);
+console.log(`💎 Макс ТГК: ${state.maxTHC}%`);
 </script>
 </body>
 </html>
