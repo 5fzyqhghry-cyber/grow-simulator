@@ -29,7 +29,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .stat{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.04);padding:2px 8px;border-radius:12px;border:1px solid rgba(255,255,255,.03)}
 .stat span{color:var(--accent);font-size:12px}
 .level-badge{background:var(--purple);color:#fff;font-size:9px;padding:2px 8px;border-radius:8px;font-weight:700;white-space:nowrap}
-.weather-display,.time-display{background:rgba(255,255,255,.04);padding:2px 8px;border-radius:8px;font-size:8px;color:var(--hint);display:flex;align-items:center;gap:3px;border:1px solid rgba(255,255,255,.03)}
+.time-display{background:rgba(255,255,255,.04);padding:2px 8px;border-radius:8px;font-size:8px;color:var(--hint);display:flex;align-items:center;gap:3px;border:1px solid rgba(255,255,255,.03)}
 .tabs{display:flex;background:rgba(10,18,10,.95);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.03);overflow-x:auto;padding:4px 0;justify-content:center;flex-wrap:wrap;gap:2px;position:sticky;top:0;z-index:99}
 .tab{flex:0 0 auto;padding:4px 8px;text-align:center;font-size:8px;font-weight:600;cursor:pointer;opacity:.5;transition:all .3s;border-bottom:2px solid transparent;min-width:30px;white-space:nowrap;border-radius:4px 4px 0 0}
 .tab.active{opacity:1;border-bottom-color:var(--accent);color:var(--accent);background:rgba(76,175,80,.05)}
@@ -37,10 +37,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .section{display:none}
 .section.active{display:block}
 .farm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.pot{background:linear-gradient(160deg,#1a2a1a,#0d180d);border-radius:14px;padding:8px 5px 6px;text-align:center;border:2px solid rgba(255,255,255,.04);min-height:180px;display:flex;flex-direction:column;align-items:center;transition:all .3s;position:relative;box-shadow:inset 0 0 30px rgba(0,0,0,.3)}
+.pot{background:linear-gradient(160deg,#1a2a1a,#0d180d);border-radius:14px;padding:8px 5px 6px;text-align:center;border:2px solid rgba(255,255,255,.04);min-height:200px;display:flex;flex-direction:column;align-items:center;transition:all .3s;position:relative;box-shadow:inset 0 0 30px rgba(0,0,0,.3)}
 .pot .pot-emoji{font-size:28px;line-height:1;margin-bottom:2px}
 .pot .pot-name{font-size:11px;font-weight:700}
 .pot .pot-status{font-size:9px;color:var(--hint);margin:2px 0 3px}
+.pot .growth-timer{font-size:8px;color:var(--gold);font-weight:600;margin:1px 0;background:rgba(255,215,0,.06);padding:2px 6px;border-radius:4px}
 .pot .thc-indicator{font-size:8px;color:var(--gold);font-weight:700;margin:2px 0}
 .pot.ready{border-color:var(--accent);box-shadow:0 0 25px rgba(76,175,80,.15),inset 0 0 30px rgba(0,0,0,.3)}
 .pot.needs-water{border-color:var(--blue);animation:waterAlert .5s ease-in-out infinite alternate}
@@ -54,8 +55,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .pot.lamp-red{border-color:var(--lamp-red);box-shadow:0 0 30px rgba(244,67,54,.2),inset 0 0 30px rgba(0,0,0,.3)}
 .pot.lamp-blue{border-color:var(--lamp-blue);box-shadow:0 0 30px rgba(33,150,243,.2),inset 0 0 30px rgba(0,0,0,.3)}
 .pot.lamp-green{border-color:var(--lamp-green);box-shadow:0 0 30px rgba(76,175,80,.2),inset 0 0 30px rgba(0,0,0,.3)}
-.plant-container{width:100%;height:70px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px}
-.plant-container svg{width:60px;height:65px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))}
+.plant-container{width:100%;height:90px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px}
+.plant-container svg{width:70px;height:85px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))}
 .bars{width:100%;display:flex;flex-direction:column;gap:1px;margin:2px 0}
 .bar-row{display:flex;align-items:center;gap:3px;font-size:7px}
 .bar-row span{width:12px;font-size:8px}
@@ -97,17 +98,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .empty{text-align:center;padding:12px 8px;color:var(--hint);font-size:11px}
 .empty-emoji{font-size:28px;margin-bottom:2px}
 .rank-card{background:rgba(16,30,16,.85);border-radius:6px;padding:3px 6px;margin-bottom:2px;display:flex;align-items:center;gap:4px;border:1px solid rgba(255,255,255,.04);font-size:9px}
-.rank-card.top1{border-color:var(--gold);background:rgba(255,215,0,.06)}
-.rank-card.top2{border-color:#c0c0c0;background:rgba(192,192,192,.04)}
-.rank-card.top3{border-color:#cd7f32;background:rgba(205,127,50,.04)}
 .rank-card .rank-pos{font-weight:700;font-size:11px;min-width:18px;color:var(--hint)}
 .rank-card .rank-name{flex:1;font-weight:600;font-size:10px}
 .rank-card .rank-money{font-size:10px;color:var(--gold)}
 .my-rank{background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,215,0,.02));border:1px solid var(--gold);border-radius:6px;padding:6px;margin-top:4px;text-align:center;font-size:10px}
 .friend-item{background:rgba(16,30,16,.85);border-radius:10px;padding:8px;display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.04);margin-bottom:4px;font-size:10px}
-.online-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:3px}
-.online-dot.online{background:#4caf50}
-.online-dot.offline{background:#666}
 .social-input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:4px 8px;color:var(--text);font-size:10px;width:100%;outline:none}
 .social-input:focus{border-color:var(--accent)}
 .request-item{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:10px}
@@ -151,12 +146,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .profile-stat .value.gold{color:var(--gold)}
 .profile-stat .value.green{color:var(--accent)}
 .profile-stat .value.red{color:var(--danger)}
-@media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:8px;gap:3px}.stat{padding:1px 5px}.plant-container{height:60px}.plant-container svg{width:50px;height:55px}.tab{font-size:7px;padding:3px 5px;min-width:24px}.btn{font-size:8px;padding:3px 6px;min-height:26px}}
+@media (max-width:400px){.farm-grid{grid-template-columns:1fr}.stats{font-size:8px;gap:3px}.stat{padding:1px 5px}.plant-container{height:75px}.plant-container svg{width:55px;height:70px}.tab{font-size:7px;padding:3px 5px;min-width:24px}.btn{font-size:8px;padding:3px 6px;min-height:26px}}
 </style>
 </head>
 <body>
 
-<!-- Снуп Догг -->
 <div class="snoop-overlay" id="snoopOverlay"></div>
 <div class="snoop-popup" id="snoopPopup">
   <span class="snoop-avatar">🐕‍🦺</span>
@@ -166,7 +160,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <button class="snoop-btn snoop-btn-secondary" onclick="rejectSnoop()">👋 Позже</button>
 </div>
 
-<!-- Модалки -->
 <div class="modal-overlay" id="policeModal"><div class="modal"><div class="modal-title">👮 ПОЛИЦИЯ!</div><div id="policeMessage" style="text-align:center;font-size:12px;margin-bottom:8px;"></div><div id="policeOptions" style="display:flex;flex-direction:column;gap:6px;margin:8px 0"></div><button class="btn btn-secondary btn-full" onclick="closePoliceModal()">Закрыть</button></div></div>
 <div class="modal-overlay" id="sellModal"><div class="modal"><div class="modal-title" id="sellTitle">💰 Продажа</div><div id="sellInfo" style="text-align:center;font-size:12px;margin-bottom:4px;"></div><div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 0"><button class="btn btn-secondary btn-small" onclick="changeSellQty(-10)">-10</button><button class="btn btn-secondary btn-small" onclick="changeSellQty(-1)">-1</button><span id="sellQtyDisplay" style="font-size:18px;font-weight:700;color:var(--gold);min-width:30px;text-align:center">1</span><button class="btn btn-secondary btn-small" onclick="changeSellQty(1)">+1</button><button class="btn btn-secondary btn-small" onclick="changeSellQty(10)">+10</button></div><div style="display:flex;justify-content:center;gap:6px;margin:4px 0;"><button class="btn btn-small btn-secondary" onclick="setSellQty('max')">Макс</button><button class="btn btn-small btn-secondary" onclick="setSellQty('half')">Половина</button></div><div style="display:flex;flex-direction:column;gap:6px;margin:8px 0"><button class="btn btn-gold" onclick="confirmSell()">💰 Продать</button><button class="btn btn-secondary" onclick="closeSellModal()">Отмена</button></div></div></div>
 <div class="modal-overlay" id="modal-cross"><div class="modal"><div class="modal-title">🧬 Скрещивание</div><div id="crossInfo" style="text-align:center;font-size:11px;margin-bottom:6px;color:var(--hint)">Выбери два готовых растения</div><div id="crossList" style="margin-bottom:6px;"></div><button class="btn btn-secondary btn-full" onclick="closeModal('modal-cross')">Отмена</button></div></div>
@@ -178,7 +171,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="modal-overlay" id="modal-fert"><div class="modal"><div class="modal-title">🧪 Удобрения</div><div id="fert-list"></div><button class="btn btn-secondary btn-full" onclick="closeModal('modal-fert')">Отмена</button></div></div>
 <div class="modal-overlay" id="modal-lamp"><div class="modal"><div class="modal-title">💡 Лампы</div><div id="lamp-list"></div><button class="btn btn-secondary btn-full" onclick="closeModal('modal-lamp')">Отмена</button></div></div>
 
-<!-- HEADER -->
 <div class="header">
   <div class="stats">
     <div class="stat">💰 <span id="money">0</span>$</div>
@@ -186,13 +178,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="stat">🏆 <span id="level">1</span></div>
     <div class="stat">⭐ <span id="rep">0</span></div>
     <div class="stat">👮 <span id="heat">0</span>%</div>
-    <div class="weather-display">🌤 <span id="weatherDisplay">Солнечно</span></div>
     <div class="time-display">🕐 <span id="gameTime">12:00</span> <span id="dayPhase">☀️</span></div>
   </div>
   <div class="level-badge" id="xp-badge">0 XP</div>
 </div>
 
-<!-- TABS -->
 <div class="tabs">
   <div class="tab active" data-tab="farm">🌱 Ферма</div>
   <div class="tab" data-tab="market">📊 Рынок</div>
@@ -205,7 +195,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="tab" data-tab="friends">👥 Друзья</div>
 </div>
 
-<!-- CONTENT -->
 <div class="content">
   <div class="section active" id="section-farm">
     <div id="police-warning" style="display:none;" class="police-alert">🚨 ВНИМАНИЕ! Высокий уровень палева! Полиция может нагрянуть!</div>
@@ -269,8 +258,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <button class="btn btn-register btn-full" onclick="registerProfileOnServer()" style="background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;font-weight:700;font-size:11px">📝 Зарегистрироваться</button>
     </div>
     <div style="display:flex;gap:4px;margin-bottom:4px;">
-      <button class="btn btn-small" id="lb-monthly" onclick="loadLeaderboardFromServer()" style="flex:1;">📅 Месяц</button>
-      <button class="btn btn-small" id="lb-yearly" onclick="loadLeaderboardFromServer()" style="flex:1;">📅 Год</button>
+      <button class="btn btn-small" onclick="loadLeaderboardFromServer()" style="flex:1;">📅 Месяц</button>
+      <button class="btn btn-small" onclick="loadLeaderboardFromServer()" style="flex:1;">📅 Год</button>
     </div>
     <div id="leaderboard-list"><div class="empty">📊 Загрузка...</div></div>
     <div id="my-rank" style="display:none;"></div>
@@ -323,32 +312,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="toast" id="toast"></div>
 
 <script>
-// ============================================================
-// TELEGRAM MINI APP - ИНИЦИАЛИЗАЦИЯ
-// ============================================================
 const tg = window.Telegram?.WebApp || null;
 let userId = 'guest_' + Math.random().toString(36).slice(2, 9);
+if (tg) { try { tg.ready(); tg.expand(); tg.setHeaderColor('#0a120a'); tg.setBackgroundColor('#0a120a'); if (tg.initDataUnsafe?.user?.id) userId = String(tg.initDataUnsafe.user.id); } catch(e) {} }
 
-if (tg) {
-    try {
-        tg.ready();
-        tg.expand();
-        tg.setHeaderColor('#0a120a');
-        tg.setBackgroundColor('#0a120a');
-        if (tg.initDataUnsafe?.user?.id) {
-            userId = String(tg.initDataUnsafe.user.id);
-        }
-        tg.onEvent('viewportChanged', () => {
-            document.body.style.height = window.innerHeight + 'px';
-        });
-    } catch(e) {
-        console.error('TG init error:', e);
-    }
-}
-
-// ============================================================
-// ДАННЫЕ
-// ============================================================
 const STRAINS = [
   {id:'skunk',emoji:'🦨',name:'Skunk',seedPrice:50,baseTime:180,yield:3,sellPrice:50,energyCost:5,unlock:1,quality:1.0},
   {id:'haze',emoji:'💜',name:'Purple Haze',seedPrice:130,baseTime:220,yield:5,sellPrice:85,energyCost:8,unlock:3,quality:1.2},
@@ -391,7 +358,6 @@ const BUYER_TYPES = [
   {id:'dealer',name:'💼 Дилер',desc:'Берёт оптом',thcPreference:0.3,basePriceMult:0.8,patience:0.3},
   {id:'tourist',name:'🌴 Турист',desc:'Ищет новое',thcPreference:0.5,basePriceMult:1.3,patience:0.8},
   {id:'connoisseur',name:'🍷 Знаток',desc:'Требует идеал',thcPreference:0.9,basePriceMult:1.8,patience:0.5},
-  {id:'random',name:'🎲 Случайный',desc:'Просто хочет покурить',thcPreference:0.4,basePriceMult:1.0,patience:0.4},
   {id:'rich',name:'💎 Богач',desc:'Готов переплатить',thcPreference:0.7,basePriceMult:2.0,patience:0.6},
   {id:'cop',name:'👮 Коп под прикрытием',desc:'Может сдать!',thcPreference:0.2,basePriceMult:0.7,patience:0.9,isCop:true}
 ];
@@ -411,13 +377,6 @@ const PRODUCTS = {
 
 const STAGE_NAMES = ['','🌱 Семя','🌿 Росток','🌳 Вегетация','🌸 Цветение','✨ Готово'];
 const STAGE_EMOJI = ['','🌱','🌿','🌳','🌸','✨'];
-const WEATHERS = [
-  {id:'sunny',emoji:'☀️',name:'Солнечно',speedMult:1.2,waterMult:1.5},
-  {id:'cloudy',emoji:'⛅',name:'Облачно',speedMult:1.0,waterMult:1.0},
-  {id:'rainy',emoji:'🌧',name:'Дождь',speedMult:0.8,waterMult:0.2},
-  {id:'storm',emoji:'⛈',name:'Гроза',speedMult:0.6,waterMult:0.5},
-  {id:'hot',emoji:'🔥',name:'Жара',speedMult:0.9,waterMult:2.0}
-];
 
 const ACHIEVEMENTS = [
   {id:'first_harvest',name:'Первый урожай',desc:'Собери первое растение',icon:'🌿',check:()=>state.totalHarvests>=1,reward:50},
@@ -438,9 +397,6 @@ const INVESTMENTS = [
   {id:'empire',name:'Империя',price:500000,income:60000,desc:'60000$/день'}
 ];
 
-// ============================================================
-// СОСТОЯНИЕ
-// ============================================================
 let state = {
   money:100,energy:100,maxEnergy:100,level:1,xp:0,rep:0,heat:0,totalEarned:0,
   pots:[],inventory:{},lamps:{},ferts:{},room:{vent:false,auto:false,heater:false},
@@ -450,7 +406,7 @@ let state = {
   snoopCooldown:0,snoopActive:false,consumedCount:0,
   friends:[],friendRequests:[],lastBonusTime:0,bonusLog:[],
   lastHeatCheck:Date.now(),gameTime:12*60,policeActive:false,
-  registered:false,waterReservoir:100,weather:'sunny',weatherTimer:0,
+  registered:false,waterReservoir:100,
   hybrids:[],achievements:[],investments:[],pestsKilled:0,
   marketSaturation:1.0,activeBuyers:[],buyerTimer:0,totalSoldToBuyers:0,maxTHC:0
 };
@@ -459,93 +415,61 @@ let selectedPotId = null, selectedCrossList = [], crossStep = 0;
 let snoopTimer = null, highTimer = null, highElements = [], toastTimeout = null;
 let chatMessages = [], sellTarget = null, sellQty = 1;
 
-// ============================================================
-// БАЗОВЫЕ ФУНКЦИИ
-// ============================================================
-function getUserName(){ 
-    if (tg?.initDataUnsafe?.user?.first_name) return tg.initDataUnsafe.user.first_name;
-    if (tg?.initDataUnsafe?.user?.username) return tg.initDataUnsafe.user.username;
-    return 'Игрок'; 
-}
-
-function showToast(m, err=false){ 
-    const t=document.getElementById('toast'); 
-    if(!t) return; 
-    t.textContent=m; 
-    t.className='toast show'+(err?' error':''); 
-    clearTimeout(toastTimeout); 
-    toastTimeout=setTimeout(()=>t.classList.remove('show'),2000); 
-    haptic(err?'error':'light');
-}
-
-function haptic(t='light'){ 
-    try {
-        if (tg?.HapticFeedback) { 
-            if (t==='success') tg.HapticFeedback.notificationOccurred('success'); 
-            else if (t==='error') tg.HapticFeedback.notificationOccurred('error'); 
-            else if (t==='warning') tg.HapticFeedback.notificationOccurred('warning');
-            else if (t==='medium') tg.HapticFeedback.impactOccurred('medium');
-            else tg.HapticFeedback.impactOccurred('light'); 
-        }
-    } catch(e) {} 
-}
-
-function formatTime(s){ 
-    if(s<=0) return 'Готово!'; 
-    const m=Math.floor(s/60), sec=Math.floor(s%60); 
-    return m>0?`${m}м ${sec}с`:`${sec}с`; 
-}
-
+function getUserName(){ if (tg?.initDataUnsafe?.user?.first_name) return tg.initDataUnsafe.user.first_name; if (tg?.initDataUnsafe?.user?.username) return tg.initDataUnsafe.user.username; return 'Игрок'; }
+function showToast(m, err=false){ const t=document.getElementById('toast'); if(!t) return; t.textContent=m; t.className='toast show'+(err?' error':''); clearTimeout(toastTimeout); toastTimeout=setTimeout(()=>t.classList.remove('show'),2000); haptic(err?'error':'light'); }
+function haptic(t='light'){ try { if (tg?.HapticFeedback) { if (t==='success') tg.HapticFeedback.notificationOccurred('success'); else if (t==='error') tg.HapticFeedback.notificationOccurred('error'); else if (t==='warning') tg.HapticFeedback.notificationOccurred('warning'); else if (t==='medium') tg.HapticFeedback.impactOccurred('medium'); else tg.HapticFeedback.impactOccurred('light'); } } catch(e) {} }
+function formatTime(s){ if(s<=0) return 'Готово!'; const m=Math.floor(s/60), sec=Math.floor(s%60); return m>0?`${m}м ${sec}с`:`${sec}с`; }
 function getStrain(id){ return STRAINS.find(s=>s.id===id); }
 function getLamp(id){ return LAMPS.find(l=>l.id===id); }
 function getFert(id){ return FERTS.find(f=>f.id===id); }
 function xpFor(l){ return l*80; }
 
-// ============================================================
-// СИСТЕМА ГОРШКОВ
-// ============================================================
 function getMaxPots(){ return Math.floor((state.level + 4) / 5); }
 function getPotPrice(){ const count=state.pots.length; return count===0?100:100+count*700; }
 
 function buyPot(){
   const maxPots=getMaxPots();
-  if(state.pots.length>=maxPots){ showToast(`❌ Лимит ${maxPots} горшков для ${state.level} уровня!`,true); return; }
+  if(state.pots.length>=maxPots){ showToast(`❌ Лимит ${maxPots} горшков!`,true); return; }
   const price=getPotPrice();
   if(state.money<price){ showToast(`❌ Нужно ${price}$`,true); return; }
   state.money-=price;
-  const newPot = {
-    id: state.nextPotId,
-    strain: null,
-    plantedAt: null,
-    water: 80,
-    health: 100,
-    stage: 0,
-    disease: false,
-    pests: false,
-    pestLevel: 0,
-    lamp: null,
-    fert: null,
-    fertCount: 0,
-    speedMult: 1,
-    yieldMult: 1,
-    thc: 0,
-    lastTick: Date.now(),
-    isActive: true,
-    quality: 1.0,
-    lampTHCBonus: 0
-  };
-  state.nextPotId++;
-  state.pots.push(newPot);
+  state.pots.push({id:state.nextPotId++,strain:null,plantedAt:null,water:80,health:100,stage:0,disease:false,pests:false,pestLevel:0,lamp:null,fert:null,fertCount:0,speedMult:1,yieldMult:1,thc:0,lastTick:Date.now(),isActive:true,quality:1.0,lampTHCBonus:0});
   showToast(`🪴 Новый горшок! (${price}$)`);
   haptic('success');
   addXp(5);
-  save();
-  render();
+  save(); render();
 }
 
 // ============================================================
-// SVG РАСТЕНИЙ
+// ЛИСТ КОНОПЛИ — ПАЛЬЧАТАЯ ФОРМА
 // ============================================================
+function cannabisLeaf(cx, cy, size, color, opacity) {
+  const p = size / 2;
+  const serration = 3;
+  let path = '';
+  // Центральная доля
+  path += `M${cx} ${cy-size} `;
+  for (let i = 1; i <= serration; i++) {
+    path += `L${cx - p/2 + i*p/serration} ${cy - size + i*2} `;
+    path += `L${cx + p/2 - i*p/serration} ${cy - size + i*2} `;
+  }
+  path += `L${cx} ${cy} `;
+  // Левая доля
+  path += `M${cx} ${cy} `;
+  path += `L${cx - size} ${cy - size*0.2} `;
+  for (let i = 1; i <= serration; i++) {
+    path += `L${cx - size + i*p/serration} ${cy - size*0.2 + i*1.5} `;
+  }
+  path += `L${cx} ${cy} `;
+  // Правая доля
+  path += `L${cx + size} ${cy - size*0.2} `;
+  for (let i = 1; i <= serration; i++) {
+    path += `L${cx + size - i*p/serration} ${cy - size*0.2 + i*1.5} `;
+  }
+  path += 'Z';
+  return `<path d="${path}" fill="${color}" opacity="${opacity}"/>`;
+}
+
 function getPlantSVG(strainId, stage, health, ready, thc, water){
   const colors={
     skunk:{leaf:'#4caf50',dark:'#2e7d32',flower:'#8bc34a',bud:'#66bb6a'},
@@ -574,20 +498,16 @@ function getPlantSVG(strainId, stage, health, ready, thc, water){
   
   if(s===0){ return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="88" rx="18" ry="5" fill="#3e2723" opacity=".5"/><ellipse cx="50" cy="82" rx="5" ry="6" fill="#2e7d32" opacity="${hf*.6}"/></svg>`; }
   if(s===1){ return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="88" rx="20" ry="5" fill="#3e2723" opacity=".5"/><ellipse cx="50" cy="80" rx="6" ry="8" fill="#2e7d32" opacity="${hf*.7}"/><path d="M50 80 L45 70 L55 70 Z" fill="#1b5e20" opacity=".4"/></svg>`; }
-  if(s===2){ return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="90" rx="22" ry="5" fill="#3e2723" opacity=".5"/><path d="M50 85 L50 60" stroke="${c.dark}" stroke-width="2.5" opacity="${hf}"/><path d="M50 65 Q38 60 32 70 Q40 66 50 65" fill="${leafColor}" opacity="${hf*.7}"/><path d="M50 65 Q62 60 68 70 Q60 66 50 65" fill="${leafColor}" opacity="${hf*.7}"/><path d="M50 60 Q42 55 38 63 Q44 60 50 60" fill="${leafColor}" opacity="${hf*.5}"/><path d="M50 60 Q58 55 62 63 Q56 60 50 60" fill="${leafColor}" opacity="${hf*.5}"/></svg>`; }
-  if(s===3){ return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="92" rx="24" ry="5" fill="#3e2723" opacity=".5"/><path d="M50 88 L50 45" stroke="${c.dark}" stroke-width="3" opacity="${hf}"/><path d="M50 55 Q32 45 22 60 Q35 55 50 55" fill="${leafColor}" opacity="${hf*.8}"/><path d="M50 55 Q68 45 78 60 Q65 55 50 55" fill="${leafColor}" opacity="${hf*.8}"/><path d="M50 48 Q35 38 28 52 Q40 48 50 48" fill="${leafColor}" opacity="${hf*.7}"/><path d="M50 48 Q65 38 72 52 Q60 48 50 48" fill="${leafColor}" opacity="${hf*.7}"/><path d="M50 42 Q44 35 50 30 Q56 35 50 42" fill="${leafColor}" opacity="${hf*.6}"/></svg>`; }
-  if(s===4){ return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="94" rx="26" ry="5" fill="#3e2723" opacity=".5"/><path d="M50 90 L50 35" stroke="${c.dark}" stroke-width="3.5" opacity="${hf}"/><path d="M50 50 Q28 38 18 55 Q32 48 50 50" fill="${leafColor}" opacity="${hf*.8}"/><path d="M50 50 Q72 38 82 55 Q68 48 50 50" fill="${leafColor}" opacity="${hf*.8}"/><path d="M50 42 Q30 32 22 48 Q36 40 50 42" fill="${leafColor}" opacity="${hf*.7}"/><path d="M50 42 Q70 32 78 48 Q64 40 50 42" fill="${leafColor}" opacity="${hf*.7}"/><ellipse cx="50" cy="35" rx="12" ry="10" fill="${c.bud||c.flower}" opacity="${hf*.5}"/><ellipse cx="38" cy="42" rx="6" ry="5" fill="${c.flower}" opacity="${hf*.4}"/><ellipse cx="62" cy="42" rx="6" ry="5" fill="${c.flower}" opacity="${hf*.4}"/></svg>`; }
-  return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="94" rx="28" ry="5" fill="#3e2723" opacity=".5"/><path d="M50 90 L50 28" stroke="${c.dark}" stroke-width="4" opacity="${hf}"/><path d="M50 45 Q22 30 12 50 Q28 40 50 45" fill="${leafColor}" opacity="${hf*.8}"/><path d="M50 45 Q78 30 88 50 Q72 40 50 45" fill="${leafColor}" opacity="${hf*.8}"/><path d="M50 38 Q25 25 16 45 Q30 35 50 38" fill="${leafColor}" opacity="${hf*.7}"/><path d="M50 38 Q75 25 84 45 Q70 35 50 38" fill="${leafColor}" opacity="${hf*.7}"/><ellipse cx="50" cy="30" rx="16" ry="14" fill="${c.bud||c.flower}" opacity="${hf*.8}"/><ellipse cx="50" cy="28" rx="10" ry="8" fill="${c.flower}" opacity="${hf*.9}"/><ellipse cx="36" cy="38" rx="8" ry="6" fill="${c.flower}" opacity="${hf*.6}"/><ellipse cx="64" cy="38" rx="8" ry="6" fill="${c.flower}" opacity="${hf*.6}"/><ellipse cx="44" cy="44" rx="5" ry="4" fill="${c.flower}" opacity="${hf*.5}"/><ellipse cx="56" cy="44" rx="5" ry="4" fill="${c.flower}" opacity="${hf*.5}"/><text x="50" y="16" text-anchor="middle" font-size="10" fill="#ffd700">${readyStar}</text></svg>`;
+  if(s===2){ return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="90" rx="22" ry="5" fill="#3e2723" opacity=".5"/><path d="M50 85 L50 60" stroke="${c.dark}" stroke-width="2.5" opacity="${hf}"/>${cannabisLeaf(50,55,18,leafColor,hf*.7)}${cannabisLeaf(38,62,14,leafColor,hf*.6)}${cannabisLeaf(62,62,14,leafColor,hf*.6)}</svg>`; }
+  if(s===3){ return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="92" rx="24" ry="5" fill="#3e2723" opacity=".5"/><path d="M50 88 L50 45" stroke="${c.dark}" stroke-width="3" opacity="${hf}"/>${cannabisLeaf(50,40,22,leafColor,hf*.8)}${cannabisLeaf(35,50,18,leafColor,hf*.7)}${cannabisLeaf(65,50,18,leafColor,hf*.7)}${cannabisLeaf(42,58,15,leafColor,hf*.6)}${cannabisLeaf(58,58,15,leafColor,hf*.6)}</svg>`; }
+  if(s===4){ return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="94" rx="26" ry="5" fill="#3e2723" opacity=".5"/><path d="M50 90 L50 35" stroke="${c.dark}" stroke-width="3.5" opacity="${hf}"/>${cannabisLeaf(50,30,26,leafColor,hf*.9)}${cannabisLeaf(32,42,22,leafColor,hf*.8)}${cannabisLeaf(68,42,22,leafColor,hf*.8)}${cannabisLeaf(38,52,18,leafColor,hf*.7)}${cannabisLeaf(62,52,18,leafColor,hf*.7)}<ellipse cx="50" cy="28" rx="10" ry="8" fill="${c.bud||c.flower}" opacity="${hf*.5}"/></svg>`; }
+  return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="94" rx="28" ry="5" fill="#3e2723" opacity=".5"/><path d="M50 90 L50 28" stroke="${c.dark}" stroke-width="4" opacity="${hf}"/>${cannabisLeaf(50,25,28,leafColor,hf*.9)}${cannabisLeaf(30,38,24,leafColor,hf*.8)}${cannabisLeaf(70,38,24,leafColor,hf*.8)}${cannabisLeaf(36,48,20,leafColor,hf*.7)}${cannabisLeaf(64,48,20,leafColor,hf*.7)}<ellipse cx="50" cy="22" rx="14" ry="10" fill="${c.bud||c.flower}" opacity="${hf*.8}"/><ellipse cx="50" cy="20" rx="8" ry="6" fill="${c.flower}" opacity="${hf*.9}"/><text x="50" y="10" text-anchor="middle" font-size="10" fill="#ffd700">${readyStar}</text></svg>`;
 }
-
-function getWeatherMult(){ return WEATHERS.find(w=>w.id===state.weather)||WEATHERS[0]; }
 
 function getEffectiveTime(pot){
   const s=getStrain(pot.strain); 
   if(!s) return 9999;
   let mult=(pot.speedMult||1);
-  const weather=getWeatherMult(); 
-  mult*=weather.speedMult;
   if(pot.lamp&&state.energy>2){ const l=getLamp(pot.lamp); if(l){ const ef=Math.min(1,state.energy/15); mult*=(1+(l.power-1)*ef); } }
   if(state.room.heater) mult*=1.15;
   if(state.room.vent) mult*=1.05;
@@ -595,21 +515,16 @@ function getEffectiveTime(pot){
   return s.baseTime/mult;
 }
 
-function getProgress(pot){ 
-    if(!pot.strain||!pot.plantedAt) return 0; 
-    const t=getEffectiveTime(pot); 
-    if(t<=0) return 1; 
-    return Math.min(1,(Date.now()-pot.plantedAt)/1000/t); 
+function getProgress(pot){ if(!pot.strain||!pot.plantedAt) return 0; const t=getEffectiveTime(pot); if(t<=0) return 1; return Math.min(1,(Date.now()-pot.plantedAt)/1000/t); }
+
+function getTimeLeft(pot){
+  if(!pot.strain||!pot.plantedAt) return 0;
+  const elapsed=(Date.now()-pot.plantedAt)/1000;
+  const total=getEffectiveTime(pot);
+  return Math.max(0, total-elapsed);
 }
 
-function updatePotStage(pot){ 
-    const p=getProgress(pot); 
-    if(p>=1) pot.stage=5; 
-    else if(p>=0.75) pot.stage=4; 
-    else if(p>=0.45) pot.stage=3; 
-    else if(p>=0.2) pot.stage=2; 
-    else pot.stage=1; 
-}
+function updatePotStage(pot){ const p=getProgress(pot); if(p>=1) pot.stage=5; else if(p>=0.75) pot.stage=4; else if(p>=0.45) pot.stage=3; else if(p>=0.2) pot.stage=2; else pot.stage=1; }
 
 function updateTHC(pot){
   if(!pot.strain||pot.stage<2){ if(pot.stage<2) pot.thc=0; return; }
@@ -637,89 +552,37 @@ function updateTHC(pot){
   if(pot.thc>state.maxTHC) state.maxTHC=pot.thc;
 }
 
-function getQuality(pot){ 
-    let q=pot.quality||1.0; 
-    if(pot.health>=90) q+=0.25; 
-    else if(pot.health>=70) q+=0.1; 
-    else if(pot.health<40) q-=0.3; 
-    if(pot.lamp&&state.energy>5){ const l=getLamp(pot.lamp); if(l){ const ef=Math.min(1,state.energy/25); q+=(l.power-1)*0.3*ef; } } 
-    if(pot.fert) q+=0.15; 
-    if(pot.disease) q-=0.4; 
-    if(pot.pests) q-=0.5; 
-    const strain=getStrain(pot.strain); 
-    if(strain) q*=strain.quality||1; 
-    if(q<0.3) q=0.3; 
-    if(q>3.0) q=3.0; 
-    return q; 
-}
-
-function qualityName(q){ 
-    if(q>=2.2) return'💎 Легендарное'; 
-    if(q>=1.7) return'🌟 Отличное'; 
-    if(q>=1.2) return'⭐ Хорошее'; 
-    if(q>=0.8) return'🌿 Обычное'; 
-    return'🥀 Слабое'; 
-}
+function getQuality(pot){ let q=pot.quality||1.0; if(pot.health>=90) q+=0.25; else if(pot.health>=70) q+=0.1; else if(pot.health<40) q-=0.3; if(pot.lamp&&state.energy>5){ const l=getLamp(pot.lamp); if(l){ const ef=Math.min(1,state.energy/25); q+=(l.power-1)*0.3*ef; } } if(pot.fert) q+=0.15; if(pot.disease) q-=0.4; if(pot.pests) q-=0.5; const strain=getStrain(pot.strain); if(strain) q*=strain.quality||1; if(q<0.3) q=0.3; if(q>3.0) q=3.0; return q; }
+function qualityName(q){ if(q>=2.2) return'💎 Легендарное'; if(q>=1.7) return'🌟 Отличное'; if(q>=1.2) return'⭐ Хорошее'; if(q>=0.8) return'🌿 Обычное'; return'🥀 Слабое'; }
 
 function tickPots(){
   const now=Date.now();
   const dt=(now-(state.lastTick||now))/1000;
   state.lastTick=now;
-  const weather=getWeatherMult();
   const isNight=(Math.floor(state.gameTime/60)%24)>=22||(Math.floor(state.gameTime/60)%24)<6;
   state.pots.forEach(pot=>{
     if(!pot.isActive||!pot.strain) return;
     if(isNight&&pot.stage>=2&&pot.stage<5) return;
-    let waterDrain=0.5*weather.waterMult;
-    if(pot.stage>=4) waterDrain=1.0*weather.waterMult;
-    else if(pot.stage>=3) waterDrain=0.8*weather.waterMult;
-    else if(pot.stage>=2) waterDrain=0.6*weather.waterMult;
-    if(state.room.auto&&state.waterReservoir>0){ 
-        const autoAmount=0.3*dt; 
-        if(state.waterReservoir>=autoAmount){ 
-            pot.water=Math.min(100,pot.water+autoAmount); 
-            state.waterReservoir-=autoAmount; 
-            waterDrain*=0.4; 
-        } 
-    }
+    let waterDrain=0.5;
+    if(pot.stage>=4) waterDrain=1.0;
+    else if(pot.stage>=3) waterDrain=0.8;
+    else if(pot.stage>=2) waterDrain=0.6;
+    if(state.room.auto&&state.waterReservoir>0){ const autoAmount=0.3*dt; if(state.waterReservoir>=autoAmount){ pot.water=Math.min(100,pot.water+autoAmount); state.waterReservoir-=autoAmount; waterDrain*=0.4; } }
     pot.water=Math.max(0,pot.water-waterDrain*dt);
     if(pot.water<5) pot.health=Math.max(0,pot.health-0.8*dt);
     if(pot.lamp&&pot.stage>0&&pot.stage<5){
       const cost=LAMP_ENERGY_COST[pot.lamp]||0.5;
       state.energy=Math.max(0,state.energy-cost*dt*0.3);
-      if(state.energy>2){ 
-          const thcBonus=getLamp(pot.lamp)?.thcBonus||0; 
-          const thcPerSecond=thcBonus/30; 
-          pot.thc=Math.min(100,(pot.thc||0)+thcPerSecond*dt); 
-          pot.lampTHCBonus=(pot.lampTHCBonus||0)+thcPerSecond*dt; 
-      }
+      if(state.energy>2){ const thcBonus=getLamp(pot.lamp)?.thcBonus||0; const thcPerSecond=thcBonus/30; pot.thc=Math.min(100,(pot.thc||0)+thcPerSecond*dt); pot.lampTHCBonus=(pot.lampTHCBonus||0)+thcPerSecond*dt; }
     }
     let healthRegen=0.15, diseaseChance=0.004;
     if(state.room.vent){ diseaseChance*=0.3; healthRegen*=1.4; }
     if(state.room.heater) healthRegen*=1.15;
     if(pot.water>25) pot.health=Math.min(100,pot.health+healthRegen*dt);
-    if(weather.id==='storm'&&Math.random()<0.01){ pot.health=Math.max(0,pot.health-10); }
-    if(pot.pests){ 
-        pot.health=Math.max(0,pot.health-0.2*dt); 
-        pot.pestLevel=Math.min(100,(pot.pestLevel||0)+0.5*dt); 
-        if(pot.pestLevel>80){ 
-            pot.pests=false; pot.pestLevel=0; 
-            showToast('💀 Вредители уничтожили растение!',true); 
-            pot.strain=null; pot.plantedAt=null; pot.stage=0; pot.disease=false; 
-            pot.water=80; pot.health=100; pot.lamp=null; pot.fert=null; pot.fertCount=0; 
-            pot.speedMult=1; pot.yieldMult=1; pot.thc=0; pot.lampTHCBonus=0; 
-            save(); render(); return; 
-        } 
-    }
+    if(pot.pests){ pot.health=Math.max(0,pot.health-0.2*dt); pot.pestLevel=Math.min(100,(pot.pestLevel||0)+0.5*dt); if(pot.pestLevel>80){ pot.pests=false; pot.pestLevel=0; showToast('💀 Вредители уничтожили растение!',true); pot.strain=null; pot.plantedAt=null; pot.stage=0; pot.disease=false; pot.water=80; pot.health=100; pot.lamp=null; pot.fert=null; pot.fertCount=0; pot.speedMult=1; pot.yieldMult=1; pot.thc=0; pot.lampTHCBonus=0; save(); render(); return; } }
     if(!pot.disease&&pot.health<30&&Math.random()<diseaseChance){ pot.disease=true; showToast('🦠 Болезнь!',true); haptic('error'); }
     if(pot.disease) pot.health=Math.max(0,pot.health-0.3*dt);
-    if(pot.health<=0){ 
-        showToast('💀 Растение погибло!',true); 
-        if(pot.strain){ const s=getStrain(pot.strain); if(s){ state.money+=Math.floor(s.seedPrice*0.2); } } 
-        pot.strain=null; pot.plantedAt=null; pot.stage=0; pot.disease=false; pot.pests=false; pot.pestLevel=0; 
-        pot.water=80; pot.health=100; pot.lamp=null; pot.fert=null; pot.fertCount=0; 
-        pot.speedMult=1; pot.yieldMult=1; pot.thc=0; pot.lampTHCBonus=0; 
-    }
+    if(pot.health<=0){ showToast('💀 Растение погибло!',true); if(pot.strain){ const s=getStrain(pot.strain); if(s){ state.money+=Math.floor(s.seedPrice*0.2); } } pot.strain=null; pot.plantedAt=null; pot.stage=0; pot.disease=false; pot.pests=false; pot.pestLevel=0; pot.water=80; pot.health=100; pot.lamp=null; pot.fert=null; pot.fertCount=0; pot.speedMult=1; pot.yieldMult=1; pot.thc=0; pot.lampTHCBonus=0; }
     updatePotStage(pot);
     updateTHC(pot);
   });
@@ -745,239 +608,44 @@ function harvest(id){
   haptic('success');
   addXp(amount*2+Math.floor(q*3)+Math.floor((pot.thc||0)/10));
   addHeat(amount*0.3);
-  pot.strain=null; pot.plantedAt=null; pot.stage=0; pot.disease=false; pot.pests=false; pot.pestLevel=0; 
-  pot.water=80; pot.health=100; pot.fert=null; pot.fertCount=0; pot.lamp=null; pot.lampTHCBonus=0; 
-  pot.speedMult=1; pot.yieldMult=1; pot.thc=0; pot.quality=1.0;
+  pot.strain=null; pot.plantedAt=null; pot.stage=0; pot.disease=false; pot.pests=false; pot.pestLevel=0; pot.water=80; pot.health=100; pot.fert=null; pot.fertCount=0; pot.lamp=null; pot.lampTHCBonus=0; pot.speedMult=1; pot.yieldMult=1; pot.thc=0; pot.quality=1.0;
   checkAchievements();
   save(); render();
 }
 
-function waterPot(id){
-  const pot=state.pots.find(p=>p.id===id);
-  if(!pot||!pot.isActive||!pot.strain) return;
-  if(state.energy<2){ showToast('Нужно 2⚡',true); return; }
-  state.energy-=2;
-  pot.water=Math.min(100,pot.water+45);
-  showToast('💧 Полито!');
-  haptic('medium');
-  addXp(1);
-  save(); render();
-}
+function waterPot(id){ const pot=state.pots.find(p=>p.id===id); if(!pot||!pot.isActive||!pot.strain) return; if(state.energy<2){ showToast('Нужно 2⚡',true); return; } state.energy-=2; pot.water=Math.min(100,pot.water+45); showToast('💧 Полито!'); haptic('medium'); addXp(1); save(); render(); }
 
-function checkPests(){
-  state.pots.forEach(pot=>{
-    if(!pot.strain||!pot.isActive||pot.pests||pot.health<40) return;
-    if(Math.random()<0.0005){ 
-        pot.pests=true; 
-        pot.pestLevel=Math.floor(Math.random()*30)+10; 
-        showToast('🐛 Вредители! Используй лекарство!',true); 
-        haptic('warning'); 
-        save(); render(); 
-    }
-  });
-}
+function checkPests(){ state.pots.forEach(pot=>{ if(!pot.strain||!pot.isActive||pot.pests||pot.health<40) return; if(Math.random()<0.0005){ pot.pests=true; pot.pestLevel=Math.floor(Math.random()*30)+10; showToast('🐛 Вредители!',true); haptic('warning'); save(); render(); } }); }
 
-function treatPestsAction(potId){
-  const pot=state.pots.find(p=>p.id===potId);
-  if(!pot||!pot.pests) return;
-  if((state.ferts['heal']||0)<=0){ showToast('❌ Нет лекарства!',true); return; }
-  state.ferts['heal']--;
-  pot.pests=false; pot.pestLevel=0; pot.health=Math.min(100,pot.health+20);
-  state.pestsKilled=(state.pestsKilled||0)+1;
-  showToast('💊 Вредители уничтожены!');
-  haptic('success');
-  checkAchievements();
-  save(); render();
-}
+function treatPestsAction(potId){ const pot=state.pots.find(p=>p.id===potId); if(!pot||!pot.pests) return; if((state.ferts['heal']||0)<=0){ showToast('❌ Нет лекарства!',true); return; } state.ferts['heal']--; pot.pests=false; pot.pestLevel=0; pot.health=Math.min(100,pot.health+20); state.pestsKilled=(state.pestsKilled||0)+1; showToast('💊 Вредители уничтожены!'); haptic('success'); checkAchievements(); save(); render(); }
 
-// ============================================================
-// УДОБРЕНИЯ И ЛАМПЫ
-// ============================================================
-function applyFertToPot(potId, fertId){
-  const pot=state.pots.find(p=>p.id===potId);
-  if(!pot||!pot.isActive||!pot.strain) return;
-  if((state.ferts[fertId]||0)<=0){ showToast('Нет удобрения',true); return; }
-  const f=getFert(fertId);
-  if(f.effect==='thc'){
-    if(pot.fertCount>=MAX_FERT_PER_PLANT){ showToast(`❌ Максимум ${MAX_FERT_PER_PLANT}!`,true); return; }
-    state.ferts[fertId]--;
-    pot.fertCount=(pot.fertCount||0)+1;
-    pot.thc=Math.min(100,(pot.thc||0)+f.value);
-    showToast(`💎 +${f.value}% ТГК`);
-    haptic('success');
-    save(); render();
-    return;
-  }
-  state.ferts[fertId]--;
-  if(f.effect==='heal'){ pot.disease=false; pot.pests=false; pot.pestLevel=0; pot.health=Math.min(100,pot.health+40); showToast('💊 Вылечено!'); }
-  else{ if(f.effect==='speed'||f.effect==='both') pot.speedMult=(pot.speedMult||1)*(1+f.value); if(f.effect==='yield'||f.effect==='both') pot.yieldMult=(pot.yieldMult||1)*(1+f.value); pot.fert=fertId; showToast(f.emoji+' '+f.name+' применено'); }
-  closeModal('modal-fert');
-  haptic('success');
-  addXp(2);
-  save(); render();
-}
+function applyFertToPot(potId, fertId){ const pot=state.pots.find(p=>p.id===potId); if(!pot||!pot.isActive||!pot.strain) return; if((state.ferts[fertId]||0)<=0){ showToast('Нет удобрения',true); return; } const f=getFert(fertId); if(f.effect==='thc'){ if(pot.fertCount>=MAX_FERT_PER_PLANT){ showToast(`❌ Максимум ${MAX_FERT_PER_PLANT}!`,true); return; } state.ferts[fertId]--; pot.fertCount=(pot.fertCount||0)+1; pot.thc=Math.min(100,(pot.thc||0)+f.value); showToast(`💎 +${f.value}% ТГК`); haptic('success'); save(); render(); return; } state.ferts[fertId]--; if(f.effect==='heal'){ pot.disease=false; pot.pests=false; pot.pestLevel=0; pot.health=Math.min(100,pot.health+40); showToast('💊 Вылечено!'); } else { if(f.effect==='speed'||f.effect==='both') pot.speedMult=(pot.speedMult||1)*(1+f.value); if(f.effect==='yield'||f.effect==='both') pot.yieldMult=(pot.yieldMult||1)*(1+f.value); pot.fert=fertId; showToast(f.emoji+' '+f.name+' применено'); } closeModal('modal-fert'); haptic('success'); addXp(2); save(); render(); }
 
-function applyLamp(potId, lampId){
-  const pot=state.pots.find(p=>p.id===potId);
-  if(!pot||!pot.isActive||!pot.strain) return;
-  if((state.lamps[lampId]||0)<=0){ showToast('Нет лампы',true); return; }
-  if(pot.lamp){ state.lamps[pot.lamp]=(state.lamps[pot.lamp]||0)+1; }
-  state.lamps[lampId]--;
-  pot.lamp=lampId;
-  const lamp=getLamp(lampId);
-  showToast('💡 '+lamp.emoji+' установлена');
-  haptic('success');
-  closeModal('modal-lamp');
-  save(); render();
-}
+function applyLamp(potId, lampId){ const pot=state.pots.find(p=>p.id===potId); if(!pot||!pot.isActive||!pot.strain) return; if((state.lamps[lampId]||0)<=0){ showToast('Нет лампы',true); return; } if(pot.lamp){ state.lamps[pot.lamp]=(state.lamps[pot.lamp]||0)+1; } state.lamps[lampId]--; pot.lamp=lampId; showToast('💡 '+getLamp(lampId).emoji+' установлена'); haptic('success'); closeModal('modal-lamp'); save(); render(); }
 
-// ============================================================
-// ПОКУПАТЕЛИ
-// ============================================================
-function generateBuyers(){
-  const now=Date.now();
-  if(now-state.buyerTimer<30000) return;
-  state.buyerTimer=now;
-  state.activeBuyers=state.activeBuyers.filter(b=>Date.now()-b.appearTime<120000);
-  const count=Math.floor(Math.random()*2)+1;
-  for(let i=0;i<count;i++){
-    const type=BUYER_TYPES[Math.floor(Math.random()*BUYER_TYPES.length)];
-    state.activeBuyers.push({...type,wantedTHC:Math.floor(30+Math.random()*70),maxPrice:Math.floor(50+Math.random()*300),appearTime:now});
-  }
-  save(); render();
-}
+function generateBuyers(){ const now=Date.now(); if(now-state.buyerTimer<30000) return; state.buyerTimer=now; state.activeBuyers=state.activeBuyers.filter(b=>Date.now()-b.appearTime<120000); const count=Math.floor(Math.random()*2)+1; for(let i=0;i<count;i++){ const type=BUYER_TYPES[Math.floor(Math.random()*BUYER_TYPES.length)]; state.activeBuyers.push({...type,wantedTHC:Math.floor(30+Math.random()*70),maxPrice:Math.floor(50+Math.random()*300),appearTime:now}); } save(); render(); }
 
-function openBuyersModal(){
-  const list=document.getElementById('buyersList'); 
-  list.innerHTML='';
-  if(state.activeBuyers.length===0){ list.innerHTML='<div class="empty">👥 Нет покупателей</div>'; }
-  else{
-    state.activeBuyers.forEach((buyer,index)=>{
-      const timeLeft=Math.floor((120000-(Date.now()-buyer.appearTime))/1000);
-      const div=document.createElement('div'); 
-      div.className='buyer-item';
-      div.innerHTML=`<div class="buyer-info"><div class="buyer-name">${buyer.name}${buyer.isCop?' 🚨':''}</div><div class="buyer-desc">${buyer.desc} | ТГК ${buyer.wantedTHC}% | ⏱ ${timeLeft}с</div></div><div style="text-align:right"><div class="buyer-price">💰${buyer.maxPrice}$</div><button class="btn btn-small btn-gold" onclick="sellToBuyer(${index})">🤝 Продать</button></div>`;
-      list.appendChild(div);
-    });
-  }
-  document.getElementById('modal-buyers').classList.add('show');
-}
+function openBuyersModal(){ const list=document.getElementById('buyersList'); list.innerHTML=''; if(state.activeBuyers.length===0){ list.innerHTML='<div class="empty">👥 Нет покупателей</div>'; } else { state.activeBuyers.forEach((buyer,index)=>{ const timeLeft=Math.floor((120000-(Date.now()-buyer.appearTime))/1000); const div=document.createElement('div'); div.className='buyer-item'; div.innerHTML=`<div class="buyer-info"><div class="buyer-name">${buyer.name}${buyer.isCop?' 🚨':''}</div><div class="buyer-desc">${buyer.desc} | ТГК ${buyer.wantedTHC}% | ⏱ ${timeLeft}с</div></div><div style="text-align:right"><div class="buyer-price">💰${buyer.maxPrice}$</div><button class="btn btn-small btn-gold" onclick="sellToBuyer(${index})">🤝 Продать</button></div>`; list.appendChild(div); }); } document.getElementById('modal-buyers').classList.add('show'); }
 
-function sellToBuyer(index){
-  const buyer=state.activeBuyers[index]; 
-  if(!buyer) return;
-  let availableItems=[];
-  for(const[key,amt]of Object.entries(state.inventory)){ if(amt>0){ const info=getProductInfo(key); if(info) availableItems.push({key,amt,info}); } }
-  if(availableItems.length===0){ showToast('Нет товара!',true); return; }
-  const item=availableItems[Math.floor(Math.random()*availableItems.length)];
-  const finalPrice=Math.floor(buyer.maxPrice*(0.7+Math.random()*0.6));
-  state.inventory[item.key]--; 
-  if(state.inventory[item.key]<=0) delete state.inventory[item.key];
-  addMoney(finalPrice);
-  state.totalSoldToBuyers=(state.totalSoldToBuyers||0)+1;
-  addHeat(finalPrice/30);
-  if(buyer.isCop){ state.heat=Math.min(100,state.heat+20); showToast('🚨 Продан полицейскому! +20% палева',true); haptic('error'); }
-  else{ showToast(`🤝 Продано за ${finalPrice}$`); haptic('success'); }
-  state.activeBuyers.splice(index,1);
-  addXp(5);
-  save(); render();
-  closeModal('modal-buyers');
-}
+function sellToBuyer(index){ const buyer=state.activeBuyers[index]; if(!buyer) return; let availableItems=[]; for(const[key,amt]of Object.entries(state.inventory)){ if(amt>0){ const info=getProductInfo(key); if(info) availableItems.push({key,amt,info}); } } if(availableItems.length===0){ showToast('Нет товара!',true); return; } const item=availableItems[Math.floor(Math.random()*availableItems.length)]; const finalPrice=Math.floor(buyer.maxPrice*(0.7+Math.random()*0.6)); state.inventory[item.key]--; if(state.inventory[item.key]<=0) delete state.inventory[item.key]; addMoney(finalPrice); state.totalSoldToBuyers=(state.totalSoldToBuyers||0)+1; addHeat(finalPrice/30); if(buyer.isCop){ state.heat=Math.min(100,state.heat+20); showToast('🚨 Продан полицейскому! +20% палева',true); haptic('error'); } else { showToast(`🤝 Продано за ${finalPrice}$`); haptic('success'); } state.activeBuyers.splice(index,1); addXp(5); save(); render(); closeModal('modal-buyers'); }
 
-// ============================================================
-// ПОЛИЦИЯ
-// ============================================================
-function updateHeat(){
-  const now=Date.now();
-  const dt=(now-state.lastHeatCheck)/1000;
-  state.lastHeatCheck=now;
-  let reduction=0.02;
-  if(state.room.vent) reduction+=0.03;
-  if(state.heat>0) state.heat=Math.max(0,state.heat-reduction*dt);
-  const hours=Math.floor(state.gameTime/60)%24;
-  const isDay=hours>=6&&hours<18;
-  const baseChance=isDay?0.0008:0.0003;
-  const heatMultiplier=1+(state.heat/100)*5;
-  if(state.heat>30&&!state.policeActive&&Math.random()<baseChance*heatMultiplier*dt){ state.policeActive=true; triggerPoliceRaid(); }
-  if(state.heat>=100&&!state.policeActive){ state.policeActive=true; triggerPoliceRaid(); }
-  document.getElementById('heat').textContent=Math.floor(state.heat);
-  document.getElementById('police-warning').style.display=state.heat>40?'block':'none';
-}
+function updateHeat(){ const now=Date.now(); const dt=(now-state.lastHeatCheck)/1000; state.lastHeatCheck=now; let reduction=0.02; if(state.room.vent) reduction+=0.03; if(state.heat>0) state.heat=Math.max(0,state.heat-reduction*dt); const hours=Math.floor(state.gameTime/60)%24; const isDay=hours>=6&&hours<18; const baseChance=isDay?0.0008:0.0003; const heatMultiplier=1+(state.heat/100)*5; if(state.heat>30&&!state.policeActive&&Math.random()<baseChance*heatMultiplier*dt){ state.policeActive=true; triggerPoliceRaid(); } if(state.heat>=100&&!state.policeActive){ state.policeActive=true; triggerPoliceRaid(); } document.getElementById('heat').textContent=Math.floor(state.heat); document.getElementById('police-warning').style.display=state.heat>40?'block':'none'; }
 
-function addHeat(amount){
-  const hours=Math.floor(state.gameTime/60)%24;
-  const isDay=hours>=6&&hours<18;
-  state.heat=Math.min(100,state.heat+amount*(isDay?1.5:0.8));
-  if(state.heat>80){ showToast('👮 Высокий уровень палева!',true); haptic('error'); }
-  save(); render();
-}
+function addHeat(amount){ const hours=Math.floor(state.gameTime/60)%24; const isDay=hours>=6&&hours<18; state.heat=Math.min(100,state.heat+amount*(isDay?1.5:0.8)); if(state.heat>80){ showToast('👮 Высокий уровень палева!',true); haptic('error'); } save(); render(); }
 
-function triggerPoliceRaid(){
-  const hasItems=Object.keys(state.inventory).length>0;
-  const hasMoney=state.money>0;
-  if(!hasItems&&!hasMoney){ showToast('👮 Полиция ничего не нашла!'); state.heat=Math.max(0,state.heat-50); state.policeActive=false; save(); render(); return; }
-  const modal=document.getElementById('policeModal');
-  document.getElementById('policeMessage').textContent='👮 Рейд! Выбери действие:';
-  const optionsDiv=document.getElementById('policeOptions');
-  optionsDiv.innerHTML='';
-  if(hasMoney&&state.money>=200){ const btn=document.createElement('button'); btn.className='btn btn-police'; btn.textContent='💰 Взятка (200$)'; btn.onclick=()=>handlePoliceChoice('bribe'); optionsDiv.appendChild(btn); }
-  if(hasItems){ const btn=document.createElement('button'); btn.className='btn btn-warning'; btn.textContent='📦 Отдать половину'; btn.onclick=()=>handlePoliceChoice('half'); optionsDiv.appendChild(btn); const btn2=document.createElement('button'); btn2.className='btn btn-danger'; btn2.textContent='📦 Отдать всё'; btn2.onclick=()=>handlePoliceChoice('all'); optionsDiv.appendChild(btn2); }
-  const btnResist=document.createElement('button'); btnResist.className='btn btn-secondary'; btnResist.textContent='💪 Сопротивляться'; btnResist.onclick=()=>handlePoliceChoice('resist'); optionsDiv.appendChild(btnResist);
-  modal.classList.add('show'); 
-  haptic('warning');
-}
+function triggerPoliceRaid(){ const hasItems=Object.keys(state.inventory).length>0; const hasMoney=state.money>0; if(!hasItems&&!hasMoney){ showToast('👮 Полиция ничего не нашла!'); state.heat=Math.max(0,state.heat-50); state.policeActive=false; save(); render(); return; } const modal=document.getElementById('policeModal'); document.getElementById('policeMessage').textContent='👮 Рейд! Выбери действие:'; const optionsDiv=document.getElementById('policeOptions'); optionsDiv.innerHTML=''; if(hasMoney&&state.money>=200){ const btn=document.createElement('button'); btn.className='btn btn-police'; btn.textContent='💰 Взятка (200$)'; btn.onclick=()=>handlePoliceChoice('bribe'); optionsDiv.appendChild(btn); } if(hasItems){ const btn=document.createElement('button'); btn.className='btn btn-warning'; btn.textContent='📦 Отдать половину'; btn.onclick=()=>handlePoliceChoice('half'); optionsDiv.appendChild(btn); const btn2=document.createElement('button'); btn2.className='btn btn-danger'; btn2.textContent='📦 Отдать всё'; btn2.onclick=()=>handlePoliceChoice('all'); optionsDiv.appendChild(btn2); } const btnResist=document.createElement('button'); btnResist.className='btn btn-secondary'; btnResist.textContent='💪 Сопротивляться'; btnResist.onclick=()=>handlePoliceChoice('resist'); optionsDiv.appendChild(btnResist); modal.classList.add('show'); haptic('warning'); }
 
-function handlePoliceChoice(choice){
-  state.policeActive=false;
-  switch(choice){
-    case 'bribe': if(state.money>=200){ state.money-=200; state.heat=Math.max(0,state.heat-60); showToast('💰 Взятка дана!'); } break;
-    case 'half': Object.keys(state.inventory).forEach(key=>{ const taken=Math.floor((state.inventory[key]||0)/2); if(taken>0){ state.inventory[key]-=taken; if(state.inventory[key]<=0) delete state.inventory[key]; } }); state.heat=Math.max(0,state.heat-40); showToast('📦 Отдана половина!'); break;
-    case 'all': Object.keys(state.inventory).forEach(key=>delete state.inventory[key]); state.heat=Math.max(0,state.heat-50); showToast('📦 Всё забрано!'); break;
-    case 'resist': if(Math.random()<0.5){ state.heat=Math.max(0,state.heat-70); showToast('💪 Ты сбежал!'); } else { Object.keys(state.inventory).forEach(key=>delete state.inventory[key]); state.money=Math.floor(state.money/2); state.heat=Math.max(0,state.heat-30); showToast('💀 Не получилось!'); } break;
-  }
-  closePoliceModal(); save(); render();
-}
+function handlePoliceChoice(choice){ state.policeActive=false; switch(choice){ case 'bribe': if(state.money>=200){ state.money-=200; state.heat=Math.max(0,state.heat-60); showToast('💰 Взятка дана!'); } break; case 'half': Object.keys(state.inventory).forEach(key=>{ const taken=Math.floor((state.inventory[key]||0)/2); if(taken>0){ state.inventory[key]-=taken; if(state.inventory[key]<=0) delete state.inventory[key]; } }); state.heat=Math.max(0,state.heat-40); showToast('📦 Отдана половина!'); break; case 'all': Object.keys(state.inventory).forEach(key=>delete state.inventory[key]); state.heat=Math.max(0,state.heat-50); showToast('📦 Всё забрано!'); break; case 'resist': if(Math.random()<0.5){ state.heat=Math.max(0,state.heat-70); showToast('💪 Ты сбежал!'); } else { Object.keys(state.inventory).forEach(key=>delete state.inventory[key]); state.money=Math.floor(state.money/2); state.heat=Math.max(0,state.heat-30); showToast('💀 Не получилось!'); } break; } closePoliceModal(); save(); render(); }
 
-function closePoliceModal(){ 
-    document.getElementById('policeModal').classList.remove('show'); 
-    state.policeActive=false; 
-}
+function closePoliceModal(){ document.getElementById('policeModal').classList.remove('show'); state.policeActive=false; }
 
-// ============================================================
-// РЫНОК
-// ============================================================
-function updateMarketPrices(){
-  const now=Date.now();
-  if(now-state.marketUpdateTime<60000) return;
-  state.marketUpdateTime=now;
-  let totalItems=0; 
-  for(const key in state.inventory) totalItems+=state.inventory[key]||0;
-  state.marketSaturation=0.5+(Math.min(totalItems,100)/100)*1.5;
-  STRAINS.forEach(s=>{
-    const basePrice=s.sellPrice;
-    const saturationFactor=1/(0.6+0.4*state.marketSaturation);
-    const randomFactor=0.85+Math.random()*0.3;
-    let price=Math.floor(basePrice*saturationFactor*randomFactor);
-    price=Math.max(Math.floor(basePrice*0.3),price);
-    price=Math.min(Math.floor(basePrice*2.5),price);
-    state.marketPrices[s.id]=price;
-  });
-  save();
-}
-
+function updateMarketPrices(){ const now=Date.now(); if(now-state.marketUpdateTime<60000) return; state.marketUpdateTime=now; let totalItems=0; for(const key in state.inventory) totalItems+=state.inventory[key]||0; state.marketSaturation=0.5+(Math.min(totalItems,100)/100)*1.5; STRAINS.forEach(s=>{ const basePrice=s.sellPrice; const saturationFactor=1/(0.6+0.4*state.marketSaturation); const randomFactor=0.85+Math.random()*0.3; let price=Math.floor(basePrice*saturationFactor*randomFactor); price=Math.max(Math.floor(basePrice*0.3),price); price=Math.min(Math.floor(basePrice*2.5),price); state.marketPrices[s.id]=price; }); save(); }
 function getMarketPrice(id){ return state.marketPrices[id]||STRAINS.find(s=>s.id===id)?.sellPrice||50; }
 function getPriceChange(id){ const current=getMarketPrice(id); const base=STRAINS.find(s=>s.id===id)?.sellPrice||50; return((current-base)/base*100); }
-
-function addMoney(amount){ 
-    state.money+=amount; 
-    state.totalEarned+=amount; 
-    if(amount>50) addHeat(amount/50); 
-    save(); render(); 
-}
+function addMoney(amount){ state.money+=amount; state.totalEarned+=amount; if(amount>50) addHeat(amount/50); save(); render(); }
 
 function getProductInfo(key){
-  const s=getStrain(key); 
-  if(s) return {name:s.emoji+' '+s.name+' (сырец)',emoji:s.emoji,sellPrice:s.sellPrice,strain:key,type:'raw'};
+  const s=getStrain(key); if(s) return {name:s.emoji+' '+s.name+' (сырец)',emoji:s.emoji,sellPrice:s.sellPrice,strain:key,type:'raw'};
   if(key.endsWith('_dried')){ const sid=key.replace('_dried',''); const s2=getStrain(sid); if(s2) return {name:s2.emoji+' '+s2.name+' (сушка)',emoji:'🍂',sellPrice:Math.floor(s2.sellPrice*1.4),strain:sid,type:'dried'}; }
   if(key.endsWith('_joint')){ const sid=key.replace('_joint',''); const s2=getStrain(sid); if(s2) return {name:s2.emoji+' '+s2.name+' косяк',emoji:'🚬',sellPrice:Math.floor(s2.sellPrice*1.9),strain:sid,type:'joint'}; }
   if(key.endsWith('_oil')){ const sid=key.replace('_oil',''); const s2=getStrain(sid); if(s2) return {name:s2.emoji+' '+s2.name+' масло',emoji:'🧴',sellPrice:Math.floor(s2.sellPrice*2.4*2),strain:sid,type:'oil'}; }
@@ -985,299 +653,45 @@ function getProductInfo(key){
   return null;
 }
 
-function processItem(strainId, productType){
-  const p=PRODUCTS[productType]; 
-  if(!p) return;
-  const rawKey=strainId, driedKey=strainId+'_dried', outKey=strainId+'_'+productType;
-  if(productType==='dried'){
-    if((state.inventory[rawKey]||0)<1){ showToast('Нет сырья',true); return; }
-    if(state.energy<p.energy){ showToast('Мало энергии',true); return; }
-    state.inventory[rawKey]--; 
-    if(state.inventory[rawKey]<=0) delete state.inventory[rawKey];
-    state.energy-=p.energy;
-    state.inventory[driedKey]=(state.inventory[driedKey]||0)+1;
-    showToast('🍂 Высушено!');
-    addHeat(1);
-  } else {
-    const need=p.need||1;
-    if((state.inventory[driedKey]||0)<need){ showToast(`Нужна сушка ×${need}`,true); return; }
-    if(state.energy<p.energy){ showToast('Мало энергии',true); return; }
-    state.inventory[driedKey]-=need; 
-    if(state.inventory[driedKey]<=0) delete state.inventory[driedKey];
-    state.energy-=p.energy;
-    state.inventory[outKey]=(state.inventory[outKey]||0)+1;
-    addHeat(need*0.5);
-    showToast(p.emoji+' '+p.name+' готов!');
-  }
-  haptic('success');
-  addXp(4);
-  save(); render();
-}
+function processItem(strainId, productType){ const p=PRODUCTS[productType]; if(!p) return; const rawKey=strainId, driedKey=strainId+'_dried', outKey=strainId+'_'+productType; if(productType==='dried'){ if((state.inventory[rawKey]||0)<1){ showToast('Нет сырья',true); return; } if(state.energy<p.energy){ showToast('Мало энергии',true); return; } state.inventory[rawKey]--; if(state.inventory[rawKey]<=0) delete state.inventory[rawKey]; state.energy-=p.energy; state.inventory[driedKey]=(state.inventory[driedKey]||0)+1; showToast('🍂 Высушено!'); addHeat(1); } else { const need=p.need||1; if((state.inventory[driedKey]||0)<need){ showToast(`Нужна сушка ×${need}`,true); return; } if(state.energy<p.energy){ showToast('Мало энергии',true); return; } state.inventory[driedKey]-=need; if(state.inventory[driedKey]<=0) delete state.inventory[driedKey]; state.energy-=p.energy; state.inventory[outKey]=(state.inventory[outKey]||0)+1; addHeat(need*0.5); showToast(p.emoji+' '+p.name+' готов!'); } haptic('success'); addXp(4); save(); render(); }
 
-function openSellModal(key){
-  const amt=state.inventory[key]||0; 
-  if(amt<=0) return;
-  const info=getProductInfo(key); 
-  if(!info) return;
-  sellTarget={key:key,name:info.name,price:info.sellPrice,maxQty:amt};
-  sellQty=Math.min(1,amt);
-  document.getElementById('sellTitle').textContent='💰 Продажа: '+info.name;
-  document.getElementById('sellInfo').textContent=`Цена: ${info.sellPrice}$ | Всего: ${amt} шт.`;
-  document.getElementById('sellQtyDisplay').textContent=sellQty;
-  document.getElementById('sellModal').classList.add('show');
-}
-
+function openSellModal(key){ const amt=state.inventory[key]||0; if(amt<=0) return; const info=getProductInfo(key); if(!info) return; sellTarget={key:key,name:info.name,price:info.sellPrice,maxQty:amt}; sellQty=Math.min(1,amt); document.getElementById('sellTitle').textContent='💰 Продажа: '+info.name; document.getElementById('sellInfo').textContent=`Цена: ${info.sellPrice}$ | Всего: ${amt} шт.`; document.getElementById('sellQtyDisplay').textContent=sellQty; document.getElementById('sellModal').classList.add('show'); }
 function changeSellQty(delta){ if(!sellTarget) return; sellQty=Math.max(1,Math.min(sellTarget.maxQty,sellQty+delta)); document.getElementById('sellQtyDisplay').textContent=sellQty; }
 function setSellQty(mode){ if(!sellTarget) return; if(mode==='max') sellQty=sellTarget.maxQty; else if(mode==='half') sellQty=Math.max(1,Math.floor(sellTarget.maxQty/2)); document.getElementById('sellQtyDisplay').textContent=sellQty; }
-
-function confirmSell(){
-  if(!sellTarget) return;
-  const {key,price,maxQty}=sellTarget;
-  const qty=Math.min(sellQty,maxQty);
-  if(qty<=0) return;
-  if((state.inventory[key]||0)<qty){ showToast('Недостаточно товара',true); return; }
-  const total=qty*price;
-  addMoney(total);
-  state.inventory[key]-=qty; 
-  if(state.inventory[key]<=0) delete state.inventory[key];
-  showToast(`💰 Продано за ${total}$`);
-  haptic('success');
-  addXp(Math.floor(total/10));
-  addHeat(total/15);
-  closeSellModal();
-  save(); render();
-}
-
+function confirmSell(){ if(!sellTarget) return; const {key,price,maxQty}=sellTarget; const qty=Math.min(sellQty,maxQty); if(qty<=0) return; if((state.inventory[key]||0)<qty){ showToast('Недостаточно товара',true); return; } const total=qty*price; addMoney(total); state.inventory[key]-=qty; if(state.inventory[key]<=0) delete state.inventory[key]; showToast(`💰 Продано за ${total}$`); haptic('success'); addXp(Math.floor(total/10)); addHeat(total/15); closeSellModal(); save(); render(); }
 function closeSellModal(){ document.getElementById('sellModal').classList.remove('show'); sellTarget=null; sellQty=1; }
+function sellAll(){ let total=0, items=0; for(const[id,amt]of Object.entries(state.inventory)){ if(amt<=0) continue; const info=getProductInfo(id); if(info){ total+=amt*info.sellPrice; items+=amt; } } if(!items){ showToast('Склад пуст',true); return; } addMoney(total); state.inventory={}; showToast('💰 Продано за '+total+'$'); haptic('success'); addXp(Math.floor(total/10)); addHeat(total/8); save(); render(); }
 
-function sellAll(){
-  let total=0, items=0;
-  for(const[id,amt]of Object.entries(state.inventory)){ if(amt<=0) continue; const info=getProductInfo(id); if(info){ total+=amt*info.sellPrice; items+=amt; } }
-  if(!items){ showToast('Склад пуст',true); return; }
-  addMoney(total);
-  state.inventory={};
-  showToast('💰 Продано за '+total+'$');
-  haptic('success');
-  addXp(Math.floor(total/10));
-  addHeat(total/8);
-  save(); render();
-}
-
-// ============================================================
-// ПРОЧИЕ МЕХАНИКИ
-// ============================================================
-function addXp(a){
-  state.xp += a;
-  let up = false;
-  while(state.xp >= xpFor(state.level)){
-    state.xp -= xpFor(state.level);
-    state.level++;
-    state.maxEnergy = 100 + (state.level-1)*8;
-    state.energy = state.maxEnergy;
-    up = true;
-  }
-  if(up){ showToast('🎉 Уровень '+state.level+'!'); haptic('success'); }
-  save(); render();
-}
-
-function save(){
-  state.lastUpdate = Date.now();
-  try{ localStorage.setItem('grow_sim_final_'+userId, JSON.stringify(state)); }catch(e){}
-}
+function addXp(a){ state.xp += a; let up = false; while(state.xp >= xpFor(state.level)){ state.xp -= xpFor(state.level); state.level++; state.maxEnergy = 100 + (state.level-1)*8; state.energy = state.maxEnergy; up = true; } if(up){ showToast('🎉 Уровень '+state.level+'!'); haptic('success'); } save(); render(); }
+function save(){ state.lastUpdate = Date.now(); try{ localStorage.setItem('grow_sim_final_'+userId, JSON.stringify(state)); }catch(e){} }
 
 function load(){
-  try{
-    const raw = localStorage.getItem('grow_sim_final_'+userId);
-    if(raw){ 
-        const l=JSON.parse(raw); 
-        state={...state,...l};
-        // Восстановление недостающих полей
-        if(!state.pots) state.pots=[];
-        if(!state.inventory) state.inventory={};
-        if(!state.lamps) state.lamps={};
-        if(!state.ferts) state.ferts={};
-        if(!state.room) state.room={vent:false,auto:false,heater:false};
-        if(!state.hybrids) state.hybrids=[];
-        if(!state.achievements) state.achievements=[];
-        if(!state.investments) state.investments=[];
-        if(!state.activeBuyers) state.activeBuyers=[];
-        if(!state.friends) state.friends=[];
-        if(!state.friendRequests) state.friendRequests=[];
-        if(!state.bonusLog) state.bonusLog=[];
-        if(!state.referralsList) state.referralsList=[];
-        if(state.registered===undefined) state.registered=false;
-    }
-  }catch(e){ console.error('Load error:', e); }
-  
-  if(!state.pots || state.pots.length===0){
-    state.pots = [{id:1,strain:null,plantedAt:null,water:80,health:100,stage:0,disease:false,pests:false,pestLevel:0,lamp:null,fert:null,fertCount:0,speedMult:1,yieldMult:1,thc:0,lastTick:Date.now(),isActive:true,quality:1.0,lampTHCBonus:0}];
-    state.nextPotId = 2;
-  }
-  // Нормализация горшков
-  state.pots.forEach(pot=>{
-    if(pot.isActive===undefined) pot.isActive=true;
-    if(pot.pests===undefined) pot.pests=false;
-    if(pot.pestLevel===undefined) pot.pestLevel=0;
-    if(pot.thc===undefined) pot.thc=0;
-    if(pot.water===undefined) pot.water=80;
-    if(pot.health===undefined) pot.health=100;
-    if(pot.quality===undefined) pot.quality=1.0;
-    if(pot.fertCount===undefined) pot.fertCount=0;
-    if(pot.lampTHCBonus===undefined) pot.lampTHCBonus=0;
-    if(pot.speedMult===undefined) pot.speedMult=1;
-    if(pot.yieldMult===undefined) pot.yieldMult=1;
-  });
-  // Нормализация остального
-  if(!state.totalHarvests) state.totalHarvests=0;
-  if(!state.heat) state.heat=0;
-  if(!state.marketPrices) state.marketPrices={};
-  if(!state.gameTime) state.gameTime=12*60;
-  if(state.waterReservoir===undefined) state.waterReservoir=100;
-  if(!state.weather) state.weather='sunny';
-  if(!state.pestsKilled) state.pestsKilled=0;
-  if(!state.marketSaturation) state.marketSaturation=1.0;
-  if(!state.totalSoldToBuyers) state.totalSoldToBuyers=0;
-  if(!state.maxTHC) state.maxTHC=0;
-  if(!state.buyerTimer) state.buyerTimer=0;
-  if(!state.lastHeatCheck) state.lastHeatCheck=Date.now();
-  if(!state.lastTick) state.lastTick=Date.now();
-  
-  updateMarketPrices();
-  loadChat();
-  generateBuyers();
+  try{ const raw = localStorage.getItem('grow_sim_final_'+userId); if(raw){ const l=JSON.parse(raw); state={...state,...l}; if(!state.pots) state.pots=[]; if(!state.inventory) state.inventory={}; if(!state.lamps) state.lamps={}; if(!state.ferts) state.ferts={}; if(!state.room) state.room={vent:false,auto:false,heater:false}; if(!state.hybrids) state.hybrids=[]; if(!state.achievements) state.achievements=[]; if(!state.investments) state.investments=[]; if(!state.activeBuyers) state.activeBuyers=[]; if(!state.friends) state.friends=[]; if(!state.friendRequests) state.friendRequests=[]; if(!state.bonusLog) state.bonusLog=[]; if(!state.referralsList) state.referralsList=[]; if(state.registered===undefined) state.registered=false; } }catch(e){ console.error('Load error:', e); }
+  if(!state.pots || state.pots.length===0){ state.pots = [{id:1,strain:null,plantedAt:null,water:80,health:100,stage:0,disease:false,pests:false,pestLevel:0,lamp:null,fert:null,fertCount:0,speedMult:1,yieldMult:1,thc:0,lastTick:Date.now(),isActive:true,quality:1.0,lampTHCBonus:0}]; state.nextPotId = 2; }
+  state.pots.forEach(pot=>{ if(pot.isActive===undefined) pot.isActive=true; if(pot.pests===undefined) pot.pests=false; if(pot.pestLevel===undefined) pot.pestLevel=0; if(pot.thc===undefined) pot.thc=0; if(pot.water===undefined) pot.water=80; if(pot.health===undefined) pot.health=100; if(pot.quality===undefined) pot.quality=1.0; if(pot.fertCount===undefined) pot.fertCount=0; if(pot.lampTHCBonus===undefined) pot.lampTHCBonus=0; if(pot.speedMult===undefined) pot.speedMult=1; if(pot.yieldMult===undefined) pot.yieldMult=1; });
+  if(!state.totalHarvests) state.totalHarvests=0; if(!state.heat) state.heat=0; if(!state.marketPrices) state.marketPrices={}; if(!state.gameTime) state.gameTime=12*60; if(state.waterReservoir===undefined) state.waterReservoir=100; if(!state.pestsKilled) state.pestsKilled=0; if(!state.marketSaturation) state.marketSaturation=1.0; if(!state.totalSoldToBuyers) state.totalSoldToBuyers=0; if(!state.maxTHC) state.maxTHC=0; if(!state.buyerTimer) state.buyerTimer=0; if(!state.lastHeatCheck) state.lastHeatCheck=Date.now(); if(!state.lastTick) state.lastTick=Date.now();
+  updateMarketPrices(); loadChat(); generateBuyers();
 }
 
-function checkAchievements(){ 
-    ACHIEVEMENTS.forEach(a=>{ 
-        if(!state.achievements.includes(a.id)&&a.check()){ 
-            state.achievements.push(a.id); 
-            showToast(`🏆 ${a.icon} ${a.name}! (+${a.reward}$)`); 
-            state.money+=a.reward; 
-            haptic('success'); 
-        } 
-    }); 
-}
+function checkAchievements(){ ACHIEVEMENTS.forEach(a=>{ if(!state.achievements.includes(a.id)&&a.check()){ state.achievements.push(a.id); showToast(`🏆 ${a.icon} ${a.name}! (+${a.reward}$)`); state.money+=a.reward; haptic('success'); } }); }
+function openAchievementsModal(){ const list=document.getElementById('achievementsList'); list.innerHTML=''; ACHIEVEMENTS.forEach(a=>{ const unlocked=state.achievements.includes(a.id); const div=document.createElement('div'); div.className='card'; div.style.opacity=unlocked?'1':'0.5'; div.innerHTML=`<div class="card-emoji">${a.icon}</div><div class="card-info"><div class="card-title">${a.name} ${unlocked?'✅':'🔒'}</div><div class="card-desc">${a.desc} ${unlocked?'+'+a.reward+'$':''}</div></div>`; list.appendChild(div); }); document.getElementById('modal-achievements').classList.add('show'); }
 
-function openAchievementsModal(){
-  const list=document.getElementById('achievementsList'); 
-  list.innerHTML='';
-  ACHIEVEMENTS.forEach(a=>{ 
-      const unlocked=state.achievements.includes(a.id); 
-      const div=document.createElement('div'); 
-      div.className='card'; 
-      div.style.opacity=unlocked?'1':'0.5';
-      div.innerHTML=`<div class="card-emoji">${a.icon}</div><div class="card-info"><div class="card-title">${a.name} ${unlocked?'✅':'🔒'}</div><div class="card-desc">${a.desc} ${unlocked?'+'+a.reward+'$':''}</div></div>`; 
-      list.appendChild(div); 
-  });
-  document.getElementById('modal-achievements').classList.add('show');
-}
+function openCrossModal(){ const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1); if(readyPots.length<2){ showToast('Нужно 2 готовых растения',true); return; } crossStep=0; selectedCrossList=[]; renderCrossModal(); document.getElementById('modal-cross').classList.add('show'); }
+function renderCrossModal(){ const list=document.getElementById('crossList'); const info=document.getElementById('crossInfo'); if(crossStep===0){ info.textContent='Выбери ПЕРВОЕ растение'; const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1); list.innerHTML=''; readyPots.forEach(pot=>{ const s=getStrain(pot.strain); const div=document.createElement('div'); div.className='card'; div.style.cursor='pointer'; div.innerHTML=`<div class="card-emoji">${s?.emoji||'🌿'}</div><div class="card-info"><div class="card-title">${s?.name||''}</div><div class="card-desc">ТГК: ${Math.round(pot.thc)}%</div></div><span style="color:var(--accent);font-size:9px;">Выбрать</span>`; div.onclick=()=>{ selectedCrossList[0]=pot; crossStep=1; renderCrossModal(); }; list.appendChild(div); }); } else if(crossStep===1){ info.textContent=`Выбрано: ${getStrain(selectedCrossList[0].strain)?.name||''}. Выбери ВТОРОЕ`; const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1&&p.id!==selectedCrossList[0].id); list.innerHTML=''; readyPots.forEach(pot=>{ const s=getStrain(pot.strain); const div=document.createElement('div'); div.className='card'; div.style.cursor='pointer'; div.innerHTML=`<div class="card-emoji">${s?.emoji||'🌿'}</div><div class="card-info"><div class="card-title">${s?.name||''}</div><div class="card-desc">ТГК: ${Math.round(pot.thc)}%</div></div><span style="color:var(--accent);font-size:9px;">Выбрать</span>`; div.onclick=()=>{ selectedCrossList[1]=pot; crossStep=2; renderCrossModal(); }; list.appendChild(div); }); } else { const p1=selectedCrossList[0], p2=selectedCrossList[1]; info.textContent=`Скрещивание: ${getStrain(p1.strain)?.name||''} × ${getStrain(p2.strain)?.name||''}`; list.innerHTML=`<div class="card"><div class="card-emoji">🧬</div><div class="card-info"><div class="card-title">Новый гибрид!</div><div class="card-desc">ТГК: ~${Math.round((p1.thc+p2.thc)/2)}%</div></div><button class="btn btn-small btn-purple" onclick="doCross()">🧬 Создать</button></div>`; } }
+function doCross(){ const p1=selectedCrossList[0], p2=selectedCrossList[1], s1=getStrain(p1.strain), s2=getStrain(p2.strain); state.hybrids.push({id:Date.now().toString(36),name:`${s1.name} × ${s2.name}`,emoji:'🧬',quality:(s1.quality+s2.quality)/2,thc:Math.round((p1.thc+p2.thc)/2),parents:[s1.id,s2.id]}); p1.strain=null; p1.plantedAt=null; p1.stage=0; p1.thc=0; p2.strain=null; p2.plantedAt=null; p2.stage=0; p2.thc=0; showToast('🧬 Гибрид создан!'); haptic('success'); addXp(20); closeModal('modal-cross'); checkAchievements(); save(); render(); }
 
-function openCrossModal(){
-  const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1);
-  if(readyPots.length<2){ showToast('Нужно 2 готовых растения',true); return; }
-  crossStep=0; selectedCrossList=[]; 
-  renderCrossModal(); 
-  document.getElementById('modal-cross').classList.add('show');
-}
+function openInvestModal(){ const list=document.getElementById('investList'); list.innerHTML=''; INVESTMENTS.forEach(inv=>{ const owned=state.investments.filter(i=>i===inv.id).length; const div=document.createElement('div'); div.className='card'; div.innerHTML=`<div class="card-emoji">📈</div><div class="card-info"><div class="card-title">${inv.name} ${owned>0?'×'+owned:''}</div><div class="card-desc">${inv.desc}</div></div><button class="btn btn-small btn-pink" onclick="buyInvestment('${inv.id}')">${inv.price}$</button>`; list.appendChild(div); }); document.getElementById('modal-invest').classList.add('show'); }
+function buyInvestment(id){ const inv=INVESTMENTS.find(i=>i.id===id); if(!inv||state.money<inv.price){ showToast('Не хватает денег',true); return; } state.money-=inv.price; state.investments.push(id); showToast(`📈 Куплено: ${inv.name}!`); haptic('success'); checkAchievements(); save(); render(); }
+function processInvestments(){ const income=state.investments.reduce((sum,id)=>{ const inv=INVESTMENTS.find(i=>i.id===id); return sum+(inv?.income||0); },0); if(income>0) state.money+=income; }
 
-function renderCrossModal(){
-  const list=document.getElementById('crossList'); 
-  const info=document.getElementById('crossInfo');
-  if(crossStep===0){
-    info.textContent='Выбери ПЕРВОЕ растение';
-    const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1);
-    list.innerHTML='';
-    readyPots.forEach(pot=>{ 
-        const s=getStrain(pot.strain); 
-        const div=document.createElement('div'); 
-        div.className='card'; div.style.cursor='pointer'; 
-        div.innerHTML=`<div class="card-emoji">${s?.emoji||'🌿'}</div><div class="card-info"><div class="card-title">${s?.name||''}</div><div class="card-desc">ТГК: ${Math.round(pot.thc)}%</div></div><span style="color:var(--accent);font-size:9px;">Выбрать</span>`; 
-        div.onclick=()=>{ selectedCrossList[0]=pot; crossStep=1; renderCrossModal(); }; 
-        list.appendChild(div); 
-    });
-  } else if(crossStep===1){
-    info.textContent=`Выбрано: ${getStrain(selectedCrossList[0].strain)?.name||''}. Выбери ВТОРОЕ`;
-    const readyPots=state.pots.filter(p=>p.isActive&&p.strain&&getProgress(p)>=1&&p.id!==selectedCrossList[0].id);
-    list.innerHTML='';
-    readyPots.forEach(pot=>{ 
-        const s=getStrain(pot.strain); 
-        const div=document.createElement('div'); 
-        div.className='card'; div.style.cursor='pointer'; 
-        div.innerHTML=`<div class="card-emoji">${s?.emoji||'🌿'}</div><div class="card-info"><div class="card-title">${s?.name||''}</div><div class="card-desc">ТГК: ${Math.round(pot.thc)}%</div></div><span style="color:var(--accent);font-size:9px;">Выбрать</span>`; 
-        div.onclick=()=>{ selectedCrossList[1]=pot; crossStep=2; renderCrossModal(); }; 
-        list.appendChild(div); 
-    });
-  } else {
-    const p1=selectedCrossList[0], p2=selectedCrossList[1];
-    info.textContent=`Скрещивание: ${getStrain(p1.strain)?.name||''} × ${getStrain(p2.strain)?.name||''}`;
-    list.innerHTML=`<div class="card"><div class="card-emoji">🧬</div><div class="card-info"><div class="card-title">Новый гибрид!</div><div class="card-desc">ТГК: ~${Math.round((p1.thc+p2.thc)/2)}%</div></div><button class="btn btn-small btn-purple" onclick="doCross()">🧬 Создать</button></div>`;
-  }
-}
+function openTradeModal(){ const list=document.getElementById('tradeList'); list.innerHTML=''; if(state.friends.length===0){ list.innerHTML='<div class="empty">👤 Нет друзей</div>'; } else { state.friends.forEach(()=>{ const div=document.createElement('div'); div.className='card'; div.innerHTML=`<div class="card-emoji">👤</div><div class="card-info"><div class="card-title">Обмен</div><div class="card-desc">Отправь запрос</div></div><button class="btn btn-small btn-gold" onclick="sendTradeRequest()">📤</button>`; list.appendChild(div); }); } document.getElementById('modal-trade').classList.add('show'); }
+function sendTradeRequest(){ const items=Object.keys(state.inventory).filter(k=>state.inventory[k]>0); if(items.length===0){ showToast('Нет товара',true); return; } const item=items[0]; state.inventory[item]--; if(state.inventory[item]<=0) delete state.inventory[item]; showToast('📤 Запрос отправлен!'); haptic('medium'); save(); render(); closeModal('modal-trade'); }
 
-function doCross(){
-  const p1=selectedCrossList[0], p2=selectedCrossList[1], s1=getStrain(p1.strain), s2=getStrain(p2.strain);
-  state.hybrids.push({id:Date.now().toString(36),name:`${s1.name} × ${s2.name}`,emoji:'🧬',quality:(s1.quality+s2.quality)/2,thc:Math.round((p1.thc+p2.thc)/2),parents:[s1.id,s2.id]});
-  p1.strain=null; p1.plantedAt=null; p1.stage=0; p1.thc=0;
-  p2.strain=null; p2.plantedAt=null; p2.stage=0; p2.thc=0;
-  showToast('🧬 Гибрид создан!');
-  haptic('success'); addXp(20); closeModal('modal-cross'); checkAchievements(); save(); render();
-}
-
-function openInvestModal(){
-  const list=document.getElementById('investList'); 
-  list.innerHTML='';
-  INVESTMENTS.forEach(inv=>{ 
-      const owned=state.investments.filter(i=>i===inv.id).length; 
-      const div=document.createElement('div'); 
-      div.className='card'; 
-      div.innerHTML=`<div class="card-emoji">📈</div><div class="card-info"><div class="card-title">${inv.name} ${owned>0?'×'+owned:''}</div><div class="card-desc">${inv.desc}</div></div><button class="btn btn-small btn-pink" onclick="buyInvestment('${inv.id}')">${inv.price}$</button>`; 
-      list.appendChild(div); 
-  });
-  document.getElementById('modal-invest').classList.add('show');
-}
-
-function buyInvestment(id){
-  const inv=INVESTMENTS.find(i=>i.id===id); 
-  if(!inv||state.money<inv.price){ showToast('Не хватает денег',true); return; }
-  state.money-=inv.price; 
-  state.investments.push(id);
-  showToast(`📈 Куплено: ${inv.name}!`); 
-  haptic('success'); checkAchievements(); save(); render(); 
-}
-
-function processInvestments(){ 
-    const income=state.investments.reduce((sum,id)=>{ const inv=INVESTMENTS.find(i=>i.id===id); return sum+(inv?.income||0); },0); 
-    if(income>0) state.money+=income; 
-}
-
-function openTradeModal(){
-  const list=document.getElementById('tradeList'); 
-  list.innerHTML='';
-  if(state.friends.length===0){ list.innerHTML='<div class="empty">👤 Нет друзей</div>'; }
-  else{ state.friends.forEach(()=>{ const div=document.createElement('div'); div.className='card'; div.innerHTML=`<div class="card-emoji">👤</div><div class="card-info"><div class="card-title">Обмен</div><div class="card-desc">Отправь запрос</div></div><button class="btn btn-small btn-gold" onclick="sendTradeRequest()">📤</button>`; list.appendChild(div); }); }
-  document.getElementById('modal-trade').classList.add('show');
-}
-
-function sendTradeRequest(){
-  const items=Object.keys(state.inventory).filter(k=>state.inventory[k]>0);
-  if(items.length===0){ showToast('Нет товара',true); return; }
-  const item=items[0];
-  state.inventory[item]--; 
-  if(state.inventory[item]<=0) delete state.inventory[item];
-  showToast('📤 Запрос отправлен!'); 
-  haptic('medium'); save(); render(); closeModal('modal-trade');
-}
-
-// ============================================================
-// РЕНДЕРИНГ
-// ============================================================
 function renderFarm(){
-  const grid=document.getElementById('farm-grid'); 
-  if(!grid) return;
+  const grid=document.getElementById('farm-grid'); if(!grid) return;
   grid.innerHTML='';
-  if(!state.pots||state.pots.length===0){ 
-      grid.innerHTML='<div class="empty"><div class="empty-emoji">🪴</div>Нет горшков</div>'; 
-  } else {
+  if(!state.pots||state.pots.length===0){ grid.innerHTML='<div class="empty"><div class="empty-emoji">🪴</div>Нет горшков</div>'; }
+  else {
     state.pots.forEach(pot=>{
       const div=document.createElement('div');
       let potClass='pot';
@@ -1294,6 +708,7 @@ function renderFarm(){
       } else {
         const s=getStrain(pot.strain);
         const prog=getProgress(pot);
+        const timeLeft=getTimeLeft(pot);
         updatePotStage(pot); updateTHC(pot);
         const ready=prog>=1;
         let tags='';
@@ -1301,6 +716,7 @@ function renderFarm(){
         if(pot.pests) tags+=' 🐛';
         if(pot.lamp){ const l=getLamp(pot.lamp); if(l) tags+=` ${l.emoji}`; }
         const thcDisplay=pot.thc>0?`<div class="thc-indicator">💎 ТГК: ${Math.round(pot.thc)}%</div>`:'';
+        const timerDisplay=!ready?`<div class="growth-timer">⏱ ${formatTime(timeLeft)}</div>`:'<div class="growth-timer">✅ Готово!</div>';
         let actions='';
         if(ready){ actions=`<button class="btn btn-full" onclick="harvest(${pot.id})" style="font-size:9px">🌿 Собрать</button>`; }
         else {
@@ -1308,459 +724,92 @@ function renderFarm(){
           if(pot.pests){ pestBtn=`<button class="btn btn-small btn-warning" onclick="treatPestsAction(${pot.id})" style="font-size:7px">💊 Лечить</button>`; }
           actions=`<div class="pot-actions"><button class="btn btn-blue btn-small" onclick="waterPot(${pot.id})" style="font-size:7px">💧</button><button class="btn btn-warning btn-small" onclick="openFertModal(${pot.id})" style="font-size:7px">🧪</button><button class="btn btn-purple btn-small" onclick="openLampModal(${pot.id})" style="font-size:7px">💡</button>${pestBtn}</div>`;
         }
-        div.innerHTML=`<div class="pot-emoji">${STAGE_EMOJI[pot.stage]||'🌱'}</div><div class="pot-name">${s?.emoji} ${s?.name}${tags}</div>${thcDisplay}<div class="pot-status">${ready?'✅ Готово!':STAGE_NAMES[pot.stage]}</div><div class="plant-container">${getPlantSVG(pot.strain,pot.stage,pot.health,ready,pot.thc,pot.water)}</div><div class="bars"><div class="bar-row"><span>💧</span><div class="bar"><div class="bar-fill water" style="width:${pot.water}%"></div></div></div><div class="bar-row"><span>❤️</span><div class="bar"><div class="bar-fill health" style="width:${pot.health}%"></div></div></div><div class="bar-row"><span>⏱</span><div class="bar"><div class="bar-fill growth" style="width:${prog*100}%"></div></div></div>${pot.thc>0?`<div class="bar-row"><span>💎</span><div class="bar"><div class="bar-fill thc" style="width:${pot.thc}%"></div></div></div>`:''}</div>${actions}`;
+        div.innerHTML=`<div class="pot-emoji">${STAGE_EMOJI[pot.stage]||'🌱'}</div><div class="pot-name">${s?.emoji} ${s?.name}${tags}</div>${thcDisplay}${timerDisplay}<div class="pot-status">${ready?'✅ Готово!':STAGE_NAMES[pot.stage]}</div><div class="plant-container">${getPlantSVG(pot.strain,pot.stage,pot.health,ready,pot.thc,pot.water)}</div><div class="bars"><div class="bar-row"><span>💧</span><div class="bar"><div class="bar-fill water" style="width:${pot.water}%"></div></div></div><div class="bar-row"><span>❤️</span><div class="bar"><div class="bar-fill health" style="width:${pot.health}%"></div></div></div><div class="bar-row"><span>⏱</span><div class="bar"><div class="bar-fill growth" style="width:${prog*100}%"></div></div></div>${pot.thc>0?`<div class="bar-row"><span>💎</span><div class="bar"><div class="bar-fill thc" style="width:${pot.thc}%"></div></div></div>`:''}</div>${actions}`;
       }
       grid.appendChild(div);
     });
   }
   const btn=document.getElementById('btn-buy-pot');
-  if(btn){
-      const maxPots=getMaxPots();
-      const currentPots=state.pots.length;
-      const price=getPotPrice();
-      if(currentPots>=maxPots){
-        btn.textContent=`🔒 Лимит ${maxPots} горшков`;
-        btn.disabled=true;
-        btn.style.opacity='0.5';
-      } else {
-        btn.textContent=`➕ Купить горшок (${price}$)`;
-        btn.disabled=false;
-        btn.style.opacity='1';
-      }
-  }
+  if(btn){ const maxPots=getMaxPots(); const currentPots=state.pots.length; const price=getPotPrice(); if(currentPots>=maxPots){ btn.textContent=`🔒 Лимит ${maxPots} горшков`; btn.disabled=true; btn.style.opacity='0.5'; } else { btn.textContent=`➕ Купить горшок (${price}$)`; btn.disabled=false; btn.style.opacity='1'; } }
 }
 
-function renderMarket(){
-  const grid=document.getElementById('market-grid'); 
-  if(!grid) return;
-  grid.innerHTML='';
-  STRAINS.forEach(s=>{ 
-      const price=getMarketPrice(s.id); 
-      const change=getPriceChange(s.id); 
-      const div=document.createElement('div'); 
-      div.className='market-item'; 
-      div.innerHTML=`<span>${s.emoji} ${s.name}</span><span><span class="price">${price}$</span><span class="change ${change>=0?'up':'down'}">${change>=0?'+':''}${change.toFixed(1)}%</span></span>`; 
-      grid.appendChild(div); 
-  });
-  const now=Date.now(); 
-  const remaining=Math.max(0,Math.floor((state.marketUpdateTime+60000-now)/1000)); 
-  document.getElementById('market-timer').textContent=`🔄 Обновление: ${Math.floor(remaining/60)}:${String(remaining%60).padStart(2,'0')}`;
-}
+function renderMarket(){ const grid=document.getElementById('market-grid'); if(!grid) return; grid.innerHTML=''; STRAINS.forEach(s=>{ const price=getMarketPrice(s.id); const change=getPriceChange(s.id); const div=document.createElement('div'); div.className='market-item'; div.innerHTML=`<span>${s.emoji} ${s.name}</span><span><span class="price">${price}$</span><span class="change ${change>=0?'up':'down'}">${change>=0?'+':''}${change.toFixed(1)}%</span></span>`; grid.appendChild(div); }); const now=Date.now(); const remaining=Math.max(0,Math.floor((state.marketUpdateTime+60000-now)/1000)); document.getElementById('market-timer').textContent=`🔄 Обновление: ${Math.floor(remaining/60)}:${String(remaining%60).padStart(2,'0')}`; }
 
-function renderShop(){
-  const list=document.getElementById('shop-list'); 
-  if(!list) return;
-  list.innerHTML=`<div class="card"><div class="card-emoji">⚡</div><div class="card-info"><div class="card-title">Энергетик</div><div class="card-desc">+50 энергии</div></div><button class="btn btn-small" onclick="buyEnergy()">80$</button></div><div class="section-title">💡 Лампы</div>`;
-  LAMPS.forEach(l=>{ 
-      const owned=state.lamps[l.id]||0; 
-      const c=document.createElement('div'); 
-      c.className='card'; 
-      c.innerHTML=`<div class="card-emoji">${l.emoji}</div><div class="card-info"><div class="card-title">${l.name} ${owned?`<span class="inv-count">×${owned}</span>`:''}</div><div class="card-desc">${l.desc}</div></div><button class="btn btn-small btn-warning" onclick="buyLamp('${l.id}')">${l.price}$</button>`; 
-      list.appendChild(c); 
-  });
-  list.innerHTML+=`<div class="section-title">🧪 Удобрения</div>`;
-  FERTS.forEach(f=>{ 
-      const owned=state.ferts[f.id]||0; 
-      const c=document.createElement('div'); 
-      c.className='card'; 
-      c.innerHTML=`<div class="card-emoji">${f.emoji}</div><div class="card-info"><div class="card-title">${f.name} ${owned?`<span class="inv-count">×${owned}</span>`:''}</div><div class="card-desc">${f.desc}</div></div><button class="btn btn-small" onclick="buyFert('${f.id}')">${f.price}$</button>`; 
-      list.appendChild(c); 
-  });
-}
+function renderShop(){ const list=document.getElementById('shop-list'); if(!list) return; list.innerHTML=`<div class="card"><div class="card-emoji">⚡</div><div class="card-info"><div class="card-title">Энергетик</div><div class="card-desc">+50 энергии</div></div><button class="btn btn-small" onclick="buyEnergy()">80$</button></div><div class="section-title">💡 Лампы</div>`; LAMPS.forEach(l=>{ const owned=state.lamps[l.id]||0; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${l.emoji}</div><div class="card-info"><div class="card-title">${l.name} ${owned?`<span class="inv-count">×${owned}</span>`:''}</div><div class="card-desc">${l.desc}</div></div><button class="btn btn-small btn-warning" onclick="buyLamp('${l.id}')">${l.price}$</button>`; list.appendChild(c); }); list.innerHTML+=`<div class="section-title">🧪 Удобрения</div>`; FERTS.forEach(f=>{ const owned=state.ferts[f.id]||0; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${f.emoji}</div><div class="card-info"><div class="card-title">${f.name} ${owned?`<span class="inv-count">×${owned}</span>`:''}</div><div class="card-desc">${f.desc}</div></div><button class="btn btn-small" onclick="buyFert('${f.id}')">${f.price}$</button>`; list.appendChild(c); }); }
 
-function renderInventory(){
-  const list=document.getElementById('inventory-list'); 
-  if(!list) return;
-  const entries=Object.entries(state.inventory).filter(([_,a])=>a>0);
-  if(!entries.length){ 
-      list.innerHTML='<div class="empty"><div class="empty-emoji">📦</div>Склад пуст</div>'; 
-      document.getElementById('btn-sell-all').style.display='none'; 
-      return; 
-  }
-  document.getElementById('btn-sell-all').style.display='block'; 
-  list.innerHTML='';
-  entries.forEach(([id,amt])=>{ 
-      const info=getProductInfo(id); 
-      if(info){ 
-          const c=document.createElement('div'); 
-          c.className='card'; 
-          c.innerHTML=`<div class="card-emoji">${info.emoji}</div><div class="card-info"><div class="card-title">${info.name} <span class="inv-count">×${amt}</span></div><div class="card-desc">💰${info.sellPrice}$ · ${amt*info.sellPrice}$</div></div><button class="btn btn-small" onclick="openSellModal('${id}')">💰</button>`; 
-          list.appendChild(c); 
-      } 
-  });
-}
+function renderInventory(){ const list=document.getElementById('inventory-list'); if(!list) return; const entries=Object.entries(state.inventory).filter(([_,a])=>a>0); if(!entries.length){ list.innerHTML='<div class="empty"><div class="empty-emoji">📦</div>Склад пуст</div>'; document.getElementById('btn-sell-all').style.display='none'; return; } document.getElementById('btn-sell-all').style.display='block'; list.innerHTML=''; entries.forEach(([id,amt])=>{ const info=getProductInfo(id); if(info){ const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${info.emoji}</div><div class="card-info"><div class="card-title">${info.name} <span class="inv-count">×${amt}</span></div><div class="card-desc">💰${info.sellPrice}$ · ${amt*info.sellPrice}$</div></div><button class="btn btn-small" onclick="openSellModal('${id}')">💰</button>`; list.appendChild(c); } }); }
 
-function renderProcess(){
-  const list=document.getElementById('process-list'); 
-  if(!list) return; 
-  list.innerHTML='';
-  const raws=Object.entries(state.inventory).filter(([k,v])=>v>0&&getStrain(k));
-  if(!raws.length){ list.innerHTML='<div class="empty"><div class="empty-emoji">⚗️</div>Нет сырья</div>'; }
-  else{ raws.forEach(([id,amt])=>{ const s=getStrain(id); const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${s.emoji}</div><div class="card-info"><div class="card-title">${s.name} <span class="inv-count">×${amt}</span></div><div class="card-desc">Сырец</div></div><button class="btn btn-small btn-warning" onclick="processItem('${id}','dried')">🍂 Сушить</button>`; list.appendChild(c); }); }
-  const dried=Object.entries(state.inventory).filter(([k,v])=>v>0&&k.endsWith('_dried'));
-  dried.forEach(([key,amt])=>{ const info=getProductInfo(key); if(!info) return; const sid=info.strain; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">🍂</div><div class="card-info"><div class="card-title">${info.name} <span class="inv-count">×${amt}</span></div><div class="card-desc">Переработка</div></div><div style="display:flex;flex-direction:column;gap:3px;"><button class="btn btn-small" onclick="processItem('${sid}','joint')">🚬</button><button class="btn btn-small" onclick="processItem('${sid}','oil')">🧴</button><button class="btn btn-small" onclick="processItem('${sid}','edible')">🍪</button></div>`; list.appendChild(c); });
-  const plist=document.getElementById('products-list'); 
-  if(!plist) return; 
-  plist.innerHTML='';
-  const products=Object.entries(state.inventory).filter(([k,v])=>v>0&&(k.includes('_joint')||k.includes('_oil')||k.includes('_edible')));
-  if(!products.length){ plist.innerHTML='<div class="empty"><div class="empty-emoji">🍃</div>Нет продукции</div>'; }
-  else{ products.forEach(([key,amt])=>{ const info=getProductInfo(key); if(!info) return; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${info.emoji}</div><div class="card-info"><div class="card-title">${info.name} <span class="inv-count">×${amt}</span></div><div class="card-desc">${info.sellPrice}$</div></div><button class="btn btn-small" onclick="openSellModal('${key}')">💰</button>`; plist.appendChild(c); }); }
-}
+function renderProcess(){ const list=document.getElementById('process-list'); if(!list) return; list.innerHTML=''; const raws=Object.entries(state.inventory).filter(([k,v])=>v>0&&getStrain(k)); if(!raws.length){ list.innerHTML='<div class="empty"><div class="empty-emoji">⚗️</div>Нет сырья</div>'; } else { raws.forEach(([id,amt])=>{ const s=getStrain(id); const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${s.emoji}</div><div class="card-info"><div class="card-title">${s.name} <span class="inv-count">×${amt}</span></div><div class="card-desc">Сырец</div></div><button class="btn btn-small btn-warning" onclick="processItem('${id}','dried')">🍂 Сушить</button>`; list.appendChild(c); }); } const dried=Object.entries(state.inventory).filter(([k,v])=>v>0&&k.endsWith('_dried')); dried.forEach(([key,amt])=>{ const info=getProductInfo(key); if(!info) return; const sid=info.strain; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">🍂</div><div class="card-info"><div class="card-title">${info.name} <span class="inv-count">×${amt}</span></div><div class="card-desc">Переработка</div></div><div style="display:flex;flex-direction:column;gap:3px;"><button class="btn btn-small" onclick="processItem('${sid}','joint')">🚬</button><button class="btn btn-small" onclick="processItem('${sid}','oil')">🧴</button><button class="btn btn-small" onclick="processItem('${sid}','edible')">🍪</button></div>`; list.appendChild(c); }); const plist=document.getElementById('products-list'); if(!plist) return; plist.innerHTML=''; const products=Object.entries(state.inventory).filter(([k,v])=>v>0&&(k.includes('_joint')||k.includes('_oil')||k.includes('_edible'))); if(!products.length){ plist.innerHTML='<div class="empty"><div class="empty-emoji">🍃</div>Нет продукции</div>'; } else { products.forEach(([key,amt])=>{ const info=getProductInfo(key); if(!info) return; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${info.emoji}</div><div class="card-info"><div class="card-title">${info.name} <span class="inv-count">×${amt}</span></div><div class="card-desc">${info.sellPrice}$</div></div><button class="btn btn-small" onclick="openSellModal('${key}')">💰</button>`; plist.appendChild(c); }); } }
 
-function renderRoom(){
-  const info=document.getElementById('room-info'); 
-  if(!info) return;
-  info.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px"><div style="background:rgba(255,255,255,.03);padding:4px;border-radius:6px;text-align:center"><span style="font-size:18px;">🪴</span><div>${state.pots.length}</div></div><div style="background:rgba(255,255,255,.03);padding:4px;border-radius:6px;text-align:center"><span style="font-size:18px;">${state.room.vent?'✅':'❌'}</span><div style="font-size:8px;">Вентиляция</div></div><div style="background:rgba(255,255,255,.03);padding:4px;border-radius:6px;text-align:center"><span style="font-size:18px;">${state.room.auto?'✅':'❌'}</span><div style="font-size:8px;">Автополив</div></div><div style="grid-column:span 3;background:rgba(255,255,255,.03);padding:4px;border-radius:6px;text-align:center"><span style="font-size:18px;">${state.room.heater?'✅':'❌'}</span><div style="font-size:8px;">Обогреватель</div></div></div>`;
-  const list=document.getElementById('room-list'); 
-  if(!list) return; 
-  list.innerHTML='<div class="section-title">🏠 Улучшения</div>';
-  ROOM_UPGRADES.forEach(u=>{ 
-      let bought=(u.type==='vent'&&state.room.vent)||(u.type==='auto'&&state.room.auto)||(u.type==='heater'&&state.room.heater); 
-      const c=document.createElement('div'); 
-      c.className='card'; 
-      c.style.opacity=bought?'0.5':'1'; 
-      c.innerHTML=`<div class="card-emoji">${u.emoji}</div><div class="card-info"><div class="card-title">${u.name}</div><div class="card-desc">${u.desc}</div></div>${bought?'<span style="font-size:9px;">✅</span>':`<button class="btn btn-small" onclick="buyRoomUpgrade('${u.id}')">${u.price}$</button>`}`; 
-      list.appendChild(c); 
-  });
-}
+function renderRoom(){ const info=document.getElementById('room-info'); if(!info) return; info.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px"><div style="background:rgba(255,255,255,.03);padding:4px;border-radius:6px;text-align:center"><span style="font-size:18px;">🪴</span><div>${state.pots.length}</div></div><div style="background:rgba(255,255,255,.03);padding:4px;border-radius:6px;text-align:center"><span style="font-size:18px;">${state.room.vent?'✅':'❌'}</span><div style="font-size:8px;">Вентиляция</div></div><div style="background:rgba(255,255,255,.03);padding:4px;border-radius:6px;text-align:center"><span style="font-size:18px;">${state.room.auto?'✅':'❌'}</span><div style="font-size:8px;">Автополив</div></div><div style="grid-column:span 3;background:rgba(255,255,255,.03);padding:4px;border-radius:6px;text-align:center"><span style="font-size:18px;">${state.room.heater?'✅':'❌'}</span><div style="font-size:8px;">Обогреватель</div></div></div>`; const list=document.getElementById('room-list'); if(!list) return; list.innerHTML='<div class="section-title">🏠 Улучшения</div>'; ROOM_UPGRADES.forEach(u=>{ const bought=(u.type==='vent'&&state.room.vent)||(u.type==='auto'&&state.room.auto)||(u.type==='heater'&&state.room.heater); const c=document.createElement('div'); c.className='card'; c.style.opacity=bought?'0.5':'1'; c.innerHTML=`<div class="card-emoji">${u.emoji}</div><div class="card-info"><div class="card-title">${u.name}</div><div class="card-desc">${u.desc}</div></div>${bought?'<span style="font-size:9px;">✅</span>':`<button class="btn btn-small" onclick="buyRoomUpgrade('${u.id}')">${u.price}$</button>`}`; list.appendChild(c); }); }
 
-function renderProfile(){
-  document.getElementById('profile-name').textContent=getUserName();
-  document.getElementById('profile-id').textContent='ID: '+userId;
-  document.getElementById('profile-regdate').textContent=new Date(state.registerDate).toLocaleDateString();
-  document.getElementById('profile-level').textContent=state.level;
-  document.getElementById('profile-money').textContent=Math.floor(state.money)+'$';
-  document.getElementById('profile-energy').textContent=Math.floor(state.energy)+'/'+state.maxEnergy;
-  document.getElementById('profile-harvests').textContent=state.totalHarvests||0;
-  document.getElementById('profile-pots').textContent=state.pots.length;
-  document.getElementById('profile-state').textContent=highTimer?'🌀 Накурило!':'🧠 Норма';
-  document.getElementById('profile-heat').textContent=Math.floor(state.heat)+'%';
-  const hours=Math.floor(state.gameTime/60)%24, minutes=Math.floor(state.gameTime%60);
-  document.getElementById('profile-time').textContent=`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')} ${hours>=6&&hours<18?'☀️':'🌙'}`;
-  document.getElementById('profile-maxthc').textContent=Math.round(state.maxTHC||0)+'%';
-  // ВАЖНО: Исправлено отображение регистрации
-  const regEl=document.getElementById('profile-registered');
-  if(regEl){
-      regEl.textContent=state.registered?'✅ Да':'❌ Нет';
-      regEl.className='value '+(state.registered?'green':'red');
-  }
-}
+function renderProfile(){ document.getElementById('profile-name').textContent=getUserName(); document.getElementById('profile-id').textContent='ID: '+userId; document.getElementById('profile-regdate').textContent=new Date(state.registerDate).toLocaleDateString(); document.getElementById('profile-level').textContent=state.level; document.getElementById('profile-money').textContent=Math.floor(state.money)+'$'; document.getElementById('profile-energy').textContent=Math.floor(state.energy)+'/'+state.maxEnergy; document.getElementById('profile-harvests').textContent=state.totalHarvests||0; document.getElementById('profile-pots').textContent=state.pots.length; document.getElementById('profile-state').textContent=highTimer?'🌀 Накурило!':'🧠 Норма'; document.getElementById('profile-heat').textContent=Math.floor(state.heat)+'%'; const hours=Math.floor(state.gameTime/60)%24, minutes=Math.floor(state.gameTime%60); document.getElementById('profile-time').textContent=`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')} ${hours>=6&&hours<18?'☀️':'🌙'}`; document.getElementById('profile-maxthc').textContent=Math.round(state.maxTHC||0)+'%'; const regEl=document.getElementById('profile-registered'); if(regEl){ regEl.textContent=state.registered?'✅ Да':'❌ Нет'; regEl.className='value '+(state.registered?'green':'red'); } }
 
-function renderHeader(){
-  document.getElementById('money').textContent=Math.floor(state.money);
-  document.getElementById('energy').textContent=Math.floor(state.energy);
-  document.getElementById('level').textContent=state.level;
-  document.getElementById('rep').textContent=state.rep;
-  document.getElementById('heat').textContent=Math.floor(state.heat);
-  document.getElementById('xp-badge').textContent=`${state.xp}/${xpFor(state.level)} XP`;
-  const w=getWeatherMult();
-  document.getElementById('weatherDisplay').textContent=w.emoji+' '+w.name;
-}
+function renderHeader(){ document.getElementById('money').textContent=Math.floor(state.money); document.getElementById('energy').textContent=Math.floor(state.energy); document.getElementById('level').textContent=state.level; document.getElementById('rep').textContent=state.rep; document.getElementById('heat').textContent=Math.floor(state.heat); document.getElementById('xp-badge').textContent=`${state.xp}/${xpFor(state.level)} XP`; }
 
-function renderFriends(){
-  document.getElementById('ref-count').textContent=state.referrals||0;
-  document.getElementById('ref-earned').textContent=state.referralEarned||0;
-  const container=document.getElementById('friends-list'); 
-  if(!container) return;
-  const friends=state.referralsList||[];
-  if(friends.length===0){ container.innerHTML='<div style="font-size:9px;color:var(--hint);text-align:center;">Пока нет друзей</div>'; return; }
-  container.innerHTML=friends.map(f=>`<div style="padding:3px;border-bottom:1px solid rgba(255,255,255,.04);font-size:9px;display:flex;justify-content:space-between;"><span>${f.name||'Друг'}</span><span style="color:var(--gold);">+${f.bonus||150}$</span></div>`).join('');
-}
+function renderFriends(){ document.getElementById('ref-count').textContent=state.referrals||0; document.getElementById('ref-earned').textContent=state.referralEarned||0; const container=document.getElementById('friends-list'); if(!container) return; const friends=state.referralsList||[]; if(friends.length===0){ container.innerHTML='<div style="font-size:9px;color:var(--hint);text-align:center;">Пока нет друзей</div>'; return; } container.innerHTML=friends.map(f=>`<div style="padding:3px;border-bottom:1px solid rgba(255,255,255,.04);font-size:9px;display:flex;justify-content:space-between;"><span>${f.name||'Друг'}</span><span style="color:var(--gold);">+${f.bonus||150}$</span></div>`).join(''); }
 
-function renderSocial(){
-  const reqDiv=document.getElementById('friend-requests');
-  if(state.friendRequests.length===0){ reqDiv.innerHTML=''; }
-  else{ reqDiv.innerHTML='<div class="section-title">📩 Заявки</div>'+state.friendRequests.map((req,i)=>`<div class="request-item"><span>${req.name}</span><div><button class="btn btn-small" onclick="acceptFriend(${i})">✅</button><button class="btn btn-small btn-secondary" onclick="rejectFriend(${i})">❌</button></div></div>`).join(''); }
-  const friendsDiv=document.getElementById('friends-list-social'); 
-  if(!friendsDiv) return;
-  if(state.friends.length===0){ friendsDiv.innerHTML='<div class="empty">Нет друзей</div>'; }
-  else{ friendsDiv.innerHTML='<div class="section-title">👫 Мои друзья</div>'+state.friends.map((f,i)=>`<div class="friend-item"><span style="flex:1;">${f.name}</span><button class="btn btn-small btn-secondary" onclick="removeFriend(${i})">🗑</button></div>`).join(''); }
-  const logDiv=document.getElementById('bonus-log'); 
-  if(logDiv) logDiv.innerHTML=state.bonusLog.length===0?'История пуста':state.bonusLog.slice(0,10).map(e=>`<div style="padding:2px;font-size:8px;">${new Date(e.date).toLocaleDateString()}: +${e.amount}$ +${e.energy}⚡</div>`).join('');
-  renderChat();
-}
+function renderSocial(){ const reqDiv=document.getElementById('friend-requests'); if(state.friendRequests.length===0){ reqDiv.innerHTML=''; } else { reqDiv.innerHTML='<div class="section-title">📩 Заявки</div>'+state.friendRequests.map((req,i)=>`<div class="request-item"><span>${req.name}</span><div><button class="btn btn-small" onclick="acceptFriend(${i})">✅</button><button class="btn btn-small btn-secondary" onclick="rejectFriend(${i})">❌</button></div></div>`).join(''); } const friendsDiv=document.getElementById('friends-list-social'); if(!friendsDiv) return; if(state.friends.length===0){ friendsDiv.innerHTML='<div class="empty">Нет друзей</div>'; } else { friendsDiv.innerHTML='<div class="section-title">👫 Мои друзья</div>'+state.friends.map((f,i)=>`<div class="friend-item"><span style="flex:1;">${f.name}</span><button class="btn btn-small btn-secondary" onclick="removeFriend(${i})">🗑</button></div>`).join(''); } const logDiv=document.getElementById('bonus-log'); if(logDiv) logDiv.innerHTML=state.bonusLog.length===0?'История пуста':state.bonusLog.slice(0,10).map(e=>`<div style="padding:2px;font-size:8px;">${new Date(e.date).toLocaleDateString()}: +${e.amount}$ +${e.energy}⚡</div>`).join(''); renderChat(); }
 
-function render(){
-  renderHeader();
-  renderFarm();
-  renderMarket();
-  renderShop();
-  renderInventory();
-  renderProcess();
-  renderRoom();
-  renderProfile();
-  renderFriends();
-  renderSocial();
-  updateBonusTimer();
-  updateGameTime();
-}
+function render(){ renderHeader(); renderFarm(); renderMarket(); renderShop(); renderInventory(); renderProcess(); renderRoom(); renderProfile(); renderFriends(); renderSocial(); updateBonusTimer(); updateGameTime(); }
 
-// ============================================================
-// ВСПОМОГАТЕЛЬНЫЕ
-// ============================================================
-function updateWeather(){
-  const w=getWeatherMult();
-  document.getElementById('weatherDisplay').textContent=w.emoji+' '+w.name;
-  state.weatherTimer=(state.weatherTimer||0)+1;
-  if(state.weatherTimer>1800){ 
-      const idx=WEATHERS.findIndex(x=>x.id===state.weather); 
-      let newIdx; do{ newIdx=Math.floor(Math.random()*WEATHERS.length); }while(newIdx===idx); 
-      state.weather=WEATHERS[newIdx].id; state.weatherTimer=0; 
-  }
-}
+function updateGameTime(){ const now=Date.now(); const dt=(now-(state.lastTick||now))/1000; state.gameTime=(state.gameTime||12*60)+dt/3; const hours=Math.floor(state.gameTime/60)%24, minutes=Math.floor(state.gameTime%60); document.getElementById('gameTime').textContent=`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`; document.getElementById('dayPhase').textContent=hours>=6&&hours<18?'☀️':'🌙'; }
 
-function updateGameTime(){ 
-    const now=Date.now(); 
-    const dt=(now-(state.lastTick||now))/1000; 
-    state.gameTime=(state.gameTime||12*60)+dt/3; 
-    const hours=Math.floor(state.gameTime/60)%24, minutes=Math.floor(state.gameTime%60); 
-    document.getElementById('gameTime').textContent=`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`; 
-    document.getElementById('dayPhase').textContent=hours>=6&&hours<18?'☀️':'🌙'; 
-}
+function updateBonusTimer(){ const now=Date.now(); const remaining=Math.max(0,24*60*60*1000-(now-(state.lastBonusTime||0))); const timerEl=document.getElementById('bonus-countdown'); const btnEl=document.getElementById('btn-bonus'); if(remaining<=0){ if(timerEl) timerEl.textContent='🎁 Доступно!'; if(btnEl){ btnEl.disabled=false; btnEl.style.opacity='1'; } return; } const h=Math.floor(remaining/(60*60*1000)), m=Math.floor((remaining%(60*60*1000))/(60*1000)), s=Math.floor((remaining%(60*1000))/1000); if(timerEl) timerEl.textContent=`⏳ ${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; if(btnEl){ btnEl.disabled=true; btnEl.style.opacity='0.5'; } }
 
-function updateBonusTimer(){
-  const now=Date.now(); 
-  const remaining=Math.max(0,24*60*60*1000-(now-(state.lastBonusTime||0)));
-  const timerEl=document.getElementById('bonus-countdown'); 
-  const btnEl=document.getElementById('btn-bonus');
-  if(remaining<=0){ if(timerEl) timerEl.textContent='🎁 Доступно!'; if(btnEl){ btnEl.disabled=false; btnEl.style.opacity='1'; } return; }
-  const h=Math.floor(remaining/(60*60*1000)), m=Math.floor((remaining%(60*60*1000))/(60*1000)), s=Math.floor((remaining%(60*1000))/1000);
-  if(timerEl) timerEl.textContent=`⏳ ${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  if(btnEl){ btnEl.disabled=true; btnEl.style.opacity='0.5'; }
-}
-
-function sendDailyBonus(){
-  const now=Date.now();
-  if(now-(state.lastBonusTime||0)<24*60*60*1000){ showToast('Бонус недоступен!',true); return; }
-  if(state.friends.length===0){ showToast('Нет друзей',true); return; }
-  const bonus=50+state.friends.length*10, energy=10+state.friends.length*2;
-  state.money+=bonus; state.energy=Math.min(state.maxEnergy,state.energy+energy);
-  state.lastBonusTime=now; 
-  state.bonusLog.unshift({date:new Date().toISOString(),amount:bonus,energy:energy});
-  showToast(`🎁 +${bonus}$ +${energy}⚡`); haptic('success'); addHeat(2); save(); renderSocial(); updateBonusTimer();
-}
+function sendDailyBonus(){ const now=Date.now(); if(now-(state.lastBonusTime||0)<24*60*60*1000){ showToast('Бонус недоступен!',true); return; } if(state.friends.length===0){ showToast('Нет друзей',true); return; } const bonus=50+state.friends.length*10, energy=10+state.friends.length*2; state.money+=bonus; state.energy=Math.min(state.maxEnergy,state.energy+energy); state.lastBonusTime=now; state.bonusLog.unshift({date:new Date().toISOString(),amount:bonus,energy:energy}); showToast(`🎁 +${bonus}$ +${energy}⚡`); haptic('success'); addHeat(2); save(); renderSocial(); updateBonusTimer(); }
 
 function loadChat(){ try{ const saved=localStorage.getItem('chat_'+userId); if(saved) chatMessages=JSON.parse(saved); }catch(e){} }
 function saveChat(){ try{ localStorage.setItem('chat_'+userId,JSON.stringify(chatMessages)); }catch(e){} }
-
-function sendChatMessage(){ 
-    const input=document.getElementById('chatInput'); 
-    const text=input.value.trim(); 
-    if(!text) return; 
-    chatMessages.push({from:userId,name:getUserName(),text:text,time:new Date().toISOString()}); 
-    saveChat(); input.value=''; renderChat(); 
-}
-
-function renderChat(){ 
-    const el=document.getElementById('chatWindow'); 
-    if(!el) return; 
-    const msgs=chatMessages.slice(-20); 
-    el.innerHTML=msgs.length===0?'<div class="chat-message">Нет сообщений</div>':msgs.map(msg=>`<div class="chat-message"><span class="sender">${msg.name}</span><span class="time">${new Date(msg.time).toLocaleTimeString()}</span><div>${msg.text}</div></div>`).join(''); 
-    el.scrollTop=el.scrollHeight; 
-}
+function sendChatMessage(){ const input=document.getElementById('chatInput'); const text=input.value.trim(); if(!text) return; chatMessages.push({from:userId,name:getUserName(),text:text,time:new Date().toISOString()}); saveChat(); input.value=''; renderChat(); }
+function renderChat(){ const el=document.getElementById('chatWindow'); if(!el) return; const msgs=chatMessages.slice(-20); el.innerHTML=msgs.length===0?'<div class="chat-message">Нет сообщений</div>':msgs.map(msg=>`<div class="chat-message"><span class="sender">${msg.name}</span><span class="time">${new Date(msg.time).toLocaleTimeString()}</span><div>${msg.text}</div></div>`).join(''); el.scrollTop=el.scrollHeight; }
 
 function getRefLink(){ return tg?`https://t.me/share/url?url=${encodeURIComponent('https://t.me/YOUR_BOT_USERNAME?startapp=ref_'+userId)}`:window.location.origin+'/?ref='+userId; }
 function shareReferral(){ const link=getRefLink(); if(tg?.openTelegramLink){ tg.openTelegramLink(link); } else { navigator.clipboard?.writeText(link).then(()=>showToast('📋 Скопировано')); } }
 function copyReferral(){ navigator.clipboard?.writeText(getRefLink()).then(()=>showToast('📋 Скопировано')); }
 
-function addFriend(){ 
-    const input=document.getElementById('friend-search'); 
-    const name=input.value.trim(); 
-    if(!name) return; 
-    if(!state.friends.find(f=>f.name.toLowerCase()===name.toLowerCase())&&!state.friendRequests.find(r=>r.name.toLowerCase()===name.toLowerCase())){ 
-        state.friendRequests.push({name:name,date:new Date().toISOString()}); 
-        showToast(`📨 Заявка: ${name}`); haptic('medium'); input.value=''; save(); renderSocial(); 
-    } 
-}
-
+function addFriend(){ const input=document.getElementById('friend-search'); const name=input.value.trim(); if(!name) return; if(!state.friends.find(f=>f.name.toLowerCase()===name.toLowerCase())&&!state.friendRequests.find(r=>r.name.toLowerCase()===name.toLowerCase())){ state.friendRequests.push({name:name,date:new Date().toISOString()}); showToast(`📨 Заявка: ${name}`); haptic('medium'); input.value=''; save(); renderSocial(); } }
 function acceptFriend(index){ const req=state.friendRequests[index]; if(!req) return; state.friends.push({name:req.name,addedAt:new Date().toISOString()}); state.friendRequests.splice(index,1); state.money+=20; showToast(`👫 ${req.name} в друзьях!`); haptic('success'); save(); renderSocial(); }
 function rejectFriend(index){ state.friendRequests.splice(index,1); save(); renderSocial(); }
 function removeFriend(index){ state.friends.splice(index,1); save(); renderSocial(); }
 
-// ВАЖНО: Исправлена функция регистрации
-function registerProfileOnServer(){ 
-    if(state.registered){ showToast('✅ Уже зарегистрирован!'); return; }
-    state.registered=true;
-    showToast('✅ Профиль зарегистрирован!'); 
-    haptic('success'); 
-    save(); 
-    render();
-    // Обновляем баннер
-    const banner=document.getElementById('register-banner');
-    if(banner) banner.style.display='none';
-    loadLeaderboardFromServer(); 
-}
+function registerProfileOnServer(){ if(state.registered){ showToast('✅ Уже зарегистрирован!'); return; } state.registered=true; showToast('✅ Профиль зарегистрирован!'); haptic('success'); save(); render(); const banner=document.getElementById('register-banner'); if(banner) banner.style.display='none'; loadLeaderboardFromServer(); }
+function updateRegisterBanner(){ const banner=document.getElementById('register-banner'); if(!banner) return; banner.style.display=state.registered===true?'none':'block'; }
+function loadLeaderboardFromServer(){ const list=document.getElementById('leaderboard-list'); if(!list) return; list.innerHTML='<div class="empty">📊 Загрузка...</div>'; setTimeout(()=>{ list.innerHTML='<div class="empty">📊 Пока нет игроков</div>'; const myRank=document.getElementById('my-rank'); if(myRank){ myRank.style.display='block'; myRank.innerHTML=`<div class="my-rank">Ты: ${getUserName()} · 💰${Math.floor(state.money)}$ · ${state.registered?'✅ Зарегистрирован':'❌ Не зарегистрирован'}</div>`; } },500); }
 
-function updateRegisterBanner(){ 
-    const banner=document.getElementById('register-banner'); 
-    if(!banner) return;
-    // ВАЖНО: Баннер скрывается ТОЛЬКО если registered=true
-    if(state.registered===true){ 
-        banner.style.display='none'; 
-    } else { 
-        banner.style.display='block'; 
-    }
-}
+function openSeedModal(id){ selectedPotId=id; const list=document.getElementById('seed-list'); list.innerHTML=''; STRAINS.forEach(s=>{ const unlocked=state.level>=s.unlock; const can=state.money>=s.seedPrice&&state.energy>=s.energyCost; const c=document.createElement('div'); c.className='card'+(unlocked?'':' card-locked'); c.innerHTML=`<div class="card-emoji">${s.emoji}</div><div class="card-info"><div class="card-title">${s.name} ${!unlocked?'🔒':''}</div><div class="card-desc">⏱ ${formatTime(s.baseTime)} · ${s.yield} шт · 💰${s.sellPrice}$</div></div><div style="text-align:right"><div style="font-weight:700;font-size:11px;">${s.seedPrice}$</div><div style="font-size:7px;">⚡${s.energyCost}</div></div>`; if(unlocked&&can){ c.style.cursor='pointer'; c.onclick=()=>plantSeed(s.id); } list.appendChild(c); }); document.getElementById('modal-seed').classList.add('show'); }
+function plantSeed(sid){ const s=getStrain(sid); if(state.money<s.seedPrice||state.energy<s.energyCost){ showToast('Не хватает ресурсов',true); return; } const pot=state.pots.find(p=>p.id===selectedPotId); if(!pot||!pot.isActive||pot.strain){ showToast('Горшок занят',true); return; } state.money-=s.seedPrice; state.energy-=s.energyCost; pot.strain=sid; pot.plantedAt=Date.now(); pot.water=80; pot.health=100; pot.stage=1; pot.disease=false; pot.pests=false; pot.pestLevel=0; pot.speedMult=1; pot.yieldMult=1; pot.thc=0; pot.lampTHCBonus=0; pot.fertCount=0; closeModal('modal-seed'); showToast('🌱 Посажено: '+s.name); haptic('medium'); addXp(3); addHeat(0.5); save(); render(); }
 
-function loadLeaderboardFromServer(){ 
-    const list=document.getElementById('leaderboard-list'); 
-    if(!list) return; 
-    list.innerHTML='<div class="empty">📊 Загрузка...</div>'; 
-    setTimeout(()=>{ 
-        list.innerHTML='<div class="empty">📊 Пока нет игроков</div>'; 
-        const myRank=document.getElementById('my-rank'); 
-        if(myRank){ 
-            myRank.style.display='block'; 
-            myRank.innerHTML=`<div class="my-rank">Ты: ${getUserName()} · 💰${Math.floor(state.money)}$ · ${state.registered?'✅ Зарегистрирован':'❌ Не зарегистрирован'}</div>`; 
-        } 
-    },500); 
-}
-
-function openSeedModal(id){ 
-    selectedPotId=id; 
-    const list=document.getElementById('seed-list'); 
-    list.innerHTML=''; 
-    STRAINS.forEach(s=>{ 
-        const unlocked=state.level>=s.unlock; 
-        const can=state.money>=s.seedPrice&&state.energy>=s.energyCost; 
-        const c=document.createElement('div'); 
-        c.className='card'+(unlocked?'':' card-locked'); 
-        c.innerHTML=`<div class="card-emoji">${s.emoji}</div><div class="card-info"><div class="card-title">${s.name} ${!unlocked?'🔒':''}</div><div class="card-desc">${Math.floor(s.baseTime/60)}м · ${s.yield} шт · 💰${s.sellPrice}$</div></div><div style="text-align:right"><div style="font-weight:700;font-size:11px;">${s.seedPrice}$</div><div style="font-size:7px;">⚡${s.energyCost}</div></div>`; 
-        if(unlocked&&can){ c.style.cursor='pointer'; c.onclick=()=>plantSeed(s.id); } 
-        list.appendChild(c); 
-    }); 
-    document.getElementById('modal-seed').classList.add('show'); 
-}
-
-function plantSeed(sid){ 
-    const s=getStrain(sid); 
-    if(state.money<s.seedPrice||state.energy<s.energyCost){ showToast('Не хватает ресурсов',true); return; } 
-    const pot=state.pots.find(p=>p.id===selectedPotId); 
-    if(!pot||!pot.isActive||pot.strain){ showToast('Горшок занят',true); return; } 
-    state.money-=s.seedPrice; state.energy-=s.energyCost; 
-    pot.strain=sid; pot.plantedAt=Date.now(); pot.water=80; pot.health=100; pot.stage=1; 
-    pot.disease=false; pot.pests=false; pot.pestLevel=0; pot.speedMult=1; pot.yieldMult=1; 
-    pot.thc=0; pot.lampTHCBonus=0; pot.fertCount=0; 
-    closeModal('modal-seed'); showToast('🌱 Посажено: '+s.name); haptic('medium'); addXp(3); addHeat(0.5); save(); render(); 
-}
-
-function openFertModal(id){ 
-    selectedPotId=id; 
-    const list=document.getElementById('fert-list'); 
-    list.innerHTML=''; 
-    let any=false; 
-    FERTS.forEach(f=>{ const cnt=state.ferts[f.id]||0; if(cnt<=0) return; any=true; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${f.emoji}</div><div class="card-info"><div class="card-title">${f.name} ×${cnt}</div><div class="card-desc">${f.desc}</div></div><button class="btn btn-small btn-warning" onclick="applyFertToPot(${selectedPotId},'${f.id}')">Применить</button>`; list.appendChild(c); }); 
-    if(!any) list.innerHTML='<div class="empty">Нет удобрений</div>'; 
-    document.getElementById('modal-fert').classList.add('show'); 
-}
-
-function openLampModal(id){ 
-    selectedPotId=id; 
-    const list=document.getElementById('lamp-list'); 
-    list.innerHTML=''; 
-    let any=false; 
-    LAMPS.forEach(l=>{ const cnt=state.lamps[l.id]||0; if(cnt<=0) return; any=true; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${l.emoji}</div><div class="card-info"><div class="card-title">${l.name} ×${cnt}</div><div class="card-desc">${l.desc}</div></div><button class="btn btn-small btn-purple" onclick="applyLamp(${selectedPotId},'${l.id}')">Установить</button>`; list.appendChild(c); }); 
-    if(!any) list.innerHTML='<div class="empty">Нет ламп</div>'; 
-    document.getElementById('modal-lamp').classList.add('show'); 
-}
+function openFertModal(id){ selectedPotId=id; const list=document.getElementById('fert-list'); list.innerHTML=''; let any=false; FERTS.forEach(f=>{ const cnt=state.ferts[f.id]||0; if(cnt<=0) return; any=true; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${f.emoji}</div><div class="card-info"><div class="card-title">${f.name} ×${cnt}</div><div class="card-desc">${f.desc}</div></div><button class="btn btn-small btn-warning" onclick="applyFertToPot(${selectedPotId},'${f.id}')">Применить</button>`; list.appendChild(c); }); if(!any) list.innerHTML='<div class="empty">Нет удобрений</div>'; document.getElementById('modal-fert').classList.add('show'); }
+function openLampModal(id){ selectedPotId=id; const list=document.getElementById('lamp-list'); list.innerHTML=''; let any=false; LAMPS.forEach(l=>{ const cnt=state.lamps[l.id]||0; if(cnt<=0) return; any=true; const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div class="card-emoji">${l.emoji}</div><div class="card-info"><div class="card-title">${l.name} ×${cnt}</div><div class="card-desc">${l.desc}</div></div><button class="btn btn-small btn-purple" onclick="applyLamp(${selectedPotId},'${l.id}')">Установить</button>`; list.appendChild(c); }); if(!any) list.innerHTML='<div class="empty">Нет ламп</div>'; document.getElementById('modal-lamp').classList.add('show'); }
 
 function buyLamp(id){ const l=getLamp(id); if(state.money<l.price){ showToast('Мало денег',true); return; } state.money-=l.price; state.lamps[id]=(state.lamps[id]||0)+1; showToast('💡 Куплена: '+l.name); haptic('medium'); save(); render(); }
 function buyFert(id){ const f=getFert(id); if(state.money<f.price){ showToast('Мало денег',true); return; } state.money-=f.price; state.ferts[id]=(state.ferts[id]||0)+1; showToast('🧪 Куплено: '+f.name); save(); render(); }
 function buyEnergy(){ if(state.money<80){ showToast('Мало денег',true); return; } state.money-=80; state.energy=Math.min(state.maxEnergy,state.energy+50); showToast('⚡ +50 энергии'); save(); render(); }
 function buyRoomUpgrade(id){ const u=ROOM_UPGRADES.find(x=>x.id===id); if(state.money<u.price){ showToast('Мало денег',true); return; } if((u.type==='vent'&&state.room.vent)||(u.type==='auto'&&state.room.auto)||(u.type==='heater'&&state.room.heater)){ showToast('Уже куплено'); return; } state.money-=u.price; if(u.type==='vent') state.room.vent=true; if(u.type==='auto') state.room.auto=true; if(u.type==='heater') state.room.heater=true; showToast('🏠 Куплено: '+u.name); haptic('success'); addXp(10); save(); render(); }
 
-function consumeProduct(key,type){ 
-    if((state.inventory[key]||0)<=0) return; 
-    state.inventory[key]--; 
-    if(state.inventory[key]<=0) delete state.inventory[key]; 
-    state.consumedCount=(state.consumedCount||0)+1; 
-    showToast(`💨 Покурил (${state.consumedCount}/3)`); 
-    haptic('medium'); addHeat(2); 
-    if(state.consumedCount>=3){ 
-        state.consumedCount=0; 
-        showToast('🌀 Накурило! 30 секунд!'); 
-        document.querySelectorAll('.pot-emoji, .card-emoji, .btn').forEach(el=>el.classList.add('snoop-high')); 
-        setTimeout(()=>{ document.querySelectorAll('.snoop-high').forEach(el=>el.classList.remove('snoop-high')); showToast('🌀 Эффект прошёл'); },30000); 
-    } 
-    save(); render(); 
-}
+function consumeProduct(key,type){ if((state.inventory[key]||0)<=0) return; state.inventory[key]--; if(state.inventory[key]<=0) delete state.inventory[key]; state.consumedCount=(state.consumedCount||0)+1; showToast(`💨 Покурил (${state.consumedCount}/3)`); haptic('medium'); addHeat(2); if(state.consumedCount>=3){ state.consumedCount=0; showToast('🌀 Накурило! 30 секунд!'); document.querySelectorAll('.pot-emoji, .card-emoji, .btn').forEach(el=>el.classList.add('snoop-high')); setTimeout(()=>{ document.querySelectorAll('.snoop-high').forEach(el=>el.classList.remove('snoop-high')); showToast('🌀 Эффект прошёл'); },30000); } save(); render(); }
 
-function trySpawnSnoop(){ 
-    if(state.snoopActive||Date.now()-state.snoopCooldown<120000||Math.random()>0.12) return; 
-    document.getElementById('snoopPopup').classList.add('show'); 
-    document.getElementById('snoopOverlay').classList.add('active'); 
-    state.snoopActive=true; haptic('warning'); 
-}
-
-function acceptSnoop(){ 
-    document.getElementById('snoopPopup').classList.remove('show'); 
-    document.getElementById('snoopOverlay').classList.remove('active'); 
-    state.money+=50; state.energy=Math.min(state.maxEnergy,state.energy+20); 
-    showToast('🔥 +50$ +20⚡'); haptic('success'); 
-    state.snoopActive=false; state.snoopCooldown=Date.now(); addHeat(10); save(); render(); 
-}
-
-function rejectSnoop(){ 
-    document.getElementById('snoopPopup').classList.remove('show'); 
-    document.getElementById('snoopOverlay').classList.remove('active'); 
-    state.snoopActive=false; state.snoopCooldown=Date.now(); 
-}
+function trySpawnSnoop(){ if(state.snoopActive||Date.now()-state.snoopCooldown<120000||Math.random()>0.12) return; document.getElementById('snoopPopup').classList.add('show'); document.getElementById('snoopOverlay').classList.add('active'); state.snoopActive=true; haptic('warning'); }
+function acceptSnoop(){ document.getElementById('snoopPopup').classList.remove('show'); document.getElementById('snoopOverlay').classList.remove('active'); state.money+=50; state.energy=Math.min(state.maxEnergy,state.energy+20); showToast('🔥 +50$ +20⚡'); haptic('success'); state.snoopActive=false; state.snoopCooldown=Date.now(); addHeat(10); save(); render(); }
+function rejectSnoop(){ document.getElementById('snoopPopup').classList.remove('show'); document.getElementById('snoopOverlay').classList.remove('active'); state.snoopActive=false; state.snoopCooldown=Date.now(); }
 
 function closeModal(id){ document.getElementById(id).classList.remove('show'); }
 
-// ============================================================
-// ТАБЫ
-// ============================================================
-document.querySelectorAll('.tab').forEach(tab=>{
-  tab.addEventListener('click',function(e){ 
-      e.preventDefault(); 
-      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); 
-      this.classList.add('active'); 
-      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); 
-      document.getElementById('section-'+this.dataset.tab).classList.add('active'); 
-      if(this.dataset.tab==='leaderboard') loadLeaderboardFromServer(); 
-      if(this.dataset.tab==='friends'){ renderSocial(); updateBonusTimer(); } 
-      haptic('light'); 
-  });
-});
+document.querySelectorAll('.tab').forEach(tab=>{ tab.addEventListener('click',function(e){ e.preventDefault(); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); this.classList.add('active'); document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById('section-'+this.dataset.tab).classList.add('active'); if(this.dataset.tab==='leaderboard') loadLeaderboardFromServer(); if(this.dataset.tab==='friends'){ renderSocial(); updateBonusTimer(); } haptic('light'); }); });
 
-// ============================================================
-// ЦИКЛЫ
-// ============================================================
-setInterval(()=>{
-  if(state.energy<state.maxEnergy) state.energy=Math.min(state.maxEnergy,state.energy+0.3);
-  tickPots();
-  checkPests();
-  updateMarketPrices();
-  trySpawnSnoop();
-  renderHeader();
-  renderFarm();
-  renderMarket();
-  updateBonusTimer();
-  updateGameTime();
-  updateWeather();
-  save();
-},1500);
-
+setInterval(()=>{ if(state.energy<state.maxEnergy) state.energy=Math.min(state.maxEnergy,state.energy+0.3); tickPots(); checkPests(); updateMarketPrices(); trySpawnSnoop(); renderHeader(); renderFarm(); renderMarket(); updateBonusTimer(); updateGameTime(); save(); },1500);
 setInterval(()=>{ updateHeat(); },5000);
 setInterval(()=>{ updateGameTime(); },1000);
-setInterval(()=>{ updateWeather(); },5000);
 
-// ============================================================
-// ЗАПУСК
-// ============================================================
 load();
 render();
 updateRegisterBanner();
 setTimeout(()=>loadLeaderboardFromServer(),1000);
-
 window.addEventListener('beforeunload',()=>{ save(); });
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) save(); });
 
-console.log('🌿 Weed Grow Simulator v11 FIXED загружена!');
-console.log(`👤 UserID: ${userId}`);
-console.log(`🪴 Горшков: ${state.pots.length}/${getMaxPots()}`);
-console.log(`📊 Зарегистрирован: ${state.registered?'✅ Да':'❌ Нет'}`);
+console.log('🌿 Weed Grow Simulator v12 CANNABIS LEAVES загружена!');
 </script>
 </body>
 </html>
